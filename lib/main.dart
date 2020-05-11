@@ -1,6 +1,8 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
+
+import 'drill_task.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,7 +30,8 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: AudioServiceWidget(
+          child: MyHomePage(title: 'Flutter Demo Home Page')),
     );
   }
 }
@@ -53,24 +56,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _logger = Logger();
-  final _kAudioPath = 'assets/pass_bounce.mp3';
   int _counter = 0;
 
+  _MyHomePageState() {}
+
   void _playASound() async {
-    AudioPlayer player;
-    try {
-      player = AudioPlayer();
-      await player.setAsset(_kAudioPath);
-      await player.play();
-      await player.dispose();
-      throw new Exception('whoa');
-    } catch (e) {
-      _logger.e('Error playing audio', e);
-    } finally {
-      if (player != null) {
-        player.dispose();
-      }
-    }
+    AudioService.play();
   }
 
   void _incrementCounter() {
@@ -83,6 +74,20 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+
+  void _play() {
+    AudioService.start(
+      backgroundTaskEntrypoint: initDrillTask,
+      androidNotificationChannelName: 'Audio Service Demo',
+      notificationColor: Colors.blueAccent.value,
+      // androidNotificationIcon: 'mipmap/ic_launcher',
+    );
+    AudioService.play();
+  }
+
+  void _stop() {
+    AudioService.stop();
   }
 
   @override
@@ -126,6 +131,14 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+              FloatingActionButton(
+                  onPressed: _play,
+                  tooltip: 'Play',
+                  child: Icon(Icons.play_arrow)),
+              FloatingActionButton(
+                  onPressed: _stop, tooltip: 'Stop', child: Icon(Icons.stop))
+            ])
           ],
         ),
       ),
