@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:logger/logger.dart';
 
 void main() {
   runApp(MyApp());
@@ -50,9 +52,29 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final _logger = Logger();
+  final _kAudioPath = 'assets/pass_bounce.mp3';
   int _counter = 0;
 
+  void _playASound() async {
+    AudioPlayer player;
+    try {
+      player = AudioPlayer();
+      await player.setAsset(_kAudioPath);
+      await player.play();
+      await player.dispose();
+      throw new Exception('whoa');
+    } catch (e) {
+      _logger.e('Error playing audio', e);
+    } finally {
+      if (player != null) {
+        player.dispose();
+      }
+    }
+  }
+
   void _incrementCounter() {
+    _playASound();
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below

@@ -17,6 +17,7 @@ Needed features
 
 * Shooting drills for pull and rollover.
 * Background execution that works.
+** Try https://pub.dev/packages/audio_service or https://pub.dev/packages/flutter_playout.
 * Nice UI.
 * Support for Android v23+.
 
