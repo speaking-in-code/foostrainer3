@@ -9,15 +9,24 @@ The goals for the redesign:
 * Support custom drills and timings.
 * Prepare for an eventual iOS port.
 
-## How to Get Started
+## Development Plan
 
-This project is a starting point for a Flutter application.
+### M1: beta release
 
-A few resources to get you started if this is your first Flutter project:
+Needed features
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+* Shooting drills for pull and rollover.
+* Background execution that works.
+* Nice UI.
+* Support for Android v23+.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### M2: public release
+
+* Fix bugs reported in beta.
+* (internals) Crash reporting & analytics.
+* Replace the existing foostrainer app in the Android store.
+
+### M3: custom drills
+
+* Allow creation of new drills.
+* Allow save and restoration of drills across devices.
