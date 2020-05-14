@@ -7,6 +7,11 @@ import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
 import 'package:sprintf/sprintf.dart';
 
+class DrillProgress {
+  static final String kShotCount = "shotCount";
+  static final String kElapsedTime = "elapsedTime";
+}
+
 void initDrillTask() async {
   Logger().i('Calling AndroidServiceBackground.run');
   AudioServiceBackground.run(() => _DrillTask());
@@ -86,6 +91,10 @@ class _DrillTask extends BackgroundAudioTask {
       id: 'https://www.example.com/item',
       album: 'Time: $elapsed, Reps: $_shotCount',
       title: 'Stick Pass',
+      extras: {
+        DrillProgress.kShotCount: _shotCount,
+        DrillProgress.kElapsedTime: elapsed
+      }
     ));
   }
 
