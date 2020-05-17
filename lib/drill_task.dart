@@ -23,11 +23,11 @@ MediaControl _pauseControl = MediaControl(
   action: MediaAction.pause,
 );
 
-MediaControl _playControl = MediaControl(
-  androidIcon: 'drawable/ic_stat_play_arrow',
-  label: 'Play',
-  action: MediaAction.play,
-);
+// MediaControl _playControl = MediaControl(
+//  androidIcon: 'drawable/ic_stat_play_arrow',
+//  label: 'Play',
+//  action: MediaAction.play,
+//);
 
 MediaControl _stopControl = MediaControl(
   androidIcon: 'drawable/ic_stat_stop',

@@ -2,7 +2,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import 'drill.dart';
 import 'drill_task.dart';
+import 'static_drills.dart';
+import 'routing_demo.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,13 +33,15 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AudioServiceWidget(
-          child: MyHomePage(title: 'Flutter Demo Home Page')),
+      home: AudioServiceWidget(child: FirstRoute()),
+      // home: AudioServiceWidget(
+      //    child: MyHomePage(title: 'Flutter Demo Home Page')),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  final log = Logger();
   MyHomePage({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -55,10 +60,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _logger = Logger();
   int _counter = 0;
 
-  _MyHomePageState() {}
+  _MyHomePageState();
 
   void _playASound() async {
     AudioService.play();
@@ -90,6 +94,17 @@ class _MyHomePageState extends State<MyHomePage> {
     AudioService.stop();
   }
 
+  // This breaks. Try switching to named routes to fix it: https://medium.com/flutter-community/clean-navigation-in-flutter-using-generated-routes-891bd6e000df.
+  void _showDrill() {
+    Logger().i('Navigating to drill');
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Drill(
+                  drillData: StaticDrills.pass,
+                )));
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -113,6 +128,10 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            RaisedButton(
+              onPressed: _showDrill,
+              child: Text('Show Drill'),
+            ),
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
               FloatingActionButton(
                   onPressed: _play,
@@ -122,13 +141,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: _stop, tooltip: 'Stop', child: Icon(Icons.stop))
             ]),
             StreamBuilder<MediaItem>(
-              stream: AudioService.currentMediaItemStream,
-              builder: (BuildContext context, AsyncSnapshot<MediaItem> snapshot) {
-                Map<String, dynamic> extras = snapshot.data?.extras ?? Map();
-                int shotCount = extras[DrillProgress.kShotCount] ?? 0;
-                String elapsed = extras[DrillProgress.kElapsedTime] ?? "";
-                return Text('Album: $shotCount reps, $elapsed');
-              }),
+                stream: AudioService.currentMediaItemStream,
+                builder:
+                    (BuildContext context, AsyncSnapshot<MediaItem> snapshot) {
+                  Map<String, dynamic> extras = snapshot.data?.extras ?? Map();
+                  int shotCount = extras[DrillProgress.kShotCount] ?? 0;
+                  String elapsed = extras[DrillProgress.kElapsedTime] ?? "";
+                  return Text('Album: $shotCount reps, $elapsed');
+                }),
           ],
         ),
       ),
