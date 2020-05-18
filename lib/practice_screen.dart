@@ -7,46 +7,47 @@ import 'drill_data.dart';
 
 class PracticeScreen extends StatelessWidget {
   static const routeName = '/practice';
-  final DrillData drillData;
 
-  PracticeScreen({Key key, @required this.drillData}) : super(key: key);
+  PracticeScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final DrillData drill = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-        appBar: AppBar(title: Text('${drillData.name}')),
-        body: _PracticeScreenProgress());
+        appBar: AppBar(title: Text('${drill.name}')),
+        body: _PracticeScreenProgress(drill: drill));
   }
 }
 
 class _PracticeScreenProgress extends StatefulWidget {
-  _PracticeScreenProgress({Key key}) : super(key: key);
+  _PracticeScreenProgress({Key key, @required this.drill}) : super(key: key);
+
+  final DrillData drill;
 
   @override
   _PracticeScreenProgressState createState() => _PracticeScreenProgressState();
 }
 
 class _PracticeScreenProgressState extends State<_PracticeScreenProgress> {
-  final String _action = 'Lane';
-  final int _reps = 10;
-  final String _elapsed = '00:10:23';
-
   @override
   Widget build(BuildContext context) {
+    String action = widget.drill.actions[0].label;
+    int reps = 23;
+    String elapsed = '00:10:23';
     return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      _data(context, '$_action'),
+      _data(context, '$action'),
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [_label(context, 'Reps'), _data(context, '$_reps')],
+          children: [_label(context, 'Reps'), _data(context, '$reps')],
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [_label(context, 'Time'), _data(context, '$_elapsed')],
+          children: [_label(context, 'Time'), _data(context, '$elapsed')],
         ),
       ]),
       RaisedButton(
-          child: Icon(Icons.stop), onPressed: _stopPressed),
+          child: Icon(Icons.pause), onPressed: _pausePressed),
     ]);
   }
 
@@ -58,7 +59,7 @@ class _PracticeScreenProgressState extends State<_PracticeScreenProgress> {
     return Text(value, style: Theme.of(context).textTheme.headline4);
   }
 
-  void _stopPressed() {}
+  void _pausePressed() {}
 
   void _playPressed() {}
 }

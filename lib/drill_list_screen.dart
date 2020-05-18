@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ft3/practice_screen.dart';
 
 import 'drill_data.dart';
 
@@ -14,7 +15,13 @@ class DrillListScreen extends StatelessWidget {
     var children = List<Widget>();
     String type = drills[0]?.type ?? '';
     for (DrillData drill in drills) {
-      children.add(Card(child: ListTile(title: Text(drill.name))));
+      children.add(Card(
+          child: ListTile(
+              title: Text(drill.name),
+              onTap: () {
+                Navigator.pushNamed(context, PracticeScreen.routeName,
+                    arguments: drill);
+              })));
     }
     return Scaffold(
         appBar: AppBar(
