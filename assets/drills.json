@@ -1,0 +1,230 @@
+{
+  "drills": [
+    {
+      "name": "Lane",
+      "type": "Pass",
+      "actions": [
+        {
+          "label": "Lane",
+          "audioAsset": "assets/pass_lane.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Wall",
+      "type": "Pass",
+      "actions": [
+        {
+          "label": "Wall",
+          "audioAsset": "assets/pass_wall.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Lane/Wall",
+      "type": "Pass",
+      "actions": [
+        {
+          "label": "Lane",
+          "audioAsset": "assets/pass_lane.mp3"
+        },
+        {
+          "label": "Wall",
+          "audioAsset": "assets/pass_wall.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Lane/Wall/Bounce",
+      "type": "Pass",
+      "actions": [
+        {
+          "label": "Lane",
+          "audioAsset": "assets/pass_lane.mp3"
+        },
+        {
+          "label": "Wall",
+          "audioAsset": "assets/pass_wall.mp3"
+        },
+        {
+          "label": "Bounce",
+          "audioAsset": "assets/pass_bounce.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Lane/Wall/Bounce/Tic-Tac Wall",
+      "type": "Pass",
+      "actions": [
+        {
+          "label": "Lane",
+          "audioAsset": "assets/pass_lane.mp3"
+        },
+        {
+          "label": "Wall",
+          "audioAsset": "assets/pass_wall.mp3"
+        },
+        {
+          "label": "Bounce",
+          "audioAsset": "assets/pass_bounce.mp3"
+        },
+        {
+          "label": "Tic-Tac Wall",
+          "audioAsset": "assets/pass_tic_tac_wall.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Up",
+      "type": "Rollover",
+      "actions": [
+        {
+          "label": "Up",
+          "audioAsset": "assets/shoot_up.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Down",
+      "type": "Rollover",
+      "actions": [
+        {
+          "label": "Down",
+          "audioAsset": "assets/shoot_down.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Middle",
+      "type": "Rollover",
+      "actions": [
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Up/Down",
+      "type": "Rollover",
+      "actions": [
+        {
+          "label": "Up",
+          "audioAsset": "assets/shoot_up.mp3"
+        },
+        {
+          "label": "Down",
+          "audioAsset": "assets/shoot_down.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Up/Down/Middle",
+      "type": "Rollover",
+      "actions": [
+        {
+          "label": "Up",
+          "audioAsset": "assets/shoot_up.mp3"
+        },
+        {
+          "label": "Down",
+          "audioAsset": "assets/shoot_down.mp3"
+        },
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight",
+      "type": "Pull/Push",
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Middle",
+      "type": "Pull/Push",
+      "actions": [
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Long",
+      "type": "Pull/Push",
+      "actions": [
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight/Long",
+      "type": "Pull/Push",
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        },
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight/Middle",
+      "type": "Pull/Push",
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        },
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Middle/Long",
+      "type": "Pull/Push",
+      "actions": [
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        },
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight/Middle/Long",
+      "type": "Pull/Push",
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        },
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        },
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    }
+  ]
+}

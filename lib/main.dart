@@ -4,8 +4,7 @@ import 'package:logger/logger.dart';
 
 import 'drill.dart';
 import 'drill_task.dart';
-import 'static_drills.dart';
-import 'routing_demo.dart';
+import 'drill_types.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,13 +32,13 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AudioServiceWidget(child: FirstRoute()),
+      home: AudioServiceWidget(child: DrillTypes()),
       // home: AudioServiceWidget(
       //    child: MyHomePage(title: 'Flutter Demo Home Page')),
     );
   }
 }
-
+/*
 class MyHomePage extends StatefulWidget {
   final log = Logger();
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -160,3 +159,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+ */

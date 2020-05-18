@@ -13,10 +13,10 @@ class FirstRoute extends StatelessWidget {
         child: RaisedButton(
           child: Text('Open route'),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Drill(drillData: StaticDrills.pass)),
-            );
+            //Navigator.push(
+            //  context,
+            //  MaterialPageRoute(builder: (context) => Drill(drillData: StaticDrills.pass)),
+            //);
           },
         ),
       ),
