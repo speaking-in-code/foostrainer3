@@ -1,32 +1,31 @@
 /// Widget to display list of drills.
 
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
 import 'drill_data.dart';
 
-class Drill extends StatelessWidget {
+class Practice extends StatelessWidget {
   final DrillData drillData;
 
-  Drill({Key key, @required this.drillData}) : super(key: key);
+  Practice({Key key, @required this.drillData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('${drillData.name}')),
-        body: _DrillProgress());
+        body: _PracticeProgress());
   }
 }
 
-class _DrillProgress extends StatefulWidget {
-  _DrillProgress({Key key}) : super(key: key);
+class _PracticeProgress extends StatefulWidget {
+  _PracticeProgress({Key key}) : super(key: key);
 
   @override
-  _DrillProgressState createState() => _DrillProgressState();
+  _PracticeProgressState createState() => _PracticeProgressState();
 }
 
-class _DrillProgressState extends State<_DrillProgress> {
+class _PracticeProgressState extends State<_PracticeProgress> {
   final String _action = 'Lane';
   final int _reps = 10;
   final String _elapsed = '00:10:23';
