@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:ft3/drill_list_screen.dart';
 import 'package:logger/logger.dart';
 
-import 'practice.dart';
+import 'practice_screen.dart';
 import 'drill_task.dart';
-import 'drill_types.dart';
+import 'drill_types_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,13 +21,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/types',
+      initialRoute: DrillTypesScreen.routeName,
       routes: {
-        '/types': (context) => DrillTypes(),
+        DrillTypesScreen.routeName: (context) => DrillTypesScreen(),
         DrillListScreen.routeName: (context) => DrillListScreen(),
-        '/practice': (context) => Practice(),
+        PracticeScreen.routeName: (context) => PracticeScreen(),
       },
-      home: AudioServiceWidget(child: DrillTypes()),
     );
   }
 }

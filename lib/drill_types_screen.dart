@@ -4,7 +4,9 @@ import 'drill_list_screen.dart';
 import 'static_drills.dart';
 
 // Widget for list of drills types.
-class DrillTypes extends StatelessWidget {
+class DrillTypesScreen extends StatelessWidget {
+  static const routeName = '/drill_types';
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(

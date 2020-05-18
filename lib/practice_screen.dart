@@ -5,27 +5,28 @@ import 'package:meta/meta.dart';
 
 import 'drill_data.dart';
 
-class Practice extends StatelessWidget {
+class PracticeScreen extends StatelessWidget {
+  static const routeName = '/practice';
   final DrillData drillData;
 
-  Practice({Key key, @required this.drillData}) : super(key: key);
+  PracticeScreen({Key key, @required this.drillData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('${drillData.name}')),
-        body: _PracticeProgress());
+        body: _PracticeScreenProgress());
   }
 }
 
-class _PracticeProgress extends StatefulWidget {
-  _PracticeProgress({Key key}) : super(key: key);
+class _PracticeScreenProgress extends StatefulWidget {
+  _PracticeScreenProgress({Key key}) : super(key: key);
 
   @override
-  _PracticeProgressState createState() => _PracticeProgressState();
+  _PracticeScreenProgressState createState() => _PracticeScreenProgressState();
 }
 
-class _PracticeProgressState extends State<_PracticeProgress> {
+class _PracticeScreenProgressState extends State<_PracticeScreenProgress> {
   final String _action = 'Lane';
   final int _reps = 10;
   final String _elapsed = '00:10:23';

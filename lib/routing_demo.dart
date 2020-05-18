@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'practice.dart';
+import 'practice_screen.dart';
 import 'static_drills.dart';
 
 class FirstRoute extends StatelessWidget {
