@@ -20,6 +20,7 @@ class PracticeScreen extends StatelessWidget {
 
   PracticeScreen({Key key}) : super(key: key);
 
+  // Fix control of this screen from the notification bar.
   @override
   Widget build(BuildContext context) {
     return WillPopScope(

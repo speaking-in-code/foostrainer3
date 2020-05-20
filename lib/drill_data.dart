@@ -3,6 +3,8 @@
 ///   flutter pub run build_runner build
 import 'package:json_annotation/json_annotation.dart';
 
+import 'package:logger/logger.dart';
+
 part 'drill_data.g.dart'; // Allows private access to generated code.
 
 // A single action, e.g. "Long", "Middle".
@@ -20,10 +22,12 @@ class ActionData {
 // A set of actions with a name make up a drill.
 @JsonSerializable()
 class DrillData {
-  DrillData({this.name, this.type, actions}) : actions = actions ?? [];
+  DrillData({this.name, this.type, this.maxSeconds, List<ActionData> actions})
+      : actions = (actions ?? []);
 
   String name;
   String type;
+  int maxSeconds;
   List<ActionData> actions;
 
   factory DrillData.fromJson(Map<String, dynamic> json) =>

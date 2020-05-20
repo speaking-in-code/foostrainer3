@@ -3,6 +3,7 @@
     {
       "name": "Lane",
       "type": "Pass",
+      "maxSeconds": 10,
       "actions": [
         {
           "label": "Lane",
@@ -13,6 +14,7 @@
     {
       "name": "Wall",
       "type": "Pass",
+      "maxSeconds": 10,
       "actions": [
         {
           "label": "Wall",
@@ -23,6 +25,7 @@
     {
       "name": "Lane/Wall",
       "type": "Pass",
+      "maxSeconds": 10,
       "actions": [
         {
           "label": "Lane",
@@ -37,6 +40,7 @@
     {
       "name": "Lane/Wall/Bounce",
       "type": "Pass",
+      "maxSeconds": 10,
       "actions": [
         {
           "label": "Lane",
@@ -55,6 +59,7 @@
     {
       "name": "Lane/Wall/Bounce/Tic-Tac Wall",
       "type": "Pass",
+      "maxSeconds": 10,
       "actions": [
         {
           "label": "Lane",
@@ -77,6 +82,7 @@
     {
       "name": "Up",
       "type": "Rollover",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Up",
@@ -87,6 +93,7 @@
     {
       "name": "Down",
       "type": "Rollover",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Down",
@@ -97,6 +104,7 @@
     {
       "name": "Middle",
       "type": "Rollover",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Middle",
@@ -107,6 +115,7 @@
     {
       "name": "Up/Down",
       "type": "Rollover",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Up",
@@ -121,6 +130,7 @@
     {
       "name": "Up/Down/Middle",
       "type": "Rollover",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Up",
@@ -139,6 +149,7 @@
     {
       "name": "Straight",
       "type": "Pull/Push",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Straight",
@@ -149,6 +160,7 @@
     {
       "name": "Middle",
       "type": "Pull/Push",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Middle",
@@ -159,6 +171,7 @@
     {
       "name": "Long",
       "type": "Pull/Push",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Long",
@@ -169,6 +182,7 @@
     {
       "name": "Straight/Long",
       "type": "Pull/Push",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Straight",
@@ -183,6 +197,7 @@
     {
       "name": "Straight/Middle",
       "type": "Pull/Push",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Straight",
@@ -197,6 +212,7 @@
     {
       "name": "Middle/Long",
       "type": "Pull/Push",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Middle",
@@ -211,6 +227,7 @@
     {
       "name": "Straight/Middle/Long",
       "type": "Pull/Push",
+      "maxSeconds": 15,
       "actions": [
         {
           "label": "Straight",

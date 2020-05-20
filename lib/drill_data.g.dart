@@ -23,6 +23,7 @@ DrillData _$DrillDataFromJson(Map<String, dynamic> json) {
   return DrillData(
     name: json['name'] as String,
     type: json['type'] as String,
+    maxSeconds: json['maxSeconds'] as int,
     actions: (json['actions'] as List)
         ?.map((e) =>
             e == null ? null : ActionData.fromJson(e as Map<String, dynamic>))
@@ -33,6 +34,7 @@ DrillData _$DrillDataFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$DrillDataToJson(DrillData instance) => <String, dynamic>{
       'name': instance.name,
       'type': instance.type,
+      'maxSeconds': instance.maxSeconds,
       'actions': instance.actions,
     };
 

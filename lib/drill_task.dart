@@ -43,30 +43,29 @@ class DrillProgress {
 }
 
 void initDrillTask() async {
-  Logger().i('Calling AndroidServiceBackground.run');
+  Logger().i('Calling AudioServiceBackground.run');
   AudioServiceBackground.run(() => _DrillTask());
 }
 
-MediaControl _pauseControl = MediaControl(
+const MediaControl _pauseControl = MediaControl(
   androidIcon: 'drawable/ic_stat_pause',
   label: 'Pause',
   action: MediaAction.pause,
 );
 
-MediaControl _playControl = MediaControl(
+const MediaControl _playControl = MediaControl(
   androidIcon: 'drawable/ic_stat_play_arrow',
   label: 'Play',
   action: MediaAction.play,
 );
 
-MediaControl _stopControl = MediaControl(
+const MediaControl _stopControl = MediaControl(
   androidIcon: 'drawable/ic_stat_stop',
   label: 'Stop',
   action: MediaAction.stop,
 );
 
 class _DrillTask extends BackgroundAudioTask {
-  static final _log = Logger();
   static final _rand = Random.secure();
 
   final _player = AudioPlayer();
@@ -79,10 +78,11 @@ class _DrillTask extends BackgroundAudioTask {
   int _shotCount;
   String _lastElapsed;
   String _currentAction;
+  String _lastAction;
 
   // Pause/Play control
-  Timer _shotTimer;
-  Timer _durationTimer;
+  Timer _actionTimer;
+  Timer _elapsedTimeUpdater;
 
   _DrillTask();
 
@@ -98,53 +98,62 @@ class _DrillTask extends BackgroundAudioTask {
     _shotCount = 0;
     _lastElapsed = null;
     _stopwatch.reset();
-    AudioServiceBackground.setState(
-        controls: [_pauseControl, _stopControl],
-        basicState: BasicPlaybackState.playing);
     onPlay();
   }
 
   @override
-  void onPlay() {
-    _stopwatch.start();
-    // TODO: randomize timer based on action type and tuning.
-    _shotTimer = Timer.periodic(Duration(seconds: 3), _playSomething);
-    _durationTimer =
-        Timer.periodic(Duration(milliseconds: 200), _updateDuration);
-    AudioServiceBackground.setState(
+  void onPlay() async {
+    await AudioServiceBackground.setState(
         controls: [_pauseControl, _stopControl],
         basicState: BasicPlaybackState.playing);
-    _currentAction = 'Waiting';
-    _updateMediaItem();
+    _stopwatch.start();
+    _actionTimer = Timer(Duration(seconds: 0), _waitForSetup);
+    _elapsedTimeUpdater =
+        Timer.periodic(Duration(milliseconds: 200), _updateElapsed);
   }
 
   @override
-  void onPause() {
+  void onPause() async {
     _stopwatch.stop();
-    AudioServiceBackground.setState(
-        controls: [_playControl, _stopControl],
-        basicState: BasicPlaybackState.paused);
-    _shotTimer.cancel();
-    _durationTimer.cancel();
+    _actionTimer.cancel();
+    _elapsedTimeUpdater.cancel();
     _currentAction = 'Paused';
     _updateMediaItem();
+    await AudioServiceBackground.setState(
+        controls: [_playControl, _stopControl],
+        basicState: BasicPlaybackState.paused);
   }
 
   @override
-  void onStop() {
-    _log.i('Canceling timer');
+  void onStop() async {
     _stopwatch.reset();
-    _shotTimer.cancel();
-    _durationTimer.cancel();
+    _actionTimer.cancel();
+    _elapsedTimeUpdater.cancel();
     _player.stop();
     _completer.complete();
     _currentAction = 'Paused';
     _updateMediaItem();
+    await AudioServiceBackground.setState(
+        controls: [_playControl, _stopControl],
+        basicState: BasicPlaybackState.stopped);
     // TODO: figure out what else needs to happen in onStop.
   }
 
-  void _playSomething(Timer timer) async {
-    _log.i('Playing a sound');
+  void _waitForSetup() {
+    _currentAction = 'Setup';
+    _updateMediaItem();
+    _actionTimer = Timer(Duration(seconds: 3), _waitForAction);
+  }
+
+  void _waitForAction() {
+    _currentAction = 'Wait';
+    _updateMediaItem();
+    var waitTime =
+        Duration(milliseconds: _rand.nextInt(_drillData.maxSeconds * 1000));
+    _actionTimer = Timer(waitTime, _playAction);
+  }
+
+  void _playAction() async {
     ++_shotCount;
     int actionIndex = _rand.nextInt(_drillData.actions.length);
     ActionData actionData = _drillData.actions[actionIndex];
@@ -152,27 +161,27 @@ class _DrillTask extends BackgroundAudioTask {
     _updateMediaItem();
     await _player.setAsset(actionData.audioAsset);
     await _player.play();
-    _currentAction = 'Waiting';
-    _updateMediaItem();
+    _actionTimer = Timer(Duration(seconds: 1), _waitForSetup);
   }
 
-  void _updateDuration(Timer timer) async {
+  // Calling this too frequently makes the notifications UI unresponsive, so
+  // throttle to only cases where there is a visible change.
+  void _updateElapsed(Timer timer) async {
+    String elapsed = _formatElapsed(_stopwatch.elapsed);
+    if (elapsed == _lastElapsed) {
+      return;
+    }
     _updateMediaItem();
   }
 
   void _updateMediaItem() async {
     String elapsed = _formatElapsed(_stopwatch.elapsed);
-    // Calling this too frequently makes the notifications UI unresponsive, so
-    // throttle to only cases where there is a visible change.
-    if (elapsed == _lastElapsed) {
-      return;
-    }
-    _log.i('Updating with elapsed time $elapsed');
     _lastElapsed = elapsed;
+    _lastAction = _currentAction;
     _mediaItem.extras[DrillProgress.action] = _currentAction;
     _mediaItem.extras[DrillProgress.shotCount] = _shotCount;
     _mediaItem.extras[DrillProgress.elapsedTime] = elapsed;
-    AudioServiceBackground.setMediaItem(_mediaItem);
+    await AudioServiceBackground.setMediaItem(_mediaItem);
   }
 
   String _formatElapsed(Duration elapsed) {
@@ -181,5 +190,4 @@ class _DrillTask extends BackgroundAudioTask {
     int hours = elapsed.inHours ~/ 60;
     return sprintf('%02d:%02d:%02d', [hours, minutes, seconds]);
   }
-
 }

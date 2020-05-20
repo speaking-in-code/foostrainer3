@@ -12,17 +12,19 @@ class DrillTypesScreen extends StatelessWidget {
     return FutureBuilder(
         future: StaticDrills.load(),
         builder: (context, AsyncSnapshot<StaticDrills> snapshot) {
+          if (!snapshot.hasData) {
+            return Scaffold();
+          }
+          StaticDrills drills = snapshot.requireData;
           var children = List<Widget>();
-          if (snapshot.data != null) {
-            for (String type in snapshot.data.types) {
-              children.add(Card(
-                  child: ListTile(
-                      title: Text(type),
-                      onTap: () {
-                        Navigator.pushNamed(context, DrillListScreen.routeName,
-                            arguments: snapshot.data.getDrills(type));
-                      })));
-            }
+          for (String type in drills.types) {
+            children.add(Card(
+                child: ListTile(
+                    title: Text(type),
+                    onTap: () {
+                      Navigator.pushNamed(context, DrillListScreen.routeName,
+                          arguments: drills.getDrills(type));
+                    })));
           }
           return Scaffold(
               appBar: AppBar(title: Text('Drill Type')),
