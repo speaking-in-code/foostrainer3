@@ -97,6 +97,9 @@ class PracticeBackground {
         id: progress.drill.name,
         album: 'Time: ${progress.elapsed}, Reps: ${progress.shotCount}',
         title: progress.drill.name,
+        displayTitle: progress.drill.name,
+        displaySubtitle: 'Time: ${progress.elapsed}',
+        displayDescription: 'Reps: ${progress.shotCount}',
         extras: {
           _action: progress.action,
           _shotCount: progress.shotCount,
@@ -131,6 +134,11 @@ class PracticeProgress {
       @required this.action,
       @required this.shotCount,
       @required this.elapsed});
+
+  factory PracticeProgress.empty() {
+    return PracticeProgress(drill: null, state: PracticeState.stopped,
+        action: '', shotCount: 0, elapsed: '00:00:00');
+  }
 }
 
 const MediaControl _pauseControl = MediaControl(
@@ -159,7 +167,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   final _completer = Completer();
   final _stopwatch = Stopwatch();
 
-  PracticeProgress _progress;
+  PracticeProgress _progress = PracticeProgress.empty();
   Timer _actionTimer;
   Timer _elapsedTimeUpdater;
 
@@ -208,25 +216,22 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   void onStop() async {
-    _log.i('_BackgroundTask onStop: ${_progress.drill.name}');
+    _log.i('_BackgroundTask onStop: ${_progress?.drill?.name}');
     _progress.state = PracticeState.stopped;
-    _stopwatch.reset();
-    _actionTimer.cancel();
-    _elapsedTimeUpdater.cancel();
-    if (_player.playbackState == AudioPlaybackState.playing) {
+    _stopwatch?.reset();
+    _actionTimer?.cancel();
+    _elapsedTimeUpdater?.cancel();
+    if (_player?.playbackState == AudioPlaybackState.playing) {
       _log.i('Telling audio player to stop.');
       await _player.stop();
     }
-    _progress.action = 'Stopped';
-    _log.i('Sending media update');
-    await _updateMediaItem();
     _log.i('Setting playback state to none');
     await AudioServiceBackground.setState(
         controls: [],
         basicState: BasicPlaybackState.none);
     // This closes the notification.
     _log.i('Completing the AudioBackgroundTask');
-    _completer.complete();
+    _completer?.complete();
   }
 
   void _waitForSetup() {
