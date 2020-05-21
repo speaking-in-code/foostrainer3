@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import 'drill_data.dart';
-import 'drill_task.dart';
+import 'practice_background.dart';
 import 'practice_screen.dart';
 
 // Displays a list of drills.
@@ -32,19 +32,7 @@ class DrillListScreen extends StatelessWidget {
   }
 
   void _startDrill(BuildContext context, DrillData drill) {
-    AudioService.start(
-        backgroundTaskEntrypoint: initDrillTask,
-        androidNotificationChannelName: 'Audio Service Demo',
-        notificationColor: Colors.blueAccent.value
-    ).then((complete) {
-      if (AudioService.running) {
-        final MediaItem mediaItem = DrillProgress.fromDrillData(drill);
-        log.i('Playing media item: ${mediaItem.extras}');
-        AudioService.playMediaItem(mediaItem);
-      } else {
-        throw StateError('Failed to start AudioService.');
-      }
-    });
+    PracticeBackground.startPractice(drill);
     Navigator.pushNamed(context, PracticeScreen.routeName);
   }
 }
