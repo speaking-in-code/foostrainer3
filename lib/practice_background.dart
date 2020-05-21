@@ -137,7 +137,7 @@ class PracticeProgress {
 
   factory PracticeProgress.empty() {
     return PracticeProgress(drill: null, state: PracticeState.stopped,
-        action: '', shotCount: 0, elapsed: '00:00:00');
+        action: 'Loading', shotCount: 0, elapsed: '00:00:00');
   }
 }
 

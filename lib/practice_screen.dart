@@ -28,11 +28,13 @@ class PracticeScreen extends StatelessWidget {
                 });
                 return Scaffold();
               }
-              if (snapshot?.data == null) {
-                // Media stream still being set-up, nothing to render yet.
-                return Scaffold();
+              var progress = snapshot?.data;
+              if (progress == null) {
+                // Stream still being initialized, use the passed in drill to
+                // speed up rendering.
+                progress = PracticeProgress.empty();
+                progress.drill = ModalRoute.of(context).settings.arguments;
               }
-              var progress = snapshot.data;
               return Scaffold(
                   appBar: AppBar(title: Text('${progress.drill.name}')),
                   body: _PracticeScreenProgress(progress: progress));

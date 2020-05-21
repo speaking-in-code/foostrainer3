@@ -33,6 +33,6 @@ class DrillListScreen extends StatelessWidget {
 
   void _startDrill(BuildContext context, DrillData drill) {
     PracticeBackground.startPractice(drill);
-    Navigator.pushNamed(context, PracticeScreen.routeName);
+    Navigator.pushNamed(context, PracticeScreen.routeName, arguments: drill);
   }
 }
