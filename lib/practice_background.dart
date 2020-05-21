@@ -27,6 +27,7 @@ class PracticeBackground {
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
+        androidNotificationIcon: 'drawable/ic_stat_ic_notification',
         notificationColor: Colors.blueAccent.value);
     _log.i('AudioService running: ${AudioService.running}');
     if (AudioService.running) {
