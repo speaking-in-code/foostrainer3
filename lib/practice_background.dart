@@ -26,13 +26,13 @@ class PracticeBackground {
     _log.i('PracticeBackground drill: ${drill.name}');
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
-        androidNotificationChannelName: 'Audio Service Demo',
+        androidNotificationChannelName: 'FoosTrainerNotificationChannel',
         notificationColor: Colors.blueAccent.value);
     _log.i('AudioService running: ${AudioService.running}');
     if (AudioService.running) {
       var progress = PracticeProgress(
           drill: drill,
-          playing: false,
+          state: PracticeState.paused,
           elapsed: '00:00:00',
           action: '',
           shotCount: 0);
@@ -42,10 +42,8 @@ class PracticeBackground {
     }
   }
 
-  static void _startBackgroundTask() {
-    _log.i('_startBackgroundTask invoked');
-    AudioServiceBackground.run(() => _BackgroundTask());
-  }
+  // True if the audio service is running in the background.
+  static get running => AudioService.running;
 
   /// Pause the drill.
   static pause() {
@@ -79,10 +77,15 @@ class PracticeBackground {
     if (drillDataJson == null) {
       throw StateError('MediaItem missing drill: ${mediaItem?.id}');
     }
-    bool playing = playbackState?.basicState == BasicPlaybackState.playing;
+    PracticeState state = PracticeState.stopped;
+    if (playbackState?.basicState == BasicPlaybackState.playing) {
+      state = PracticeState.playing;
+    } else if (playbackState?.basicState == BasicPlaybackState.paused) {
+      state = PracticeState.paused;
+    }
     return PracticeProgress(
         drill: DrillData.fromJson(jsonDecode(extras[_drill])),
-        playing: playing,
+        state: state,
         action: extras[_action],
         shotCount: extras[_shotCount],
         elapsed: extras[_elapsed]);
@@ -103,17 +106,28 @@ class PracticeBackground {
   }
 }
 
+void _startBackgroundTask() {
+  Logger().i('_startBackgroundTask invoked');
+  AudioServiceBackground.run(() => _BackgroundTask());
+}
+
+enum PracticeState {
+  paused,
+  playing,
+  stopped,
+}
+
 /// Current state of practice.
 class PracticeProgress {
   DrillData drill;
-  bool playing;
+  PracticeState state;
   String action;
   int shotCount;
   String elapsed;
 
   PracticeProgress(
       {@required this.drill,
-      @required this.playing,
+      @required this.state,
       @required this.action,
       @required this.shotCount,
       @required this.elapsed});
@@ -160,14 +174,15 @@ class _BackgroundTask extends BackgroundAudioTask {
   @override
   void onPlayMediaItem(MediaItem mediaItem) {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
-    _log.i('_BackgroundTask onPlayMediaItem: ${_progress.drill}');
+    _log.i('_BackgroundTask onPlayMediaItem: ${_progress.drill.name}');
     _stopwatch.reset();
     onPlay();
   }
 
   @override
   void onPlay() async {
-    _log.i('_BackgroundTask onPlay: ${_progress.drill}');
+    _log.i('_BackgroundTask onPlay: ${_progress.drill.name}');
+    _progress.state = PracticeState.playing;
     await AudioServiceBackground.setState(
         controls: [_pauseControl, _stopControl],
         basicState: BasicPlaybackState.playing);
@@ -179,7 +194,8 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   void onPause() async {
-    _log.i('_BackgroundTask onPause: ${_progress.drill}');
+    _log.i('_BackgroundTask onPause: ${_progress.drill.name}');
+    _progress.state = PracticeState.paused;
     _stopwatch.stop();
     _actionTimer.cancel();
     _elapsedTimeUpdater.cancel();
@@ -192,27 +208,40 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   void onStop() async {
-    _log.i('_BackgroundTask onStop: ${_progress.drill}');
+    _log.i('_BackgroundTask onStop: ${_progress.drill.name}');
+    _progress.state = PracticeState.stopped;
     _stopwatch.reset();
     _actionTimer.cancel();
     _elapsedTimeUpdater.cancel();
-    _player.stop();
-    _completer.complete();
-    _progress.action = 'Paused';
-    _updateMediaItem();
+    if (_player.playbackState == AudioPlaybackState.playing) {
+      _log.i('Telling audio player to stop.');
+      await _player.stop();
+    }
+    _progress.action = 'Stopped';
+    _log.i('Sending media update');
+    await _updateMediaItem();
+    _log.i('Setting playback state to none');
     await AudioServiceBackground.setState(
-        controls: [_playControl, _stopControl],
-        basicState: BasicPlaybackState.stopped);
-    // TODO: figure out what else needs to happen in onStop.
+        controls: [],
+        basicState: BasicPlaybackState.none);
+    // This closes the notification.
+    _log.i('Completing the AudioBackgroundTask');
+    _completer.complete();
   }
 
   void _waitForSetup() {
+    if (_progress.state != PracticeState.playing) {
+      return;
+    }
     _progress.action = 'Setup';
     _updateMediaItem();
     _actionTimer = Timer(Duration(seconds: 3), _waitForAction);
   }
 
   void _waitForAction() {
+    if (_progress.state != PracticeState.playing) {
+      return;
+    }
     _progress.action = 'Wait';
     _updateMediaItem();
     var waitTime = Duration(
@@ -221,6 +250,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   void _playAction() async {
+    if (_progress.state != PracticeState.playing) {
+      return;
+    }
     ++_progress.shotCount;
     int actionIndex = _rand.nextInt(_progress.drill.actions.length);
     ActionData actionData = _progress.drill.actions[actionIndex];
@@ -234,6 +266,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   // Calling this too frequently makes the notifications UI unresponsive, so
   // throttle to only cases where there is a visible change.
   void _updateElapsed(Timer timer) async {
+    if (_progress.state != PracticeState.playing) {
+      return;
+    }
     String elapsed = _formatElapsed(_stopwatch.elapsed);
     if (elapsed == _progress.elapsed) {
       return;
@@ -241,7 +276,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _updateMediaItem();
   }
 
-  void _updateMediaItem() async {
+  Future<void> _updateMediaItem() async {
     _progress.elapsed = _formatElapsed(_stopwatch.elapsed);
     await AudioServiceBackground.setMediaItem(
         PracticeBackground.getMediaItemFromProgress(_progress));

@@ -1,18 +1,8 @@
 /// Widget to display list of drills.
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:rxdart/rxdart.dart';
 
-import 'drill_data.dart';
 import 'practice_background.dart';
-
-class _ScreenState {
-  final MediaItem mediaItem;
-  final PlaybackState playbackState;
-
-  _ScreenState(this.mediaItem, this.playbackState);
-}
 
 class PracticeScreen extends StatelessWidget {
   static final log = Logger();
@@ -20,7 +10,6 @@ class PracticeScreen extends StatelessWidget {
 
   PracticeScreen({Key key}) : super(key: key);
 
-  // Fix control of this screen from the notification bar.
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -28,7 +17,19 @@ class PracticeScreen extends StatelessWidget {
         child: StreamBuilder<PracticeProgress>(
             stream: PracticeBackground.progressStream,
             builder: (context, snapshot) {
+              log.i('Re-rendering practice screen, '
+                  'connection: ${snapshot.connectionState}, '
+                  'drill state: ${snapshot.data?.state}, '
+                  'practice running: ${PracticeBackground.running}');
+              if (!PracticeBackground.running) {
+                // Drill was stopped via notification media controls.
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pop(context);
+                });
+                return Scaffold();
+              }
               if (snapshot?.data == null) {
+                // Media stream still being set-up, nothing to render yet.
                 return Scaffold();
               }
               var progress = snapshot.data;
@@ -53,7 +54,7 @@ class _PracticeScreenProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     RaisedButton actionButton;
-    if (progress.playing) {
+    if (progress.state == PracticeState.playing) {
       actionButton = RaisedButton(
           child: Icon(Icons.pause), onPressed: PracticeBackground.pause);
     } else {
