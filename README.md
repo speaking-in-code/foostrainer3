@@ -9,9 +9,29 @@ The goals for the redesign:
 * Support custom drills and timings.
 * Prepare for an eventual iOS port.
 
+## Release Build
+
+This will build and install the app to a locally connected device.
+
+```
+bash tools/prod-build.sh
+```
+
+## Production Release
+
+Edit pubspec.yaml and bump the version key (e.g. 2.0.0+10 => 2.0.0+11).
+
+```
+bash tools/prod-build.sh
+```
+
+Upload the new version to the
+[beta track in the play store](https://play.google.com/apps/publish/?account=8099263646066676021#ManageReleasesPlace:p=net.speakingincode.foostrainer&appid=4972318416623669354).
+
+
 ## Development Plan
 
-### M1: beta release
+### M1: beta release (done)
 
 Needed features
 

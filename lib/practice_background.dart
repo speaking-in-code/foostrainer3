@@ -98,9 +98,9 @@ class PracticeBackground {
         id: progress.drill.name,
         album: 'Time: ${progress.elapsed}, Reps: ${progress.shotCount}',
         title: progress.drill.name,
-        displayTitle: progress.drill.name,
-        displaySubtitle: 'Time: ${progress.elapsed}',
-        displayDescription: 'Reps: ${progress.shotCount}',
+        displayDescription: progress.drill.name,
+        displayTitle: 'Time: ${progress.elapsed}',
+        displaySubtitle: 'Reps: ${progress.shotCount}',
         extras: {
           _action: progress.action,
           _shotCount: progress.shotCount,
