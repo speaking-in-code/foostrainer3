@@ -148,7 +148,7 @@
     },
     {
       "name": "Straight",
-      "type": "Pull/Push",
+      "type": "Pull",
       "maxSeconds": 15,
       "actions": [
         {
@@ -159,7 +159,7 @@
     },
     {
       "name": "Middle",
-      "type": "Pull/Push",
+      "type": "Pull",
       "maxSeconds": 15,
       "actions": [
         {
@@ -170,7 +170,7 @@
     },
     {
       "name": "Long",
-      "type": "Pull/Push",
+      "type": "Pull",
       "maxSeconds": 15,
       "actions": [
         {
@@ -181,7 +181,7 @@
     },
     {
       "name": "Straight/Long",
-      "type": "Pull/Push",
+      "type": "Pull",
       "maxSeconds": 15,
       "actions": [
         {
@@ -196,7 +196,7 @@
     },
     {
       "name": "Straight/Middle",
-      "type": "Pull/Push",
+      "type": "Pull",
       "maxSeconds": 15,
       "actions": [
         {
@@ -211,7 +211,7 @@
     },
     {
       "name": "Middle/Long",
-      "type": "Pull/Push",
+      "type": "Pull",
       "maxSeconds": 15,
       "actions": [
         {
@@ -226,7 +226,104 @@
     },
     {
       "name": "Straight/Middle/Long",
-      "type": "Pull/Push",
+      "type": "Pull",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        },
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        },
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight",
+      "type": "Push",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Middle",
+      "type": "Push",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Long",
+      "type": "Push",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight/Long",
+      "type": "Push",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        },
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight/Middle",
+      "type": "Push",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Straight",
+          "audioAsset": "assets/shoot_straight.mp3"
+        },
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Middle/Long",
+      "type": "Push",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        },
+        {
+          "label": "Long",
+          "audioAsset": "assets/shoot_long.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Straight/Middle/Long",
+      "type": "Push",
       "maxSeconds": 15,
       "actions": [
         {

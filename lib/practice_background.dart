@@ -167,7 +167,8 @@ class _BackgroundTask extends BackgroundAudioTask {
   static const _pauseEvent = 'ft_pause_practice';
   static const _playEvent = 'ft_play_practice';
   static const _elapsedSeconds = 'elapsed_seconds';
-  static const _drill = 'drill';
+  static const _drillType = 'drill_type';
+  static const _drillName = 'drill_name';
 
   static final _analytics = FirebaseAnalytics();
   static final _log = Logger();
@@ -185,7 +186,8 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   void _logEvent(String name) {
     _analytics.logEvent(name: name, parameters: {
-      _drill: _progress?.drill?.name ?? '',
+      _drillType: _progress?.drill?.type ?? '',
+      _drillName: _progress?.drill?.name ?? '',
       _elapsedSeconds: _stopwatch.elapsed.inSeconds,
     });
   }

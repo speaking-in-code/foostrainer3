@@ -50,15 +50,17 @@ int main() {
         .add(_makeShot('Rollover', 'shoot', ['Up', 'Down', 'Middle']));
 
     // Pull/Push shots
-    drills.drills.add(_makeShot('Pull/Push', 'shoot', ['Straight']));
-    drills.drills.add(_makeShot('Pull/Push', 'shoot', ['Middle']));
-    drills.drills.add(_makeShot('Pull/Push', 'shoot', ['Long']));
-    drills.drills.add(_makeShot('Pull/Push', 'shoot', ['Straight', 'Long']));
-    drills.drills
-        .add(_makeShot('Pull/Push', 'shoot', ['Straight', 'Middle']));
-    drills.drills.add(_makeShot('Pull/Push', 'shoot', ['Middle', 'Long']));
-    drills.drills.add(
-        _makeShot('Pull/Push', 'shoot', ['Straight', 'Middle', 'Long']));
+    for (var type in ['Pull', 'Push']) {
+      drills.drills.add(_makeShot(type, 'shoot', ['Straight']));
+      drills.drills.add(_makeShot(type, 'shoot', ['Middle']));
+      drills.drills.add(_makeShot(type, 'shoot', ['Long']));
+      drills.drills.add(_makeShot(type, 'shoot', ['Straight', 'Long']));
+      drills.drills
+          .add(_makeShot(type, 'shoot', ['Straight', 'Middle']));
+      drills.drills.add(_makeShot(type, 'shoot', ['Middle', 'Long']));
+      drills.drills.add(
+          _makeShot(type, 'shoot', ['Straight', 'Middle', 'Long']));
+    }
   } on ArgumentError catch (e) {
     print('Error: ${e.message}');
     return 1;
