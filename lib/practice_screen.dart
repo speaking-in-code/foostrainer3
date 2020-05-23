@@ -1,11 +1,9 @@
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 import 'practice_background.dart';
 
 class PracticeScreen extends StatelessWidget {
-  static final log = Logger();
   static const routeName = '/practice';
 
   PracticeScreen({Key key}) : super(key: key);
@@ -17,10 +15,6 @@ class PracticeScreen extends StatelessWidget {
         child: StreamBuilder<PracticeProgress>(
             stream: PracticeBackground.progressStream,
             builder: (context, snapshot) {
-              log.i('Re-rendering practice screen, '
-                  'connection: ${snapshot.connectionState}, '
-                  'drill state: ${snapshot.data?.state}, '
-                  'practice running: ${PracticeBackground.running}');
               if (!PracticeBackground.running) {
                 // Drill was stopped via notification media controls.
                 WidgetsBinding.instance.addPostFrameCallback((_) {

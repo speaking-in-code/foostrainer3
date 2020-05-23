@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "145342491942",
+    "firebase_url": "https://foostrainer-79412.firebaseio.com",
+    "project_id": "foostrainer-79412",
+    "storage_bucket": "foostrainer-79412.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:145342491942:android:4b1a73b6051b6e72dca5e7",
+        "android_client_info": {
+          "package_name": "net.speakingincode.foostrainer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "145342491942-i3vqr2rubg6cj5ce9v66rqkcdag75ka0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6uAgZtIVVBZwpWijrNJ2_M7Q1hTtVeBs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "145342491942-i3vqr2rubg6cj5ce9v66rqkcdag75ka0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
@@ -15,11 +16,11 @@ import 'drill_data.dart';
 
 /// Methods to manage the practice background task.
 class PracticeBackground {
-  static final Logger _log = Logger();
-  static const String _action = 'action';
-  static const String _shotCount = 'shotCount';
-  static const String _elapsed = 'elapsed';
-  static const String _drill = 'drill';
+  static final _log = Logger();
+  static const _action = 'action';
+  static const _shotCount = 'shotCount';
+  static const _elapsed = 'elapsed';
+  static const _drill = 'drill';
 
   /// Start practicing the provided drill.
   static Future<void> startPractice(DrillData drill) async {
@@ -161,6 +162,14 @@ const MediaControl _stopControl = MediaControl(
 );
 
 class _BackgroundTask extends BackgroundAudioTask {
+  static const _startEvent = 'ft_start_practice';
+  static const _stopEvent = 'ft_stop_practice';
+  static const _pauseEvent = 'ft_pause_practice';
+  static const _playEvent = 'ft_play_practice';
+  static const _elapsedSeconds = 'elapsed_seconds';
+  static const _drill = 'drill';
+
+  static final _analytics = FirebaseAnalytics();
   static final _log = Logger();
   static final _rand = Random.secure();
 
@@ -174,6 +183,13 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   _BackgroundTask();
 
+  void _logEvent(String name) {
+    _analytics.logEvent(name: name, parameters: {
+      _drill: _progress?.drill?.name ?? '',
+      _elapsedSeconds: _stopwatch.elapsed.inSeconds,
+    });
+  }
+
   @override
   Future<void> onStart() {
     _log.i('_BackgroundTask onStart');
@@ -185,11 +201,13 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
     _log.i('_BackgroundTask onPlayMediaItem: ${_progress.drill.name}');
     _stopwatch.reset();
+    _logEvent(_startEvent);
     onPlay();
   }
 
   @override
   void onPlay() async {
+    _logEvent(_playEvent);
     _log.i('_BackgroundTask onPlay: ${_progress.drill.name}');
     _progress.state = PracticeState.playing;
     await AudioServiceBackground.setState(
@@ -203,6 +221,7 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   void onPause() async {
+    _logEvent(_pauseEvent);
     _log.i('_BackgroundTask onPause: ${_progress.drill.name}');
     _progress.state = PracticeState.paused;
     _stopwatch.stop();
@@ -217,6 +236,7 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   void onStop() async {
+    _logEvent(_stopEvent);
     _log.i('_BackgroundTask onStop: ${_progress?.drill?.name}');
     _progress.state = PracticeState.stopped;
     _stopwatch?.reset();
