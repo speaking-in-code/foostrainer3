@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sprintf/sprintf.dart';
 
 import 'drill_data.dart';
+import 'duration_formatter.dart';
 
 /// Methods to manage the practice background task.
 class PracticeBackground {
@@ -35,7 +35,7 @@ class PracticeBackground {
       var progress = PracticeProgress(
           drill: drill,
           state: PracticeState.paused,
-          elapsed: '00:00:00',
+          elapsed: DurationFormatter.zero,
           action: '',
           shotCount: 0);
       AudioService.playMediaItem(getMediaItemFromProgress(progress));
@@ -139,7 +139,7 @@ class PracticeProgress {
 
   factory PracticeProgress.empty() {
     return PracticeProgress(drill: null, state: PracticeState.stopped,
-        action: 'Loading', shotCount: 0, elapsed: '00:00:00');
+        action: 'Loading', shotCount: 0, elapsed: DurationFormatter.zero);
   }
 }
 
@@ -297,7 +297,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.state != PracticeState.playing) {
       return;
     }
-    String elapsed = _formatElapsed(_stopwatch.elapsed);
+    String elapsed = DurationFormatter.format(_stopwatch.elapsed);
     if (elapsed == _progress.elapsed) {
       return;
     }
@@ -305,15 +305,8 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   Future<void> _updateMediaItem() async {
-    _progress.elapsed = _formatElapsed(_stopwatch.elapsed);
+    _progress.elapsed = DurationFormatter.format(_stopwatch.elapsed);
     await AudioServiceBackground.setMediaItem(
         PracticeBackground.getMediaItemFromProgress(_progress));
-  }
-
-  String _formatElapsed(Duration elapsed) {
-    int seconds = elapsed.inSeconds % 60;
-    int minutes = elapsed.inMinutes % 60;
-    int hours = elapsed.inHours ~/ 60;
-    return sprintf('%02d:%02d:%02d', [hours, minutes, seconds]);
   }
 }

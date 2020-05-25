@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'practice_background.dart';
 
 class PracticeScreen extends StatelessWidget {
+  static const repsKey = Key('repsKey');
+  static const elapsedKey = Key('elapsedKey');
   static const routeName = '/practice';
 
   PracticeScreen({Key key}) : super(key: key);
@@ -64,14 +66,14 @@ class _PracticeScreenProgress extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _label(context, 'Reps'),
-            _data(context, '${progress.shotCount}')
+            _data(context, '${progress.shotCount}', PracticeScreen.repsKey)
           ],
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _label(context, 'Time'),
-            _data(context, '${progress.elapsed}')
+            _data(context, '${progress.elapsed}', PracticeScreen.elapsedKey)
           ],
         ),
       ]),
@@ -83,7 +85,7 @@ class _PracticeScreenProgress extends StatelessWidget {
     return Text(value, style: Theme.of(context).textTheme.headline4);
   }
 
-  Text _data(BuildContext context, String value) {
-    return Text(value, style: Theme.of(context).textTheme.headline4);
+  Text _data(BuildContext context, String value, [Key key]) {
+    return Text(value, key: key, style: Theme.of(context).textTheme.headline4);
   }
 }

@@ -3,8 +3,6 @@
 ///   flutter pub run build_runner build
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:logger/logger.dart';
-
 part 'drill_data.g.dart'; // Allows private access to generated code.
 
 // A single action, e.g. "Long", "Middle".

@@ -8,10 +8,10 @@ import 'drill_list_screen.dart';
 import 'drill_types_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MainApp());
 }
 
-class MyApp extends StatelessWidget {
+class MainApp extends StatelessWidget {
   static final _analytics = FirebaseAnalytics();
   static final _observer = FirebaseAnalyticsObserver(analytics: _analytics);
 
