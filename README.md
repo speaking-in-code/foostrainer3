@@ -9,6 +9,38 @@ The goals for the redesign:
 * Support custom drills and timings.
 * Prepare for an eventual iOS port.
 
+## Run Widget Tests
+
+```
+flutter test
+```
+
+## Run On-Device tests
+
+For faster edit/test cycle, follow instructions from here:
+
+https://medium.com/flutter-community/hot-reload-for-flutter-integration-tests-e0478b63bd54
+
+In one window, start the app
+```
+flutter run --observatory-port 8888 --disable-service-auth-codes test_driver/main.dart
+```
+
+In another window, start the tests:
+```
+flutter drive --use-existing-app=http://127.0.0.1:8888/
+```
+
+Press 'R' in the app window to hot restart the app. Press '?' for additional commands.
+
+Note that the well-documented 'flutter drive' command does not work. For reasons I
+don't understand, the app fails to connect to the background audio service and so
+drills don't execute.
+
+```
+flutter drive --target=test_driver/main.dart
+```
+
 ## Release Build
 
 This will build and install the app to a locally connected device.
@@ -37,12 +69,14 @@ Needed features
 
 * Shooting drills for pull and rollover.
 * Background execution that works.
+
 ** Using https://pub.dev/packages/audio_service seems good.
 ** Still need to get 3-way communication between app UI, notification UI, and background task.
+
 * Nice UI.
 * Support for Android v23+.
 
-### M2: public release
+### M2: public release (done)
 
 * Fix bugs reported in beta.
 * (internals) Crash reporting & analytics.
