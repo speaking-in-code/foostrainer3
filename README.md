@@ -65,10 +65,6 @@ Needed features
 
 * Shooting drills for pull and rollover.
 * Background execution that works.
-
-** Using https://pub.dev/packages/audio_service seems good.
-** Still need to get 3-way communication between app UI, notification UI, and background task.
-
 * Nice UI.
 * Support for Android v23+.
 
