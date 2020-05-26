@@ -128,6 +128,36 @@
       ]
     },
     {
+      "name": "Up/Middle",
+      "type": "Rollover",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Up",
+          "audioAsset": "assets/shoot_up.mp3"
+        },
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Down/Middle",
+      "type": "Rollover",
+      "maxSeconds": 15,
+      "actions": [
+        {
+          "label": "Down",
+          "audioAsset": "assets/shoot_down.mp3"
+        },
+        {
+          "label": "Middle",
+          "audioAsset": "assets/shoot_middle.mp3"
+        }
+      ]
+    },
+    {
       "name": "Up/Down/Middle",
       "type": "Rollover",
       "maxSeconds": 15,

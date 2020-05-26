@@ -46,6 +46,8 @@ int main() {
     drills.drills.add(_makeShot('Rollover', 'shoot', ['Down']));
     drills.drills.add(_makeShot('Rollover', 'shoot', ['Middle']));
     drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Down']));
+    drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Middle']));
+    drills.drills.add(_makeShot('Rollover', 'shoot', ['Down', 'Middle']));
     drills.drills
         .add(_makeShot('Rollover', 'shoot', ['Up', 'Down', 'Middle']));
 
