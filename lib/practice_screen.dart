@@ -1,14 +1,26 @@
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import 'practice_background.dart';
 
-class PracticeScreen extends StatelessWidget {
+class PracticeScreen extends StatefulWidget {
   static const repsKey = Key('repsKey');
   static const elapsedKey = Key('elapsedKey');
   static const routeName = '/practice';
 
   PracticeScreen({Key key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _PracticeScreenState();
+  }
+}
+
+class _PracticeScreenState extends State<PracticeScreen> {
+  static final _log = Logger();
+  // True if we're already leaving this widget.
+  bool _popInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +31,12 @@ class PracticeScreen extends StatelessWidget {
             builder: (context, snapshot) {
               if (!PracticeBackground.running) {
                 // Drill was stopped via notification media controls.
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pop(context);
-                });
+                if (!_popInProgress) {
+                  _popInProgress = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.pop(context);
+                  });
+                }
                 return Scaffold();
               }
               var progress = snapshot?.data;
@@ -37,8 +52,10 @@ class PracticeScreen extends StatelessWidget {
             }));
   }
 
-  // Stop the audio service on navigation away from this screen.
+  // Stop the audio service on navigation away from this screen. This is only
+  // invoked by in-app user navigation.
   Future<bool> _onWillPop() async {
+    _popInProgress = true;
     PracticeBackground.stopPractice();
     return true;
   }
