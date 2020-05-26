@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 
+import 'package:ft3/keys.dart';
+
 class IsSimilarDuration extends Matcher {
   Duration _expected;
 
@@ -23,8 +25,10 @@ class IsSimilarDuration extends Matcher {
 
 void main() {
   group('FoosTrainer App', () {
-    final practiceRepsFinder = find.byValueKey('repsKey');
-    final durationFinder = find.byValueKey('elapsedKey');
+    final practiceRepsFinder = find.byValueKey(Keys.repsKey);
+    final durationFinder = find.byValueKey(Keys.elapsedKey);
+    final playFinder = find.byValueKey(Keys.playKey);
+    final pauseFinder = find.byValueKey(Keys.pauseKey);
     const drillWaitTimeout = Duration(seconds: 20);
     const uiPresentTimeout = Duration(milliseconds: 200);
 
@@ -69,6 +73,12 @@ void main() {
           seconds: int.parse(match.group(3)));
     }
 
+    Future<void> navigatePracticeToHome() async {
+      await driver.tap(find.byType('BackButton'));
+      await driver.tap(find.byType('BackButton'));
+      await driver.getText(find.text('Drill Type'));
+    }
+
     test('runs passing drill', () async {
       await driver.getText(find.text('Drill Type'));
       await driver.tap(find.text('Pass'));
@@ -82,9 +92,31 @@ void main() {
       expect(timeToFirst.elapsedMilliseconds, lessThan(15000));
       Duration fromUi = parseDuration(await getDuration());
       expect(fromUi, IsSimilarDuration(timeToFirst.elapsed));
-      await driver.tap(find.byType('BackButton'));
-      await driver.tap(find.byType('BackButton'));
+      await navigatePracticeToHome();
+    });
+
+    test('pause and resume work', () async {
       await driver.getText(find.text('Drill Type'));
+      await driver.tap(find.text('Rollover'));
+      await driver.tap(find.text('Up/Down'));
+      await waitForReps('0');
+      await waitForReps('1');
+
+      // Hit the pause button
+      driver.tap(pauseFinder);
+      await driver.getText(find.text('Paused'));
+      Duration orig = parseDuration(await getDuration());
+      sleep(Duration(seconds: 5));
+      Duration afterSleep = parseDuration(await getDuration());
+      expect(afterSleep, equals(orig));
+      await waitForReps('1');
+
+      // Hit the play button
+      driver.tap(playFinder);
+      sleep(Duration(seconds: 5));
+      var afterPlay = parseDuration(await getDuration());
+      expect(afterPlay.inSeconds, greaterThan(orig.inSeconds));
+      await navigatePracticeToHome();
     });
   });
 }

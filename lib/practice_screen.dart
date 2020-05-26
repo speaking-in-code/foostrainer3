@@ -2,11 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import 'keys.dart';
 import 'practice_background.dart';
 
 class PracticeScreen extends StatefulWidget {
-  static const repsKey = Key('repsKey');
-  static const elapsedKey = Key('elapsedKey');
+  static const repsKey = Key(Keys.repsKey);
+  static const elapsedKey = Key(Keys.elapsedKey);
   static const routeName = '/practice';
 
   PracticeScreen({Key key}) : super(key: key);
@@ -62,6 +63,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
 }
 
 class _PracticeScreenProgress extends StatelessWidget {
+  static const pauseKey = Key(Keys.pauseKey);
+  static const playKey = Key(Keys.playKey);
   final PracticeProgress progress;
 
   _PracticeScreenProgress({Key key, this.progress}) : super(key: key);
@@ -71,10 +74,14 @@ class _PracticeScreenProgress extends StatelessWidget {
     RaisedButton actionButton;
     if (progress.state == PracticeState.playing) {
       actionButton = RaisedButton(
-          child: Icon(Icons.pause), onPressed: PracticeBackground.pause);
+          key: pauseKey,
+          child: Icon(Icons.pause),
+          onPressed: PracticeBackground.pause);
     } else {
       actionButton = RaisedButton(
-          child: Icon(Icons.play_arrow), onPressed: PracticeBackground.play);
+          key: playKey,
+          child: Icon(Icons.play_arrow),
+          onPressed: PracticeBackground.play);
     }
     return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       _data(context, '${progress.action}'),

@@ -33,13 +33,9 @@ flutter drive --use-existing-app=http://127.0.0.1:8888/
 
 Press 'R' in the app window to hot restart the app. Press '?' for additional commands.
 
-Note that the well-documented 'flutter drive' command does not work. For reasons I
-don't understand, the app fails to connect to the background audio service and so
-drills don't execute.
-
-```
-flutter drive --target=test_driver/main.dart
-```
+Note that the well-documented version of the 'flutter drive' command  
+does not work. For reasons I don't understand, the app fails to connect  
+to the background audio service and so drills don't execute.
 
 ## Release Build
 
