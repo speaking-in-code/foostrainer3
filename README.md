@@ -74,7 +74,14 @@ Needed features
 * (internals) Crash reporting & analytics.
 * Replace the existing foostrainer app in the Android store.
 
-### M3: custom drills
+### M3: iOS
+
+* Fix icons.
+* Figure out when/why notification doesn't show.
+* Remove extra UI from the notification.
+* Fix audio stutter when in background.
+
+### M4: custom drills
 
 * Allow creation of new drills.
 * Allow save and restoration of drills across devices.
