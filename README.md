@@ -76,6 +76,9 @@ Needed features
 
 ### M3: iOS
 
+Test out audio_service demo app to see if it has the same problems before
+groveling around in my code trying to make stuff work!
+
 * Fix icons.
 * Figure out when/why notification doesn't show.
 * Remove extra UI from the notification.
