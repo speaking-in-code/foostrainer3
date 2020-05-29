@@ -83,6 +83,8 @@ groveling around in my code trying to make stuff work!
 * Figure out when/why notification doesn't show.
 * Remove extra UI from the notification.
 * Fix audio stutter when in background.
+* Fix bug with notification media control showing 'play' instead of 'pause'
+  at startup. (fixes after toggling play/pause).
 
 ### M4: custom drills
 
