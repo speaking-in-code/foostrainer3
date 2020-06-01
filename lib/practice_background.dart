@@ -79,11 +79,9 @@ class PracticeBackground {
     if (drillDataJson == null) {
       throw StateError('MediaItem missing drill: ${mediaItem?.id}');
     }
-    PracticeState state = PracticeState.stopped;
+    PracticeState state = PracticeState.paused;
     if (playbackState?.basicState == BasicPlaybackState.playing) {
       state = PracticeState.playing;
-    } else if (playbackState?.basicState == BasicPlaybackState.paused) {
-      state = PracticeState.paused;
     }
     return PracticeProgress(
         drill: DrillData.fromJson(jsonDecode(extras[_drill])),
