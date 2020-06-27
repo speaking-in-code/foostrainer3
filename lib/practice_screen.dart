@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import 'dart:ui';
 import 'keys.dart';
 import 'practice_background.dart';
 
@@ -83,33 +84,37 @@ class _PracticeScreenProgress extends StatelessWidget {
           child: Icon(Icons.play_arrow),
           onPressed: PracticeBackground.play);
     }
-    return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      _data(context, '${progress.action}'),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _label(context, 'Reps'),
-            _data(context, '${progress.shotCount}', PracticeScreen.repsKey)
-          ],
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _label(context, 'Time'),
-            _data(context, '${progress.elapsed}', PracticeScreen.elapsedKey)
-          ],
-        ),
-      ]),
-      actionButton
-    ]);
-  }
-
-  Text _label(BuildContext context, String value) {
-    return Text(value, style: Theme.of(context).textTheme.headline4);
-  }
-
-  Text _data(BuildContext context, String value, [Key key]) {
-    return Text(value, key: key, style: Theme.of(context).textTheme.headline4);
+    var tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
+    return DefaultTextStyle(
+      style: Theme.of(context).textTheme.headline3,
+      child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text('${progress.action}'),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Reps'),
+                Text(
+                  '${progress.shotCount}',
+                  key: PracticeScreen.repsKey,
+                  style: tabular),
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Time'),
+                Text(
+                  '${progress.elapsed}',
+                  key: PracticeScreen.elapsedKey,
+                  style: tabular),
+              ],
+            ),
+          ]),
+          actionButton
+        ]
+      )
+    );
   }
 }

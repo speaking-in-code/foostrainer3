@@ -23,7 +23,8 @@ class MainApp extends StatelessWidget {
         child: MaterialApp(
       title: 'FoosTrainer',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
+        // primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       navigatorObservers: <NavigatorObserver>[_observer],
