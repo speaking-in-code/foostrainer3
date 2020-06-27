@@ -86,35 +86,29 @@ class _PracticeScreenProgress extends StatelessWidget {
     }
     var tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
     return DefaultTextStyle(
-      style: Theme.of(context).textTheme.headline3,
-      child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
+        style: Theme.of(context).textTheme.headline3,
+        child:
+            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
           Text('${progress.action}'),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Reps'),
-                Text(
-                  '${progress.shotCount}',
-                  key: PracticeScreen.repsKey,
-                  style: tabular),
+                Text('${progress.shotCount}',
+                    key: PracticeScreen.repsKey, style: tabular),
               ],
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Time'),
-                Text(
-                  '${progress.elapsed}',
-                  key: PracticeScreen.elapsedKey,
-                  style: tabular),
+                Text('${progress.elapsed}',
+                    key: PracticeScreen.elapsedKey, style: tabular),
               ],
             ),
           ]),
           actionButton
-        ]
-      )
-    );
+        ]));
   }
 }

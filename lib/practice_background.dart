@@ -136,8 +136,12 @@ class PracticeProgress {
       @required this.elapsed});
 
   factory PracticeProgress.empty() {
-    return PracticeProgress(drill: null, state: PracticeState.stopped,
-        action: 'Loading', shotCount: 0, elapsed: DurationFormatter.zero);
+    return PracticeProgress(
+        drill: null,
+        state: PracticeState.stopped,
+        action: 'Loading',
+        shotCount: 0,
+        elapsed: DurationFormatter.zero);
   }
 }
 
@@ -248,8 +252,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     _log.i('Setting playback state to none');
     await AudioServiceBackground.setState(
-        controls: [],
-        basicState: BasicPlaybackState.none);
+        controls: [], basicState: BasicPlaybackState.none);
     // This closes the notification.
     _log.i('Completing the AudioBackgroundTask');
     _completer?.complete();

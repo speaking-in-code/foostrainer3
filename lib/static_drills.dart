@@ -13,8 +13,9 @@ class StaticDrills {
 
   static Future<StaticDrills> load() async {
     if (_allDrills == null) {
-      _allDrills = rootBundle.loadString('assets/drills.json').then(
-              (value) => StaticDrills._create(value));
+      _allDrills = rootBundle
+          .loadString('assets/drills.json')
+          .then((value) => StaticDrills._create(value));
     }
     return _allDrills;
   }
