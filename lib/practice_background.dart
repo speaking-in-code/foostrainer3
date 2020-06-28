@@ -29,7 +29,7 @@ class PracticeBackground {
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
         androidNotificationIcon: 'drawable/ic_stat_ic_notification',
-        notificationColor: Colors.blueAccent.value);
+        androidNotificationColor: Colors.blueAccent.value);
     _log.i('AudioService running: ${AudioService.running}');
     if (AudioService.running) {
       var progress = PracticeProgress(
@@ -80,7 +80,7 @@ class PracticeBackground {
       throw StateError('MediaItem missing drill: ${mediaItem?.id}');
     }
     PracticeState state = PracticeState.paused;
-    if (playbackState?.basicState == BasicPlaybackState.playing) {
+    if (playbackState?.playing ?? false) {
       state = PracticeState.playing;
     }
     return PracticeProgress(
@@ -195,7 +195,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onStart() {
+  Future<void> onStart(Map<String, dynamic> params) {
     _log.i('_BackgroundTask onStart');
     return _completer.future;
   }
@@ -216,7 +216,8 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.state = PracticeState.playing;
     await AudioServiceBackground.setState(
         controls: [_pauseControl, _stopControl],
-        basicState: BasicPlaybackState.playing);
+        playing: true,
+        processingState: AudioProcessingState.ready);
     _stopwatch.start();
     _actionTimer = Timer(Duration(seconds: 0), _waitForSetup);
     _elapsedTimeUpdater =
@@ -235,11 +236,12 @@ class _BackgroundTask extends BackgroundAudioTask {
     _updateMediaItem();
     await AudioServiceBackground.setState(
         controls: [_playControl, _stopControl],
-        basicState: BasicPlaybackState.paused);
+        playing: false,
+        processingState: AudioProcessingState.ready);
   }
 
   @override
-  void onStop() async {
+  Future<void> onStop() async {
     _logEvent(_stopEvent);
     _log.i('_BackgroundTask onStop: ${_progress?.drill?.name}');
     _progress.state = PracticeState.stopped;
@@ -252,10 +254,13 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     _log.i('Setting playback state to none');
     await AudioServiceBackground.setState(
-        controls: [], basicState: BasicPlaybackState.none);
+        controls: [],
+        playing: false,
+        processingState: AudioProcessingState.none);
     // This closes the notification.
     _log.i('Completing the AudioBackgroundTask');
     _completer?.complete();
+    await super.onStop();
   }
 
   void _waitForSetup() {
