@@ -39,9 +39,9 @@ packages:
   audio_service:
     dependency: "direct main"
     description:
-      path: "/Users/brian/sb/as_artist"
-      relative: false
-    source: path
+      name: audio_service
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.11.2"
   boolean_selector:
     dependency: transitive
