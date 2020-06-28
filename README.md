@@ -82,6 +82,9 @@ Needed features
 * Fix audio stutter when in background.
 * Fix bug with notification media control showing 'play' instead of 'pause'
   at startup. (fixes after toggling play/pause).
+* Add fastlane for pushing changes.
+  https://fastlane.tools/
+  https://docs.fastlane.tools/getting-started/ios/appstore-deployment/
 
 ### M4: custom drills
 
