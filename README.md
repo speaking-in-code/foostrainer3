@@ -17,6 +17,12 @@ flutter test
 
 ## Run On-Device tests
 
+Start a simulator, or attach a real device. Then run
+
+```
+flutter drive --target=test_driver/main.dart
+```
+
 For faster edit/test cycle, follow instructions from here:
 
 https://medium.com/flutter-community/hot-reload-for-flutter-integration-tests-e0478b63bd54
@@ -57,6 +63,13 @@ Upload the new version to the
 [beta track in the play store](https://play.google.com/apps/publish/?account=8099263646066676021#ManageReleasesPlace:p=net.speakingincode.foostrainer&appid=4972318416623669354).
 
 
+## Update Screenshots after UI Change
+
+```
+pub global activate screenshots
+~/.pub-cache/bin/screenshots
+```
+
 ## Development Plan
 
 ### M1: beta release (done)
@@ -85,8 +98,17 @@ Needed features
 * Add fastlane for pushing changes.
   https://fastlane.tools/
   https://docs.fastlane.tools/getting-started/ios/appstore-deployment/
+* Need to automate screenshots to make releases simpler.
+
+* - Fastlane screenshots don't work with flutter.
+* - Flutter screenshot packages is better, but also fails.
+* - Work around for that failure in https://github.com/flutter/flutter/issues/24703.
+* - set your PATH so that 'flutter' comes from a fork with that fix.
+* - then run 'screenshot'
 
 ### M4: custom drills
 
 * Allow creation of new drills.
 * Allow save and restoration of drills across devices.
+
+

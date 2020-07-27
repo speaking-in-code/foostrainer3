@@ -8,7 +8,7 @@ import 'package:ft3/keys.dart';
 class IsSimilarDuration extends Matcher {
   Duration _expected;
 
-  IsSimilarDuration(Duration this._expected);
+  IsSimilarDuration(this._expected);
 
   @override
   Description describe(Description description) {
@@ -19,7 +19,7 @@ class IsSimilarDuration extends Matcher {
   @override
   bool matches(item, Map matchState) {
     Duration found = item as Duration;
-    return (found.inSeconds - _expected.inSeconds).abs() <= 1;
+    return (found.inSeconds - _expected.inSeconds).abs() <= 3;
   }
 }
 
@@ -30,7 +30,9 @@ void main() {
     final playFinder = find.byValueKey(Keys.playKey);
     final pauseFinder = find.byValueKey(Keys.pauseKey);
     const drillWaitTimeout = Duration(seconds: 20);
-    const uiPresentTimeout = Duration(milliseconds: 200);
+    // 15 second timeout, plus 3 seconds for reset between shots, plus some
+    // extra because emulators are slow sometimes.
+    const maxShotTime = Duration(seconds: 20);
 
     FlutterDriver driver;
 
@@ -80,7 +82,6 @@ void main() {
     }
 
     test('runs passing drill', () async {
-      await driver.getText(find.text('Drill Type'));
       await driver.tap(find.text('Pass'));
       await driver.tap(find.text('Lane/Wall/Bounce'));
       await waitForReps('0');
@@ -89,7 +90,25 @@ void main() {
       await waitForReps('1');
       timeToFirst.stop();
       expect(timeToFirst.elapsedMilliseconds, greaterThan(1000));
-      expect(timeToFirst.elapsedMilliseconds, lessThan(15000));
+      expect(timeToFirst.elapsedMilliseconds,
+          lessThan(maxShotTime.inMilliseconds));
+      Duration fromUi = parseDuration(await getDuration());
+      expect(fromUi, IsSimilarDuration(timeToFirst.elapsed));
+      await navigatePracticeToHome();
+    });
+
+    test('runs rollover drill', () async {
+      await driver.tap(find.text('Rollover'));
+      await driver.tap(find.text('Up/Down/Middle'));
+      sleep(Duration(seconds: 1));
+      await waitForReps('0');
+      var timeToFirst = Stopwatch();
+      timeToFirst.start();
+      await waitForReps('1');
+      timeToFirst.stop();
+      expect(timeToFirst.elapsedMilliseconds, greaterThan(1000));
+      expect(timeToFirst.elapsedMilliseconds,
+          lessThan(maxShotTime.inMilliseconds));
       Duration fromUi = parseDuration(await getDuration());
       expect(fromUi, IsSimilarDuration(timeToFirst.elapsed));
       await navigatePracticeToHome();

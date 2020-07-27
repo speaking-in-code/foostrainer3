@@ -1,0 +1,27 @@
+# A list of screen capture tests
+tests:
+  # App under test is screenshots.dart, test driver is screenshots_test.dart.
+  - test_driver/screenshots.dart
+
+# Interim location of screenshots from tests
+staging: /tmp/screenshots
+
+# A list of locales supported by the app
+locales:
+  - en-US
+
+# A map of devices to emulate
+devices:
+#  ios:
+#    iPhone 6:
+#    iPhone 6s Plus:
+#    iPhone 11 Pro:
+#    iPad Air:
+#    iPad Pro (12.9-inch) (4th generation):
+  android:
+    Nexus_S_API_21:
+#    Nexus_10_API_21:
+
+
+# No frames for screenshots.
+frame: false
