@@ -1,6 +1,3 @@
-
-import 'dart:io';
-
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:screenshots/screenshots.dart' as screenshots;
 import 'package:test/test.dart';
@@ -11,9 +8,6 @@ void main() {
   final passTypes = 'Passing-Types';
   final rolloverTypes = 'Rollover-Types';
   final rolloverDrill = 'Rollover-Drill';
-  // Slight delay because otherwise we hit
-  // https://github.com/flutter/flutter/issues/35521.
-  final renderingDelayTime = Duration(seconds: 1);
 
   group('FoosTrainer App Screenshots', () {
     FlutterDriver driver;
@@ -52,7 +46,6 @@ void main() {
 
       await driver.tap(find.text('Up/Down/Middle'));
       await driver.waitFor(find.text('Wait'));
-      sleep(renderingDelayTime);
       await screenshot(rolloverDrill);
     });
   });

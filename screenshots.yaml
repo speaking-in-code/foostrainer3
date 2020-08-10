@@ -12,15 +12,14 @@ locales:
 
 # A map of devices to emulate
 devices:
-#  ios:
-#    iPhone 6:
-#    iPhone 6s Plus:
-#    iPhone 11 Pro:
-#    iPad Air:
-#    iPad Pro (12.9-inch) (4th generation):
+  ios:
+    iPhone 6:
+    iPad Pro (9.7-inch):
+      orientation: LandscapeRight
   android:
     Nexus_S_API_21:
-#    Nexus_10_API_21:
+    Nexus_10_API_21:
+      orientation: LandscapeRight
 
 
 # No frames for screenshots.

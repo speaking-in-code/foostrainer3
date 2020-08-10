@@ -5,6 +5,8 @@ import 'package:logger/logger.dart';
 import 'dart:ui';
 import 'keys.dart';
 import 'practice_background.dart';
+import 'drill_data.dart';
+import 'screenshot_data.dart';
 
 class PracticeScreen extends StatefulWidget {
   static const repsKey = Key(Keys.repsKey);
@@ -26,12 +28,24 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var stream;
+    if (ScreenshotData.progress == null) {
+      // Normal flow.
+      _log.i('Waiting for screenshot data');
+      stream = PracticeBackground.progressStream;
+    } else {
+      // Override the practice screen for screenshots.
+      _log.i('Using fake screenshot data');
+      stream = Stream.fromIterable([ScreenshotData.progress]);
+    }
     return WillPopScope(
         onWillPop: _onWillPop,
         child: StreamBuilder<PracticeProgress>(
-            stream: PracticeBackground.progressStream,
+            stream: stream,
+            initialData: ScreenshotData.progress,
             builder: (context, snapshot) {
-              if (!PracticeBackground.running) {
+              _log.i('Rendering with ${snapshot?.data}');
+              if (!PracticeBackground.running && ScreenshotData.progress == null) {
                 // Drill was stopped via notification media controls.
                 if (!_popInProgress) {
                   _popInProgress = true;
