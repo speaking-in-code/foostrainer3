@@ -104,7 +104,7 @@ Needed features
 * - Flutter screenshot packages is better, but also fails.
 * - Work around for that failure in https://github.com/flutter/flutter/issues/24703.
 * - set your PATH so that 'flutter' comes from a fork with that fix.
-* - then run 'screenshot'
+* - then run `~/.pub-cache/bin/screenshots`
 
 ### M4: custom drills
 

@@ -1,0 +1,8 @@
+app_identifier("net.speakingincode.foostrainer") # The bundle identifier of your app
+apple_id("brian@speakingincode.net") # Your Apple email address
+
+itc_team_id("121758031") # App Store Connect Team ID
+team_id("736QLYB6B6") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
