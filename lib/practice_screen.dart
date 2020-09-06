@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'dart:ui';
 import 'keys.dart';
-import 'log.dart';
 import 'practice_background.dart';
 import 'screenshot_data.dart';
-
-final _log = Log.get('PracticeScreen');
 
 class PracticeScreen extends StatefulWidget {
   static const repsKey = Key(Keys.repsKey);

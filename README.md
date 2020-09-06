@@ -34,7 +34,7 @@ flutter run --observatory-port 8888 --disable-service-auth-codes test_driver/mai
 
 In another window, start the tests:
 ```
-flutter drive --use-existing-app=http://127.0.0.1:8888/
+flutter drive --use-existing-app=http://127.0.0.1:8888/ --driver test_driver/main_test.dart
 ```
 
 Press 'R' in the app window to hot restart the app. Press '?' for additional commands.

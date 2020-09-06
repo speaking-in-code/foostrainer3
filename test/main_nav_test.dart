@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'package:ft3/main.dart';
 import 'package:ft3/practice_screen.dart';
-import 'package:ft3/log.dart';
 
 void main() {
   Future<void> _render(WidgetTester tester) async {
