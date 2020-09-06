@@ -39,20 +39,39 @@ platform :ios do
       submit_for_review: false,
       skip_binary_upload: true,
       force: false, # Set to true to skip manual verification of preview.
+      overwrite_screenshots: true,
       automatic_release: true,
       copyright: "Copyright #{year} The FoosTrainer Authors. All rights reserved.",
       primary_category: 'SPORTS',
       secondary_category: 'HEALTH_AND_FITNESS',
       price_tier: 0, # Free
+      app_rating_config_path: 'fastlane/rating_config.json',
+      app_review_information: {
+        first_name: 'Brian',
+        last_name: 'Eaton',
+        email_address: 'brian@speakingincode.net',
+        demo_user: '',
+        demo_password: '',
+        notes: 'App should be usable even with no user.',
+      },
       submission_information: {
         add_id_info_limits_tracking: true,
         add_id_info_serves_ads: false,
         add_id_info_tracks_action: true,
         add_id_info_tracks_install: true,
-        add_id_info_uses_idfa: true,
+        add_id_info_uses_idfa: false,
         content_rights_has_rights: true,
         content_rights_contains_third_party_content: false,
-        export_compliance_uses_encryption: false
+        export_compliance_uses_encryption: false,
+        export_compliance_platform: 'ios',
+        export_compliance_compliance_required: false,
+        export_compliance_encryption_updated: false,
+        export_compliance_app_type: nil,
+        export_compliance_uses_encryption: false,
+        export_compliance_is_exempt: false,
+        export_compliance_contains_third_party_cryptography: false,
+        export_compliance_contains_proprietary_cryptography: false,
+        export_compliance_available_on_french_store: true,
       }
     )
   end
