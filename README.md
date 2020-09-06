@@ -51,23 +51,36 @@ This will build and install the app to a locally connected device.
 bash tools/prod-build.sh
 ```
 
-## Production Release
-
-Edit pubspec.yaml and bump the version key (e.g. 2.0.0+10 => 2.0.0+11).
-
-```
-bash tools/prod-build.sh
-```
-
-Upload the new version to the
-[beta track in the play store](https://play.google.com/apps/publish/?account=8099263646066676021#ManageReleasesPlace:p=net.speakingincode.foostrainer&appid=4972318416623669354).
-
-
 ## Update Screenshots after UI Change
 
 ```
 pub global activate screenshots
 ~/.pub-cache/bin/screenshots
+```
+
+
+## Production Release
+
+Do Android first, then iOS. (Android does the version increment.)
+
+### Android
+
+```
+cd android
+bundle exec fastlane beta
+```
+
+Check the progress in the [beta track in the play store](https://play.google.com/apps/publish/?account=8099263646066676021#ManageReleasesPlace:p=net.speakingincode.foostrainer&appid=4972318416623669354).
+
+```
+bundle exec fastlane prod
+```
+
+### iOS
+
+```
+cd ios
+bundle exec fastlane release
 ```
 
 ## Development Plan
