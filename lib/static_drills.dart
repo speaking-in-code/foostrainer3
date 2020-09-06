@@ -1,14 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:logger/logger.dart';
 
 import 'drill_data.dart';
 
 /// Holds information about static drills in our app.
 /// Usage: StaticDrills drills = await StaticDrills.load();
 class StaticDrills {
-  static final Logger _log = Logger();
   static Future<StaticDrills> _allDrills;
 
   static Future<StaticDrills> load() async {

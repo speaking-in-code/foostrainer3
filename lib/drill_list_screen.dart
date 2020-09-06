@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 import 'drill_data.dart';
+import 'log.dart';
 import 'practice_background.dart';
 import 'practice_screen.dart';
 import 'screenshot_data.dart';
 
 // Displays a list of drills.
 class DrillListScreen extends StatelessWidget {
-  static final log = Logger();
+  static final _log = Log.get('DrillListScreen');
   static const routeName = '/drillList';
 
   @override
@@ -32,13 +32,12 @@ class DrillListScreen extends StatelessWidget {
   }
 
   void _startDrill(BuildContext context, DrillData drill) {
+    // Workaround for https://github.com/flutter/flutter/issues/35521, since
+    // triggering native UI tends to trigger that bug.
+    _log.info('Starting drill ${drill.name}');
     if (ScreenshotData.progress == null) {
       // Normal flow.
       PracticeBackground.startPractice(drill);
-    } else {
-      // Workaround for https://github.com/flutter/flutter/issues/35521, since
-      // triggering native UI tends to trigger that bug.
-      log.i('Skipping background task for screenshots.');
     }
     Navigator.pushNamed(context, PracticeScreen.routeName, arguments: drill);
   }

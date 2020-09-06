@@ -5,18 +5,13 @@ import 'package:flutter/material.dart';
 
 import 'package:ft3/main.dart';
 import 'package:ft3/practice_screen.dart';
+import 'package:ft3/log.dart';
 
 void main() {
-  Future<Widget> _render(WidgetTester tester) async {
+  Future<void> _render(WidgetTester tester) async {
     MainApp mainApp = MainApp();
     await tester.pumpWidget(mainApp);
     await tester.pump();
-  }
-
-  _dumpWidgets(WidgetTester tester) {
-    for (Widget widget in tester.allWidgets) {
-      print('Widget: $widget');
-    }
   }
 
   testWidgets('Renders drill types', (WidgetTester tester) async {

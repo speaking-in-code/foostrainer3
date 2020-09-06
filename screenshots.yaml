@@ -12,7 +12,7 @@ locales:
 
 # A map of devices to emulate
 devices:
-  #ios:
+  ios:
     iPhone 6:
     iPad Pro (9.7-inch):
   android:
