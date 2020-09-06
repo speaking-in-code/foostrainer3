@@ -40,13 +40,24 @@ platform :ios do
     upload_to_app_store(
       app_version: FlutterUtils.version_name,
       build_number: FlutterUtils.version.to_s,
-      submit_for_review: true,
+      submit_for_review: false,
       skip_binary_upload: true,
       force: true, # Skip HTML report verification.
       #overwrite_screenshots: true,
       automatic_release: true,
-      copyright: "Copyright #{year} The Foostrainer Authors. All rights reserved",
+      copyright: "Copyright #{year} The Foostrainer Authors. All rights reserved.",
+      primary_category: 'SPORTS',
+      secondary_category: 'HEALTH_AND_FITNESS',
+      price_tier: 0, # Free
+      privacy_url: 'http://bayfoos.com/foostrainer/privacy.html',
       submission_information: {
+        add_id_info_limits_tracking: true,
+        add_id_info_serves_ads: false,
+        add_id_info_tracks_action: true,
+        add_id_info_tracks_install: true,
+        add_id_info_uses_idfa: true,
+        content_rights_has_rights: true,
+        content_rights_contains_third_party_content: false,
         export_compliance_uses_encryption: false
       }
     )

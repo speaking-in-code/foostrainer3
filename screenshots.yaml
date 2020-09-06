@@ -12,9 +12,12 @@ locales:
 
 # A map of devices to emulate
 devices:
+  # iOS required screenshots list: https://help.apple.com/app-store-connect/#/devd274dd925
   ios:
-    iPhone 6 Plus:
+    iPhone 6s Plus: # 5.5 inch
+    iPhone Xs Max: # 6.5 inch
     iPad Pro (12.9-inch) (2nd generation):
+    iPad Pro (12.9-inch) (3rd generation):
   android:
     Nexus 5X:
     Nexus 9:
