@@ -89,22 +89,13 @@ Needed features
 
 ### M3: iOS
 
-* Fix icons.
-* Figure out when/why notification doesn't show.
-* Remove extra UI from the notification.
-* Fix audio stutter when in background.
-* Fix bug with notification media control showing 'play' instead of 'pause'
-  at startup. (fixes after toggling play/pause).
+* Fix icons (done).
+* Figure out when/why notification doesn't show (done).
+* Remove extra UI from the notification (done).
+* Automate screenshots to make releases simpler (done).
 * Add fastlane for pushing changes.
   https://fastlane.tools/
   https://docs.fastlane.tools/getting-started/ios/appstore-deployment/
-* Need to automate screenshots to make releases simpler.
-
-* - Fastlane screenshots don't work with flutter.
-* - Flutter screenshot packages is better, but also fails.
-* - Work around for that failure in https://github.com/flutter/flutter/issues/24703.
-* - set your PATH so that 'flutter' comes from a fork with that fix.
-* - then run `~/.pub-cache/bin/screenshots`
 
 ### M4: custom drills
 
