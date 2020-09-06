@@ -95,11 +95,9 @@ class PracticeBackground {
   static MediaItem getMediaItemFromProgress(PracticeProgress progress) {
     return MediaItem(
         id: progress.drill.name,
-        album: 'Time: ${progress.elapsed}, Reps: ${progress.shotCount}',
-        title: progress.drill.name,
-        displayDescription: progress.drill.name,
-        displayTitle: 'Time: ${progress.elapsed}',
-        displaySubtitle: 'Reps: ${progress.shotCount}',
+        title: 'Time: ${progress.elapsed}, Reps: ${progress.shotCount}',
+        album: progress.drill.name,
+        artist: 'FoosTrainer',
         extras: {
           _action: progress.action,
           _shotCount: progress.shotCount,
