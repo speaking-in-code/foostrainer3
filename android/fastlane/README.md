@@ -21,6 +21,11 @@ or alternatively using `brew install fastlane`
 fastlane android test
 ```
 Runs all the tests
+### android version
+```
+fastlane android version
+```
+Increment build version
 ### android beta
 ```
 fastlane android beta

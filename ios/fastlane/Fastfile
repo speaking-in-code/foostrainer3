@@ -13,12 +13,42 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+
+require '../../flutter_utils'
+
 default_platform(:ios)
 
+# Good reference: https://github.com/artsy/eigen/blob/faa02e2746194d8d7c11899474de9c517435eca4/fastlane/Fastfile#L131-L149
+
 platform :ios do
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    # Let the flutter build system do it's thing.
+    system('flutter', 'build', 'ios', exception: true)
+    # Now let the fastlane build system catch up.
+    build_app(clean: true)
+    upload_to_testflight
+  end
+
   desc "Push a new release build to the App Store"
-  lane :release do
-    build_app(workspace: "Runner.xcworkspace", scheme: "Runner")
-    upload_to_app_store
+  lane :prod do
+    # Let the flutter build system do it's thing.
+    #system('flutter', 'build', 'ios', exception: true)
+    # Now let the fastlane build system catch up.
+    #build_app(clean: true)
+    year = Time.new.year
+    upload_to_app_store(
+      app_version: FlutterUtils.version_name,
+      build_number: FlutterUtils.version.to_s,
+      submit_for_review: true,
+      skip_binary_upload: true,
+      force: true, # Skip HTML report verification.
+      #overwrite_screenshots: true,
+      automatic_release: true,
+      copyright: "Copyright #{year} The Foostrainer Authors. All rights reserved",
+      submission_information: {
+        export_compliance_uses_encryption: false
+      }
+    )
   end
 end

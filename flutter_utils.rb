@@ -19,10 +19,18 @@ module FlutterUtils
     return sections
   end
 
+  # Returns build number e.g. 12
   def self.version
     pubspec = _load_pubspec()
     sections = _parse_version(pubspec)
     return sections[1].to_i
+  end
+
+  # Returns string version, e.g. 2.0.3
+  def self.version_name
+    pubspec = _load_pubspec()
+    sections = _parse_version(pubspec)
+    return sections[0]
   end
 
   def self.bump_version

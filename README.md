@@ -63,7 +63,16 @@ pub global activate screenshots
 
 Do Android first, then iOS. (Android does the version increment.)
 
+### Bump version.
+
+```
+cd android
+bundle exec fastlane version
+```
+
 ### Android
+
+Push a new beta release:
 
 ```
 cd android
@@ -72,7 +81,10 @@ bundle exec fastlane beta
 
 Check the progress in the [beta track in the play store](https://play.google.com/apps/publish/?account=8099263646066676021#ManageReleasesPlace:p=net.speakingincode.foostrainer&appid=4972318416623669354).
 
+When you're ready to push to production:
+
 ```
+cd android
 bundle exec fastlane prod
 ```
 
@@ -109,6 +121,24 @@ Needed features
 * Add fastlane for pushing changes.
   https://fastlane.tools/
   https://docs.fastlane.tools/getting-started/ios/appstore-deployment/
+
+Current long list of errors for appstore:
+
+The request cannot be fulfilled because of the state of another resource. - Submit for review errors found.
+
+The provided entity is missing a required attribute - You must provide a value for the attribute 'violenceCartoonOrFantasy' with this request
+
+App screenshot missing (APP_IPAD_PRO_3GEN_129). - A screenshot with type ipadPro129 is required but was not provided
+
+App screenshot missing (APP_IPHONE_65). - A screenshot with type iphone65 is required but was not provided
+
+The provided entity is missing a required relationship - You must provide a value for the relationship 'primaryCategory' with this request
+
+The provided entity is missing a required attribute - You must provide a value for the attribute 'contentRightsDeclaration' with this request
+
+The specified resource does not exist - There is no resource of type 'appPrices' with id ''
+
+The provided entity is missing a required attribute - You must provide a value for the attribute 'privacyPolicyUrl' with this request
 
 ### M4: custom drills
 
