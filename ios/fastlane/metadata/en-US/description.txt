@@ -1,3 +1,5 @@
-FoosTrainer helps you take your foosball game to the next level. Work on passing and shooting drills.
+FoosTrainer helps you take your foosball game to the next level. Learn to
+pass and shoot random holes, at random times. Make your game unpredictable.
 
-Includes: pull, push, and snake shots, as well as multiple passing drills.
+Included drills: pull shots, snake shots, push shots, brush passing,
+and stick passing.

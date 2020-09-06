@@ -23,7 +23,7 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
-    # Let the flutter build system do it's thing.
+    # Let the flutter build system do it's thing. If this fails, run it manually.
     system('flutter', 'build', 'ios', exception: true)
     # Now let the fastlane build system catch up.
     build_app(clean: true)
@@ -32,24 +32,18 @@ platform :ios do
 
   desc "Push a new release build to the App Store"
   lane :prod do
-    # Let the flutter build system do it's thing.
-    #system('flutter', 'build', 'ios', exception: true)
-    # Now let the fastlane build system catch up.
-    #build_app(clean: true)
     year = Time.new.year
     upload_to_app_store(
       app_version: FlutterUtils.version_name,
       build_number: FlutterUtils.version.to_s,
       submit_for_review: false,
       skip_binary_upload: true,
-      force: true, # Skip HTML report verification.
-      #overwrite_screenshots: true,
+      force: false, # Set to true to skip manual verification of preview.
       automatic_release: true,
-      copyright: "Copyright #{year} The Foostrainer Authors. All rights reserved.",
+      copyright: "Copyright #{year} The FoosTrainer Authors. All rights reserved.",
       primary_category: 'SPORTS',
       secondary_category: 'HEALTH_AND_FITNESS',
       price_tier: 0, # Free
-      privacy_url: 'http://bayfoos.com/foostrainer/privacy.html',
       submission_information: {
         add_id_info_limits_tracking: true,
         add_id_info_serves_ads: false,
