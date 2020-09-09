@@ -178,7 +178,6 @@ class _BackgroundTask extends BackgroundAudioTask {
   final _stopwatch = Stopwatch();
 
   PracticeProgress _progress = PracticeProgress.empty();
-  Timer _actionTimer;
   Timer _elapsedTimeUpdater;
 
   _BackgroundTask();
@@ -213,7 +212,7 @@ class _BackgroundTask extends BackgroundAudioTask {
         playing: true,
         processingState: AudioProcessingState.ready);
     _stopwatch.start();
-    _actionTimer = Timer(Duration(seconds: 0), _waitForSetup);
+    Timer.run(_waitForSetup);
     _elapsedTimeUpdater =
         Timer.periodic(Duration(milliseconds: 200), _updateElapsed);
   }
@@ -223,7 +222,6 @@ class _BackgroundTask extends BackgroundAudioTask {
     _logEvent(_pauseEvent);
     _progress.state = PracticeState.paused;
     _stopwatch.stop();
-    _actionTimer.cancel();
     _elapsedTimeUpdater.cancel();
     _progress.action = 'Paused';
     _updateMediaItem();
@@ -238,7 +236,6 @@ class _BackgroundTask extends BackgroundAudioTask {
     _logEvent(_stopEvent);
     _progress.state = PracticeState.stopped;
     _stopwatch?.reset();
-    _actionTimer?.cancel();
     _elapsedTimeUpdater?.cancel();
     if (_player?.playbackState == AudioPlaybackState.playing) {
       await _player.stop();
@@ -258,7 +255,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     _progress.action = 'Setup';
     _updateMediaItem();
-    _actionTimer = Timer(Duration(seconds: 3), _waitForAction);
+    _pause(Duration(seconds: 3)).whenComplete(_waitForAction);
   }
 
   void _waitForAction() {
@@ -269,7 +266,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _updateMediaItem();
     var waitTime = Duration(
         milliseconds: _rand.nextInt(_progress.drill.maxSeconds * 1000));
-    _actionTimer = Timer(waitTime, _playAction);
+    _pause(waitTime).whenComplete(_playAction);
   }
 
   void _playAction() async {
@@ -283,7 +280,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _updateMediaItem();
     await _player.setAsset(actionData.audioAsset);
     await _player.play();
-    _actionTimer = Timer(Duration(seconds: 1), _waitForSetup);
+    _pause(Duration(seconds: 1)).whenComplete(_waitForSetup);
   }
 
   // Calling this too frequently makes the notifications UI unresponsive, so
@@ -303,5 +300,25 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.elapsed = DurationFormatter.format(_stopwatch.elapsed);
     await AudioServiceBackground.setMediaItem(
         PracticeBackground.getMediaItemFromProgress(_progress));
+  }
+
+
+  // Dart async methods are not entirely reliable in this isolate, see
+  // https://github.com/ryanheise/audio_service/issues/458. Anything that relies
+  // on scheduling future work is problematic.
+  //
+  // The work around: play a clip of silence for the desired duration. If you
+  // imagine that we're playing the Final Jeopardy Theme, this seems cool. If
+  // you realize that we're playing *nothing*, it's more of a hack.
+  Future<void> _pause(Duration length) async {
+    const Duration start = Duration(seconds: 0);
+    final Duration loaded = await _player.setAsset('assets/silence_30s.mp3');
+    if (loaded.inMilliseconds < length.inMilliseconds) {
+      throw Exception('Requested duration $length, max $loaded');
+    }
+    _log.info('Pausing for $length, starting ${DateTime.now()}');
+    await _player.setClip(start: start, end: length);
+    await _player.play();
+    _log.info('Pause completed ${DateTime.now()}');
   }
 }

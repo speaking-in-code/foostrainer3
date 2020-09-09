@@ -140,6 +140,12 @@ The specified resource does not exist - There is no resource of type 'appPrices'
 
 The provided entity is missing a required attribute - You must provide a value for the attribute 'privacyPolicyUrl' with this request
 
+Does not run reliably on iOS on real device
+
+- flutter isolates API calls FlutterIsolatePlugin.m InitWithName
+- this does something iOS specific to create the engine
+- need to see what happens with background processing in that iOS apiZZ
+
 ### M4: custom drills
 
 * Allow creation of new drills.
