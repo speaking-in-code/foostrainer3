@@ -36,7 +36,7 @@ platform :ios do
     upload_to_app_store(
       app_version: FlutterUtils.version_name,
       build_number: FlutterUtils.version.to_s,
-      submit_for_review: false,
+      submit_for_review: true,
       skip_binary_upload: true,
       force: false, # Set to true to skip manual verification of preview.
       overwrite_screenshots: true,
@@ -67,7 +67,6 @@ platform :ios do
         export_compliance_compliance_required: false,
         export_compliance_encryption_updated: false,
         export_compliance_app_type: nil,
-        export_compliance_uses_encryption: false,
         export_compliance_is_exempt: false,
         export_compliance_contains_third_party_cryptography: false,
         export_compliance_contains_proprietary_cryptography: false,

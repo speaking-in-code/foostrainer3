@@ -146,6 +146,8 @@ Does not run reliably on iOS on real device
 - this does something iOS specific to create the engine
 - need to see what happens with background processing in that iOS apiZZ
 
+ideviceinstaller -i FoosTrainer.ipa
+
 ### M4: custom drills
 
 * Allow creation of new drills.
