@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -26,6 +27,7 @@ class PracticeBackground {
   /// Start practicing the provided drill.
   static Future<void> startPractice(DrillData drill) async {
     _log.info('Starting drill ${drill.name}');
+    _log.info('Calling _startBackgroundTask: ${StackTrace.current}');
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
@@ -174,7 +176,6 @@ class _BackgroundTask extends BackgroundAudioTask {
   static final _rand = Random.secure();
 
   final _player = AudioPlayer();
-  final _completer = Completer();
   final _stopwatch = Stopwatch();
 
   PracticeProgress _progress = PracticeProgress.empty();
@@ -191,20 +192,21 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onStart(Map<String, dynamic> params) {
-    return _completer.future;
+  Future<void> onStart(Map<String, dynamic> params) async {
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration.speech());
   }
 
   @override
-  void onPlayMediaItem(MediaItem mediaItem) {
+  Future<void> onPlayMediaItem(MediaItem mediaItem) {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
     _stopwatch.reset();
     _logEvent(_startEvent);
-    onPlay();
+    return onPlay();
   }
 
   @override
-  void onPlay() async {
+  Future<void> onPlay() async {
     _logEvent(_playEvent);
     _progress.state = PracticeState.playing;
     await AudioServiceBackground.setState(
@@ -218,7 +220,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   @override
-  void onPause() async {
+  Future<void> onPause() async {
     _logEvent(_pauseEvent);
     _progress.state = PracticeState.paused;
     _stopwatch.stop();
@@ -237,19 +239,16 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.state = PracticeState.stopped;
     _stopwatch?.reset();
     _elapsedTimeUpdater?.cancel();
-    if (_player?.playbackState == AudioPlaybackState.playing) {
-      await _player.stop();
-    }
+    await _player.stop();
+    await _player.dispose();
     await AudioServiceBackground.setState(
         controls: [],
         playing: false,
         processingState: AudioProcessingState.none);
-    // This closes the notification.
-    _completer?.complete();
     await super.onStop();
   }
 
-  void _waitForSetup() {
+  void _waitForSetup() async {
     if (_progress.state != PracticeState.playing) {
       return;
     }
@@ -264,7 +263,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     _progress.action = 'Wait';
     _updateMediaItem();
-    var waitTime = Duration(
+    final waitTime = Duration(
         milliseconds: _rand.nextInt(_progress.drill.maxSeconds * 1000));
     _pause(waitTime).whenComplete(_playAction);
   }
@@ -302,7 +301,6 @@ class _BackgroundTask extends BackgroundAudioTask {
         PracticeBackground.getMediaItemFromProgress(_progress));
   }
 
-
   // Dart async methods are not entirely reliable in this isolate, see
   // https://github.com/ryanheise/audio_service/issues/458. Anything that relies
   // on scheduling future work is problematic.
@@ -316,9 +314,8 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (loaded.inMilliseconds < length.inMilliseconds) {
       throw Exception('Requested duration $length, max $loaded');
     }
-    _log.info('Pausing for $length, starting ${DateTime.now()}');
     await _player.setClip(start: start, end: length);
     await _player.play();
-    _log.info('Pause completed ${DateTime.now()}');
+    await _player.pause();
   }
 }
