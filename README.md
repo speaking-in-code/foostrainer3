@@ -51,6 +51,12 @@ This will build and install the app to a locally connected device.
 bash tools/prod-build.sh
 ```
 
+To install a release build on iOS, sometimes this comes in handy:
+
+```
+ideviceinstaller -i FoosTrainer.ipa
+```
+
 ## Update Screenshots after UI Change
 
 ```
@@ -112,43 +118,22 @@ Needed features
 * (internals) Crash reporting & analytics.
 * Replace the existing foostrainer app in the Android store.
 
-### M3: iOS
+### M3: iOS (done)
 
-* Fix icons (done).
-* Figure out when/why notification doesn't show (done).
-* Remove extra UI from the notification (done).
-* Automate screenshots to make releases simpler (done).
+* Fix icons
+* Figure out when/why notification doesn't show.
+* Remove extra UI from the notification.
+* Automate screenshots to make releases simpler.
 * Add fastlane for pushing changes.
-  https://fastlane.tools/
-  https://docs.fastlane.tools/getting-started/ios/appstore-deployment/
 
-Current long list of errors for appstore:
+### M4: feature requests/post-launch
 
-The request cannot be fulfilled because of the state of another resource. - Submit for review errors found.
+* End-user feedback system.
+* Bing when timer starts.
+* Signal action with flash.
+* Configurable timings.
 
-The provided entity is missing a required attribute - You must provide a value for the attribute 'violenceCartoonOrFantasy' with this request
-
-App screenshot missing (APP_IPAD_PRO_3GEN_129). - A screenshot with type ipadPro129 is required but was not provided
-
-App screenshot missing (APP_IPHONE_65). - A screenshot with type iphone65 is required but was not provided
-
-The provided entity is missing a required relationship - You must provide a value for the relationship 'primaryCategory' with this request
-
-The provided entity is missing a required attribute - You must provide a value for the attribute 'contentRightsDeclaration' with this request
-
-The specified resource does not exist - There is no resource of type 'appPrices' with id ''
-
-The provided entity is missing a required attribute - You must provide a value for the attribute 'privacyPolicyUrl' with this request
-
-Does not run reliably on iOS on real device
-
-- flutter isolates API calls FlutterIsolatePlugin.m InitWithName
-- this does something iOS specific to create the engine
-- need to see what happens with background processing in that iOS apiZZ
-
-ideviceinstaller -i FoosTrainer.ipa
-
-### M4: custom drills
+### M5: custom drills
 
 * Allow creation of new drills.
 * Allow save and restoration of drills across devices.
