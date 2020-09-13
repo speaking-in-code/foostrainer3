@@ -210,7 +210,6 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onPlay() async {
-    _log.info('BEE onPlay');
     _logEvent(_playEvent);
     _progress.state = PracticeState.playing;
     await AudioServiceBackground.setState(
@@ -227,7 +226,6 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onPause() async {
-    _log.info('BEE onPause');
     _logEvent(_pauseEvent);
     _progress.state = PracticeState.paused;
     _stopwatch.stop();
