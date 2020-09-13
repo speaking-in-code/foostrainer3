@@ -168,6 +168,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   static const _elapsedSeconds = 'elapsed_seconds';
   static const _drillType = 'drill_type';
   static const _drillName = 'drill_name';
+  static const _setupTime = Duration(seconds: 3);
 
   static final _analytics = FirebaseAnalytics();
   static final _rand = Random.secure();
@@ -248,23 +249,38 @@ class _BackgroundTask extends BackgroundAudioTask {
     await super.onStop();
   }
 
+  // Plays audio until complete.
+  Future<void> _playUntilDone() async {
+    // Pause first, since otherwise play() might return immediately.
+    await _player.pause();
+    return _player.play();
+  }
+
   void _waitForSetup() async {
     if (_progress.state != PracticeState.playing) {
       return;
     }
     _progress.action = 'Setup';
     _updateMediaItem();
-    _pause(Duration(seconds: 3)).whenComplete(_waitForAction);
+    await _player.setAsset('assets/cowbell.mp3');
+    await _playUntilDone();
+    _pause(_setupTime).whenComplete(_waitForAction);
   }
 
-  void _waitForAction() {
+  void _waitForAction() async {
     if (_progress.state != PracticeState.playing) {
       return;
     }
     _progress.action = 'Wait';
     _updateMediaItem();
-    final waitTime = Duration(
-        milliseconds: _rand.nextInt(_progress.drill.maxSeconds * 1000));
+    final Duration max =
+        Duration(seconds: _progress.drill.maxSeconds) - _setupTime;
+    Duration waitTime;
+    if (!max.isNegative) {
+      waitTime = Duration(milliseconds: _rand.nextInt(max.inMilliseconds));
+    } else {
+      waitTime = Duration.zero;
+    }
     _pause(waitTime).whenComplete(_playAction);
   }
 
@@ -278,7 +294,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.action = actionData.label;
     _updateMediaItem();
     await _player.setAsset(actionData.audioAsset);
-    await _player.play();
+    await _playUntilDone();
     _pause(Duration(seconds: 1)).whenComplete(_waitForSetup);
   }
 
@@ -318,7 +334,6 @@ class _BackgroundTask extends BackgroundAudioTask {
       throw Exception('Requested duration $length, max $loaded');
     }
     await _player.setClip(start: start, end: length);
-    await _player.play();
-    await _player.pause();
+    await _playUntilDone();
   }
 }
