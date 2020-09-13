@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
+
 /// Tests navigation and rendering of all screens in the app.
 /// Does not test the actual practice execution.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/material.dart';
-
 import 'package:ft3/main.dart';
+import 'package:ft3/more_options_sheet.dart';
+import 'package:ft3/my_app_bar.dart';
 import 'package:ft3/practice_screen.dart';
 
 void main() {
@@ -94,5 +96,40 @@ void main() {
     expect(find.text('Drill Type'), findsOneWidget);
     expect(find.text('Push'), findsOneWidget);
     expect(find.text('Rollover'), findsOneWidget);
+  });
+
+  testWidgets('Renders version info', (WidgetTester tester) async {
+    await _render(tester);
+    await tester.tap(find.byKey(MyAppBar.moreKey));
+    await tester.pumpAndSettle();
+    expect(find.text('Send Feedback'), findsOneWidget);
+    expect(find.byKey(MoreOptionsSheet.versionKey), findsOneWidget);
+    Text version = find
+        .byKey(MoreOptionsSheet.versionKey)
+        .evaluate()
+        .single
+        .widget as Text;
+    expect(version.data, equals('Version: <loading>'));
+    expect(find.text('Drill Type'), findsOneWidget);
+    // Tapping near top of screen should close the bottom sheet.
+    await tester.tapAt(Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(find.text('Drill Type'), findsOneWidget);
+  });
+
+  testWidgets('Renders feedback', (WidgetTester tester) async {
+    await _render(tester);
+    await tester.tap(find.byKey(MyAppBar.moreKey));
+    await tester.pumpAndSettle();
+    expect(find.text('Send Feedback'), findsOneWidget);
+
+    await tester.tap(find.text('Send Feedback'));
+    await tester.pumpAndSettle();
+    expect(find.text("What's wrong?"), findsOneWidget);
+    expect(find.text('Submit'), findsOneWidget);
+
+    await tester.tap(find.byKey(Key('close_controls_column')));
+    await tester.pumpAndSettle();
+    expect(find.text('Send Feedback'), findsOneWidget);
   });
 }

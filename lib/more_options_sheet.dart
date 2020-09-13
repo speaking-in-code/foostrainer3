@@ -2,10 +2,13 @@ import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 
+import 'keys.dart';
+
 class MoreOptionsSheet extends StatelessWidget {
+  static final Key versionKey = Key(Keys.versionKey);
   final Key key;
 
-  MoreOptionsSheet({this.key});
+  MoreOptionsSheet({this.key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,9 @@ class _AboutWidgetState extends State<_AboutWidget> {
     return FutureBuilder<PackageInfo>(
         future: PackageInfo.fromPlatform(),
         builder: (BuildContext context, AsyncSnapshot<PackageInfo> snapshot) {
-          return ListTile(title: Text(_getVersion(snapshot)));
+          return ListTile(
+              title: Text(_getVersion(snapshot),
+                  key: MoreOptionsSheet.versionKey));
         });
   }
 }

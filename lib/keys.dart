@@ -6,4 +6,6 @@ class Keys {
   static const elapsedKey = 'elapsedKey';
   static const pauseKey = 'pauseKey';
   static const playKey = 'playKey';
+  static const moreKey = 'moreKey';
+  static const versionKey = 'versionKey';
 }
