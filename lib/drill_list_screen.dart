@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'drill_data.dart';
 import 'log.dart';
+import 'my_app_bar.dart';
 import 'practice_background.dart';
 import 'practice_screen.dart';
 import 'screenshot_data.dart';
@@ -25,9 +26,7 @@ class DrillListScreen extends StatelessWidget {
               onTap: () => _startDrill(context, drill))));
     }
     return Scaffold(
-        appBar: AppBar(
-          title: Text(type),
-        ),
+        appBar: MyAppBar(title: type).build(context),
         body: ListView(key: key, children: children));
   }
 

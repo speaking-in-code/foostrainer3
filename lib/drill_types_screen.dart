@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'drill_list_screen.dart';
+import 'my_app_bar.dart';
 import 'static_drills.dart';
 
 // Widget for list of drills types.
@@ -27,7 +28,7 @@ class DrillTypesScreen extends StatelessWidget {
                     })));
           }
           return Scaffold(
-              appBar: AppBar(title: Text('Drill Type')),
+              appBar: MyAppBar(title: 'Drill Type').build(context),
               body: ListView(key: key, children: children));
         });
   }

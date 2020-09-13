@@ -1,8 +1,10 @@
+import 'dart:ui';
+
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
 
-import 'dart:ui';
 import 'keys.dart';
+import 'my_app_bar.dart';
 import 'practice_background.dart';
 import 'screenshot_data.dart';
 
@@ -39,7 +41,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
             stream: stream,
             initialData: ScreenshotData.progress,
             builder: (context, snapshot) {
-              if (!PracticeBackground.running && ScreenshotData.progress == null) {
+              if (!PracticeBackground.running &&
+                  ScreenshotData.progress == null) {
                 // Drill was stopped via notification media controls.
                 if (!_popInProgress) {
                   _popInProgress = true;
@@ -57,7 +60,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 progress.drill = ModalRoute.of(context).settings.arguments;
               }
               return Scaffold(
-                  appBar: AppBar(title: Text('${progress.drill.name}')),
+                  appBar: MyAppBar(title: progress.drill.name).build(context),
                   body: _PracticeScreenProgress(progress: progress));
             }));
   }
