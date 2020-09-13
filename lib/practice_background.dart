@@ -26,14 +26,11 @@ class PracticeBackground {
 
   /// Start practicing the provided drill.
   static Future<void> startPractice(DrillData drill) async {
-    _log.info('Starting drill ${drill.name}');
-    _log.info('Calling _startBackgroundTask: ${StackTrace.current}');
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
         androidNotificationIcon: 'drawable/ic_stat_ic_notification',
         androidNotificationColor: Colors.blueAccent.value);
-    _log.info('AudioService running: ${AudioService.running}');
     if (AudioService.running) {
       var progress = PracticeProgress(
           drill: drill,
@@ -181,7 +178,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   PracticeProgress _progress = PracticeProgress.empty();
   Timer _elapsedTimeUpdater;
 
-  _BackgroundTask();
+  _BackgroundTask() {
+    _log.info('Creating player');
+  }
 
   void _logEvent(String name) {
     _analytics.logEvent(name: name, parameters: {
@@ -235,6 +234,7 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStop() async {
+    _log.info('Stopping player');
     _logEvent(_stopEvent);
     _progress.state = PracticeState.stopped;
     _stopwatch?.reset();
@@ -309,6 +309,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   // imagine that we're playing the Final Jeopardy Theme, this seems cool. If
   // you realize that we're playing *nothing*, it's more of a hack.
   Future<void> _pause(Duration length) async {
+    if (_progress.state != PracticeState.playing) {
+      return;
+    }
     const Duration start = Duration(seconds: 0);
     final Duration loaded = await _player.setAsset('assets/silence_30s.mp3');
     if (loaded.inMilliseconds < length.inMilliseconds) {
