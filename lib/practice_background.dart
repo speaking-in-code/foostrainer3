@@ -168,6 +168,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   static const _elapsedSeconds = 'elapsed_seconds';
   static const _drillType = 'drill_type';
   static const _drillName = 'drill_name';
+  // Time to retrieve ball (possession clock not active.)
+  static const _resetTime = Duration(seconds: 3);
+  // Time for setup (possession clock running.)
   static const _setupTime = Duration(seconds: 3);
 
   static final _analytics = FirebaseAnalytics();
@@ -214,7 +217,9 @@ class _BackgroundTask extends BackgroundAudioTask {
         playing: true,
         processingState: AudioProcessingState.ready);
     _stopwatch.start();
-    Timer.run(_waitForSetup);
+    _progress.action = 'Setup';
+    _updateMediaItem();
+    _pause(_resetTime).whenComplete(_waitForSetup);
     _elapsedTimeUpdater =
         Timer.periodic(Duration(milliseconds: 200), _updateElapsed);
   }
@@ -275,12 +280,8 @@ class _BackgroundTask extends BackgroundAudioTask {
     _updateMediaItem();
     final Duration max =
         Duration(seconds: _progress.drill.maxSeconds) - _setupTime;
-    Duration waitTime;
-    if (!max.isNegative) {
-      waitTime = Duration(milliseconds: _rand.nextInt(max.inMilliseconds));
-    } else {
-      waitTime = Duration.zero;
-    }
+    final Duration waitTime =
+        Duration(milliseconds: _rand.nextInt(max.inMilliseconds));
     _pause(waitTime).whenComplete(_playAction);
   }
 
@@ -295,7 +296,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _updateMediaItem();
     await _player.setAsset(actionData.audioAsset);
     await _playUntilDone();
-    _pause(Duration(seconds: 1)).whenComplete(_waitForSetup);
+    _pause(_resetTime).whenComplete(_waitForSetup);
   }
 
   // Calling this too frequently makes the notifications UI unresponsive, so
