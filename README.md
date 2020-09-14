@@ -128,12 +128,17 @@ Needed features
 
 ### M4: feature requests/post-launch
 
-* End-user feedback system.
-* Bing when timer starts.
+* End-user feedback system (done).
+* Bing when timer starts (done).
 * Signal action with flash.
-* Configurable timings.
+* Configurable timings (done).
+* New screenshots.
 
-### M5: custom drills
+### M5: i18n
+
+* Why not...? seems like a larger user base.
+
+### M6: custom drills
 
 * Allow creation of new drills.
 * Allow save and restoration of drills across devices.
