@@ -2,11 +2,12 @@ targets:
   $default:
     builders:
       json_serializable:
+        generate_for:
+          - lib/drill_data.dart
         options:
           # Options configure how source code is generated for every
           # `@JsonSerializable`-annotated class in the package.
           #
-          # The default value for each is listed.
           any_map: false
           checked: false
           create_factory: true

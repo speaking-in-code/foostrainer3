@@ -17,15 +17,29 @@ class ActionData {
   Map<String, dynamic> toJson() => _$ActionDataToJson(this);
 }
 
+enum Tempo {
+  RANDOM,
+  FAST,
+  SLOW,
+}
+
 // A set of actions with a name make up a drill.
 @JsonSerializable()
 class DrillData {
-  DrillData({this.name, this.type, this.maxSeconds, List<ActionData> actions})
+  DrillData(
+      {this.name,
+      this.type,
+      this.possessionSeconds,
+      this.tempo,
+      this.practiceMinutes,
+      List<ActionData> actions})
       : actions = (actions ?? []);
 
   String name;
   String type;
-  int maxSeconds;
+  int possessionSeconds;
+  Tempo tempo;
+  int practiceMinutes;
   List<ActionData> actions;
 
   factory DrillData.fromJson(Map<String, dynamic> json) =>

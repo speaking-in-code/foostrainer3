@@ -5,10 +5,10 @@ import 'dart:io';
 
 import '../lib/drill_data.dart';
 
-DrillData _makeDrill(String type, String prefix, int maxSeconds,
-    List<String> actions) {
+DrillData _makeDrill(
+    String type, String prefix, int maxSeconds, List<String> actions) {
   final nameRegexp = RegExp(r'[^A-Za-z0-9_/.]');
-  var drill = DrillData(type: type, maxSeconds: maxSeconds);
+  var drill = DrillData(type: type, possessionSeconds: maxSeconds);
   drill.name = actions.join('/');
   for (String action in actions) {
     String asset = 'assets/${prefix}_$action.mp3';
@@ -38,8 +38,8 @@ int main() {
     drills.drills.add(_makePass('Pass', 'pass', ['Wall']));
     drills.drills.add(_makePass('Pass', 'pass', ['Lane', 'Wall']));
     drills.drills.add(_makePass('Pass', 'pass', ['Lane', 'Wall', 'Bounce']));
-    drills.drills.add(_makePass(
-        'Pass', 'pass', ['Lane', 'Wall', 'Bounce', 'Tic-Tac Wall']));
+    drills.drills.add(
+        _makePass('Pass', 'pass', ['Lane', 'Wall', 'Bounce', 'Tic-Tac Wall']));
 
     // Rollovers
     drills.drills.add(_makeShot('Rollover', 'shoot', ['Up']));
@@ -48,8 +48,7 @@ int main() {
     drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Down']));
     drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Middle']));
     drills.drills.add(_makeShot('Rollover', 'shoot', ['Down', 'Middle']));
-    drills.drills
-        .add(_makeShot('Rollover', 'shoot', ['Up', 'Down', 'Middle']));
+    drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Down', 'Middle']));
 
     // Pull/Push shots
     for (var type in ['Pull', 'Push']) {
@@ -57,11 +56,10 @@ int main() {
       drills.drills.add(_makeShot(type, 'shoot', ['Middle']));
       drills.drills.add(_makeShot(type, 'shoot', ['Long']));
       drills.drills.add(_makeShot(type, 'shoot', ['Straight', 'Long']));
-      drills.drills
-          .add(_makeShot(type, 'shoot', ['Straight', 'Middle']));
+      drills.drills.add(_makeShot(type, 'shoot', ['Straight', 'Middle']));
       drills.drills.add(_makeShot(type, 'shoot', ['Middle', 'Long']));
-      drills.drills.add(
-          _makeShot(type, 'shoot', ['Straight', 'Middle', 'Long']));
+      drills.drills
+          .add(_makeShot(type, 'shoot', ['Straight', 'Middle', 'Long']));
     }
   } on ArgumentError catch (e) {
     print('Error: ${e.message}');

@@ -1,9 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter_driver/flutter_driver.dart';
-import 'package:test/test.dart';
-
 import 'package:ft3/keys.dart';
+import 'package:test/test.dart';
 
 class IsSimilarDuration extends Matcher {
   Duration _expected;
@@ -78,12 +77,14 @@ void main() {
     Future<void> navigatePracticeToHome() async {
       await driver.tap(find.byType('BackButton'));
       await driver.tap(find.byType('BackButton'));
+      await driver.tap(find.byType('BackButton'));
       await driver.getText(find.text('Drill Type'));
     }
 
     test('runs passing drill', () async {
       await driver.tap(find.text('Pass'));
       await driver.tap(find.text('Lane/Wall/Bounce'));
+      await driver.tap(playFinder);
       await waitForReps('0');
       var timeToFirst = Stopwatch();
       timeToFirst.start();
@@ -100,6 +101,7 @@ void main() {
     test('runs rollover drill', () async {
       await driver.tap(find.text('Rollover'));
       await driver.tap(find.text('Up/Down/Middle'));
+      await driver.tap(playFinder);
       sleep(Duration(seconds: 1));
       await waitForReps('0');
       var timeToFirst = Stopwatch();
@@ -118,6 +120,7 @@ void main() {
       await driver.getText(find.text('Drill Type'));
       await driver.tap(find.text('Rollover'));
       await driver.tap(find.text('Up/Down'));
+      await driver.tap(playFinder);
       await waitForReps('0');
       await waitForReps('1');
 

@@ -23,7 +23,9 @@ DrillData _$DrillDataFromJson(Map<String, dynamic> json) {
   return DrillData(
     name: json['name'] as String,
     type: json['type'] as String,
-    maxSeconds: json['maxSeconds'] as int,
+    possessionSeconds: json['possessionSeconds'] as int,
+    tempo: _$enumDecodeNullable(_$TempoEnumMap, json['tempo']),
+    practiceMinutes: json['practiceMinutes'] as int,
     actions: (json['actions'] as List)
         ?.map((e) =>
             e == null ? null : ActionData.fromJson(e as Map<String, dynamic>))
@@ -34,9 +36,49 @@ DrillData _$DrillDataFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$DrillDataToJson(DrillData instance) => <String, dynamic>{
       'name': instance.name,
       'type': instance.type,
-      'maxSeconds': instance.maxSeconds,
+      'possessionSeconds': instance.possessionSeconds,
+      'tempo': _$TempoEnumMap[instance.tempo],
+      'practiceMinutes': instance.practiceMinutes,
       'actions': instance.actions,
     };
+
+T _$enumDecode<T>(
+  Map<T, dynamic> enumValues,
+  dynamic source, {
+  T unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError('A value must be provided. Supported values: '
+        '${enumValues.values.join(', ')}');
+  }
+
+  final value = enumValues.entries
+      .singleWhere((e) => e.value == source, orElse: () => null)
+      ?.key;
+
+  if (value == null && unknownValue == null) {
+    throw ArgumentError('`$source` is not one of the supported values: '
+        '${enumValues.values.join(', ')}');
+  }
+  return value ?? unknownValue;
+}
+
+T _$enumDecodeNullable<T>(
+  Map<T, dynamic> enumValues,
+  dynamic source, {
+  T unknownValue,
+}) {
+  if (source == null) {
+    return null;
+  }
+  return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
+}
+
+const _$TempoEnumMap = {
+  Tempo.RANDOM: 'RANDOM',
+  Tempo.FAST: 'FAST',
+  Tempo.SLOW: 'SLOW',
+};
 
 DrillListData _$DrillListDataFromJson(Map<String, dynamic> json) {
   return DrillListData(

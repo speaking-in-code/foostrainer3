@@ -52,6 +52,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Up'));
     await tester.pumpAndSettle();
+
+    expect(find.text('Random'), findsOneWidget);
+    expect(find.text('Slow'), findsOneWidget);
+    expect(find.text('Fast'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.play_arrow));
+    await tester.pumpAndSettle();
+
     expect(find.text('Up'), findsOneWidget);
     expect(find.text('Reps'), findsOneWidget);
     expect(find.text('Time'), findsOneWidget);
@@ -76,11 +83,18 @@ void main() {
     // To Up practice screen
     await tester.tap(find.text('Up'));
     await tester.pumpAndSettle();
+
+    expect(find.text('Random'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.play_arrow));
+    await tester.pumpAndSettle();
+
     expect(find.text('Up'), findsOneWidget);
     expect(find.text('Reps'), findsOneWidget);
     expect(find.text('Time'), findsOneWidget);
 
     // Back to rollover drills
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Rollover'));

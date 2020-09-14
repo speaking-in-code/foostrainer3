@@ -8,4 +8,11 @@ class Keys {
   static const playKey = 'playKey';
   static const moreKey = 'moreKey';
   static const versionKey = 'versionKey';
+
+  // Practice Config Screen
+  static const drillTimeSliderKey = 'drillTimeSliderKey';
+  static const drillTimeTextKey = 'drillTimeTextKey';
+  static const fastKey = 'drillTempoFast';
+  static const slowKey = 'drillTempoSlow';
+  static const randomKey = 'drillTempoRandom';
 }

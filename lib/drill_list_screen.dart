@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'drill_data.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
-import 'practice_background.dart';
-import 'practice_screen.dart';
-import 'screenshot_data.dart';
+import 'practice_config_screen.dart';
 
 // Displays a list of drills.
 class DrillListScreen extends StatelessWidget {
@@ -31,13 +29,7 @@ class DrillListScreen extends StatelessWidget {
   }
 
   void _startDrill(BuildContext context, DrillData drill) {
-    // Workaround for https://github.com/flutter/flutter/issues/35521, since
-    // triggering native UI tends to trigger that bug.
-    _log.info('Starting drill ${drill.name}');
-    if (ScreenshotData.progress == null) {
-      // Normal flow.
-      PracticeBackground.startPractice(drill);
-    }
-    Navigator.pushNamed(context, PracticeScreen.routeName, arguments: drill);
+    Navigator.pushNamed(context, PracticeConfigScreen.routeName,
+        arguments: drill);
   }
 }

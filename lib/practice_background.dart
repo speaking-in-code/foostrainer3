@@ -14,6 +14,7 @@ import 'package:rxdart/rxdart.dart';
 import 'drill_data.dart';
 import 'duration_formatter.dart';
 import 'log.dart';
+import 'random_delay.dart';
 
 final _log = Log.get('PracticeBackground');
 
@@ -181,6 +182,8 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   PracticeProgress _progress = PracticeProgress.empty();
   Timer _elapsedTimeUpdater;
+  RandomDelay _randomDelay;
+  Duration _finishTime;
 
   _BackgroundTask() {
     _log.info('Creating player');
@@ -203,6 +206,11 @@ class _BackgroundTask extends BackgroundAudioTask {
   @override
   Future<void> onPlayMediaItem(MediaItem mediaItem) {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
+    _randomDelay = RandomDelay(
+        min: _setupTime,
+        max: Duration(seconds: _progress.drill.possessionSeconds),
+        tempo: _progress.drill.tempo);
+    _finishTime = Duration(minutes: _progress.drill.practiceMinutes);
     _stopwatch.reset();
     _logEvent(_startEvent);
     return onPlay();
@@ -278,11 +286,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     _progress.action = 'Wait';
     _updateMediaItem();
-    final Duration max =
-        Duration(seconds: _progress.drill.maxSeconds) - _setupTime;
-    final Duration waitTime =
-        Duration(milliseconds: _rand.nextInt(max.inMilliseconds));
-    _pause(waitTime).whenComplete(_playAction);
+    _pause(_randomDelay.get() - _setupTime).whenComplete(_playAction);
   }
 
   void _playAction() async {
@@ -309,7 +313,11 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (elapsed == _progress.elapsed) {
       return;
     }
-    _updateMediaItem();
+    if (_stopwatch.elapsed <= _finishTime) {
+      _updateMediaItem();
+    } else {
+      onPause();
+    }
   }
 
   Future<void> _updateMediaItem() async {

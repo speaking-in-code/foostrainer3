@@ -3,6 +3,7 @@ import 'package:feedback/feedback.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/practice_config_screen.dart';
 
 import 'drill_list_screen.dart';
 import 'drill_types_screen.dart';
@@ -37,6 +38,7 @@ class MainApp extends StatelessWidget {
           routes: {
             DrillTypesScreen.routeName: (context) => DrillTypesScreen(),
             DrillListScreen.routeName: (context) => DrillListScreen(),
+            PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
             PracticeScreen.routeName: (context) => PracticeScreen(),
           },
         )));
