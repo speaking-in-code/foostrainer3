@@ -183,6 +183,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   PracticeProgress _progress = PracticeProgress.empty();
   Timer _elapsedTimeUpdater;
   RandomDelay _randomDelay;
+  // Stop time for the drill. zero means play forever.
   Duration _finishTime;
 
   _BackgroundTask() {
@@ -309,15 +310,24 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.state != PracticeState.playing) {
       return;
     }
+    // If practice time has completed, give a moment, then play the "finished"
+    // sound and pause.
+    if (_finishTime != Duration.zero && _stopwatch.elapsed > _finishTime) {
+      _pause(const Duration(seconds: 1)).whenComplete(_finishPractice);
+      onPause();
+      return;
+    }
     String elapsed = DurationFormatter.format(_stopwatch.elapsed);
     if (elapsed == _progress.elapsed) {
       return;
     }
-    if (_stopwatch.elapsed <= _finishTime) {
-      _updateMediaItem();
-    } else {
-      onPause();
-    }
+    _updateMediaItem();
+  }
+
+  Future<void> _finishPractice() async {
+    await _player.setAsset('assets/triple_cowbell.mp3');
+    await _playUntilDone();
+    _finishTime = Duration.zero;
   }
 
   Future<void> _updateMediaItem() async {
