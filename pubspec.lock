@@ -39,9 +39,9 @@ packages:
   audio_service:
     dependency: "direct main"
     description:
-      name: audio_service
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "/Users/brian/sb/audio_service"
+      relative: false
+    source: path
     version: "0.14.1"
   audio_session:
     dependency: "direct main"

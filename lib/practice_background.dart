@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'album_art.dart';
 import 'drill_data.dart';
 import 'duration_formatter.dart';
 import 'log.dart';
@@ -99,6 +100,7 @@ class PracticeBackground {
         title: 'Time: ${progress.elapsed}, Reps: ${progress.shotCount}',
         album: progress.drill.name,
         artist: 'FoosTrainer',
+        artUri: AlbumArt.getUri(),
         extras: {
           _action: progress.action,
           _shotCount: progress.shotCount,
@@ -200,8 +202,10 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStart(Map<String, dynamic> params) async {
+    Future<void> artLoading = AlbumArt.load();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
+    await artLoading;
   }
 
   @override
@@ -332,8 +336,9 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   Future<void> _updateMediaItem() async {
     _progress.elapsed = DurationFormatter.format(_stopwatch.elapsed);
-    await AudioServiceBackground.setMediaItem(
-        PracticeBackground.getMediaItemFromProgress(_progress));
+    final MediaItem item =
+        PracticeBackground.getMediaItemFromProgress(_progress);
+    await AudioServiceBackground.setMediaItem(item);
   }
 
   // Dart async methods are not entirely reliable in this isolate, see

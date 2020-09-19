@@ -128,10 +128,10 @@ Needed features
 
 ### M4: feature requests/post-launch
 
-* End-user feedback system (done).
-* Bing when timer starts (done).
-* Signal action with flash.
-* Configurable timings (done).
+* End-user feedback system (done.)
+* Bing when timer starts (done.)
+* Signal action with flash. (maybe?)
+* Configurable timings (almost done, fix theme colors.)
 * New screenshots.
 
 ### M5: i18n
