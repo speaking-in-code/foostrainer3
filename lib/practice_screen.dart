@@ -87,11 +87,13 @@ class _PracticeScreenProgress extends StatelessWidget {
     if (progress.state == PracticeState.playing) {
       actionButton = RaisedButton(
           key: pauseKey,
+          color: Theme.of(context).buttonColor,
           child: Icon(Icons.pause),
           onPressed: PracticeBackground.pause);
     } else {
       actionButton = RaisedButton(
           key: playKey,
+          color: Theme.of(context).buttonColor,
           child: Icon(Icons.play_arrow),
           onPressed: PracticeBackground.play);
     }

@@ -44,6 +44,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
         _makeDurationPicker(),
       ])),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).buttonColor,
         onPressed: _startPractice,
         child: Icon(Icons.play_arrow, key: PracticeConfigScreen.playKey),
       ),
@@ -76,6 +77,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   RadioListTile _makeTempo(Key key, String label, Tempo value) {
     return RadioListTile<Tempo>(
       key: key,
+      activeColor: Theme.of(context).buttonColor,
       title: Text(label),
       value: value,
       groupValue: _drill.tempo,
@@ -103,6 +105,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return Row(children: [
       Expanded(
           child: Slider(
+              activeColor: Theme.of(context).buttonColor,
               key: PracticeConfigScreen.drillTimeSliderKey,
               value: _practiceMinutes,
               min: 5,
