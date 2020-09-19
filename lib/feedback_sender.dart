@@ -1,9 +1,7 @@
 import 'dart:core';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:device_info/device_info.dart';
-import 'package:flutter/material.dart';
 import 'package:mailto/mailto.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,11 +17,10 @@ class FeedbackSender {
 
   // Send feedback via e-mail. Would be nice to figure out how to do this with
   // the screenshot attachment, but this is fine for now.
-  void send(BuildContext context, String feedbackText,
-      Uint8List feedbackScreenshot) async {
+  void send() async {
     final String version = await _version;
     final String device = await _device;
-    final String body = '''Suggestion: $feedbackText
+    final String body = '''*** Please add suggestions here ***.
       
 Version: $version
 Device:

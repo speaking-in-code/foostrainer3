@@ -1,7 +1,7 @@
-import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 
+import 'feedback_sender.dart';
 import 'keys.dart';
 
 class MoreOptionsSheet extends StatelessWidget {
@@ -24,13 +24,15 @@ class MoreOptionsSheet extends StatelessWidget {
 }
 
 class _FeedbackWidget extends StatelessWidget {
+  final _feedbackSender = FeedbackSender();
   _FeedbackWidget({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        title: Text('Send Feedback'),
-        onTap: () => BetterFeedback.of(context).show());
+      title: Text('Send Feedback'),
+      onTap: () => _feedbackSender.send(),
+    );
   }
 }
 

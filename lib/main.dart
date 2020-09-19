@@ -1,5 +1,4 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:feedback/feedback.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -27,24 +26,22 @@ class MainApp extends StatelessWidget {
   // connection to the service.
   @override
   Widget build(BuildContext context) {
-    return BetterFeedback(
-        onFeedback: _feedbackSender.send,
-        child: AudioServiceWidget(
-            child: MaterialApp(
-          title: 'FoosTrainer',
-          theme: ThemeData(
-            brightness: Brightness.dark,
-            // primarySwatch: Colors.blue,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-          ),
-          navigatorObservers: <NavigatorObserver>[_observer],
-          initialRoute: DrillTypesScreen.routeName,
-          routes: {
-            DrillTypesScreen.routeName: (context) => DrillTypesScreen(),
-            DrillListScreen.routeName: (context) => DrillListScreen(),
-            PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
-            PracticeScreen.routeName: (context) => PracticeScreen(),
-          },
-        )));
+    return AudioServiceWidget(
+        child: MaterialApp(
+      title: 'FoosTrainer',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        // primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      navigatorObservers: <NavigatorObserver>[_observer],
+      initialRoute: DrillTypesScreen.routeName,
+      routes: {
+        DrillTypesScreen.routeName: (context) => DrillTypesScreen(),
+        DrillListScreen.routeName: (context) => DrillListScreen(),
+        PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
+        PracticeScreen.routeName: (context) => PracticeScreen(),
+      },
+    ));
   }
 }

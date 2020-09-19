@@ -42,7 +42,7 @@ packages:
       path: "/Users/brian/sb/audio_service"
       relative: false
     source: path
-    version: "0.14.1"
+    version: "0.15.0"
   audio_session:
     dependency: "direct main"
     description:
@@ -218,13 +218,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
-  feedback:
-    dependency: "direct main"
-    description:
-      name: feedback
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.0"
   file:
     dependency: transitive
     description:
