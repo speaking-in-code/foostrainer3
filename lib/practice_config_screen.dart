@@ -28,6 +28,7 @@ class PracticeConfigScreen extends StatefulWidget {
 }
 
 class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
+  static const kDefaultMinutes = 10;
   DrillData _drill;
   double _practiceMinutes;
 
@@ -35,14 +36,16 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   Widget build(BuildContext context) {
     _drill = ModalRoute.of(context).settings.arguments;
     _drill.tempo ??= Tempo.RANDOM;
-    _practiceMinutes ??= (_drill.practiceMinutes ?? 10).toDouble();
+    _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
-      body: Center(
-          child: Column(children: <Widget>[
-        _makeTempoPicker(),
-        _makeDurationPicker(),
-      ])),
+      body: ListView(
+          padding:
+              const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 48),
+          children: [
+            _makeTempoPicker(),
+            _makeDurationPicker(),
+          ]),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).buttonColor,
         onPressed: _startPractice,

@@ -77,6 +77,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 class _PracticeScreenProgress extends StatelessWidget {
   static const pauseKey = Key(Keys.pauseKey);
   static const playKey = Key(Keys.playKey);
+  static const kLargeFontMinWidth = 480;
   final PracticeProgress progress;
 
   _PracticeScreenProgress({Key key, this.progress}) : super(key: key);
@@ -87,19 +88,21 @@ class _PracticeScreenProgress extends StatelessWidget {
     if (progress.state == PracticeState.playing) {
       actionButton = RaisedButton(
           key: pauseKey,
-          color: Theme.of(context).buttonColor,
           child: Icon(Icons.pause),
           onPressed: PracticeBackground.pause);
     } else {
       actionButton = RaisedButton(
           key: playKey,
-          color: Theme.of(context).buttonColor,
           child: Icon(Icons.play_arrow),
           onPressed: PracticeBackground.play);
     }
-    var tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
+    final tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
+    // Smaller devices in portrait orientation do better with a smaller font.
+    final textStyle = MediaQuery.of(context).size.width > kLargeFontMinWidth
+        ? Theme.of(context).textTheme.headline3
+        : Theme.of(context).textTheme.headline4;
     return DefaultTextStyle(
-        style: Theme.of(context).textTheme.headline3,
+        style: textStyle,
         child:
             Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
           Text('${progress.action}'),
