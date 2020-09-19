@@ -352,6 +352,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.state != PracticeState.playing) {
       return;
     }
+
     const Duration start = Duration(seconds: 0);
     final Duration loaded = await _player.setAsset('assets/silence_30s.mp3');
     if (loaded.inMilliseconds < length.inMilliseconds) {
