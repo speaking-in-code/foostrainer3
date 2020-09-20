@@ -15,6 +15,7 @@ import 'album_art.dart';
 import 'drill_data.dart';
 import 'duration_formatter.dart';
 import 'log.dart';
+import 'pause_timer.dart';
 import 'random_delay.dart';
 
 final _log = Log.get('PracticeBackground');
@@ -108,6 +109,10 @@ class PracticeBackground {
           _drill: jsonEncode(progress.drill.toJson()),
         });
   }
+
+  static int getDelays() {
+    return 0;
+  }
 }
 
 void _startBackgroundTask() {
@@ -179,7 +184,8 @@ class _BackgroundTask extends BackgroundAudioTask {
   static final _analytics = FirebaseAnalytics();
   static final _rand = Random.secure();
 
-  final _player = AudioPlayer();
+  final AudioPlayer _player;
+  final PauseTimer _pauseTimer;
   final _stopwatch = Stopwatch();
 
   PracticeProgress _progress = PracticeProgress.empty();
@@ -188,9 +194,14 @@ class _BackgroundTask extends BackgroundAudioTask {
   // Stop time for the drill. zero means play forever.
   Duration _finishTime;
 
-  _BackgroundTask() {
+  factory _BackgroundTask() {
     _log.info('Creating player');
+    final player = AudioPlayer();
+    final pauseTimer = PauseTimer(player: player);
+    return _BackgroundTask._(player, pauseTimer);
   }
+
+  _BackgroundTask._(this._player, this._pauseTimer);
 
   void _logEvent(String name) {
     _analytics.logEvent(name: name, parameters: {
@@ -352,13 +363,6 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.state != PracticeState.playing) {
       return;
     }
-
-    const Duration start = Duration(seconds: 0);
-    final Duration loaded = await _player.setAsset('assets/silence_30s.mp3');
-    if (loaded.inMilliseconds < length.inMilliseconds) {
-      throw Exception('Requested duration $length, max $loaded');
-    }
-    await _player.setClip(start: start, end: length);
-    await _playUntilDone();
+    return _pauseTimer.pause(length);
   }
 }
