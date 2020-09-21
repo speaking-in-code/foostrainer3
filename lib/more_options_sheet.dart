@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ft3/debug_screen.dart';
 import 'package:package_info/package_info.dart';
 
 import 'feedback_sender.dart';
@@ -49,8 +50,10 @@ class _AboutWidgetState extends State<_AboutWidget> {
         future: PackageInfo.fromPlatform(),
         builder: (BuildContext context, AsyncSnapshot<PackageInfo> snapshot) {
           return ListTile(
-              title: Text(_getVersion(snapshot),
-                  key: MoreOptionsSheet.versionKey));
+              title:
+                  Text(_getVersion(snapshot), key: MoreOptionsSheet.versionKey),
+              onLongPress: () =>
+                  Navigator.pushNamed(context, DebugScreen.routeName));
         });
   }
 }

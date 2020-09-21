@@ -1,6 +1,8 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:just_audio/just_audio.dart';
+import 'package:meta/meta.dart';
 
 import 'log.dart';
 
@@ -18,10 +20,10 @@ import 'log.dart';
 // audio is not in cache. To work around the unpredictability, we use a delayed
 // future for the final 2 seconds of each delay.
 class PauseTimer {
-  static const kDelayMemory = 100;
+  static const kMetricWindow = 100;
   static const kMinPlay = Duration(seconds: 2);
   static final _log = Log.get('PauseTimer');
-  final ListQueue<int> _delays = ListQueue(kDelayMemory);
+  final ListQueue<double> _delays = ListQueue(kMetricWindow + 1);
   final AudioPlayer _player;
 
   PauseTimer({AudioPlayer player}) : _player = player;
@@ -38,6 +40,7 @@ class PauseTimer {
     }
     stopwatch.stop();
     final over = stopwatch.elapsed - length;
+    updateMetrics(over);
     _log.info('Over time by ${over.inMilliseconds} ms');
   }
 
@@ -52,4 +55,33 @@ class PauseTimer {
     await _player.pause();
     await _player.play();
   }
+
+  @visibleForTesting
+  void updateMetrics(final Duration over) {
+    _delays.add(over.inMilliseconds.toDouble());
+    if (_delays.length > kMetricWindow) {
+      _delays.removeFirst();
+    }
+  }
+
+  DelayMetrics calculateDelayMetrics() {
+    if (_delays.isEmpty) {
+      return DelayMetrics(meanDelayMillis: 0, stdDevDelayMillis: 0);
+    }
+    double sum =
+        _delays.reduce((double combined, double next) => combined + next);
+    double mean = sum / _delays.length;
+    double errSum = 0.0;
+    for (double delay in _delays) {
+      errSum += pow(delay - mean, 2);
+    }
+    double stdDev = sqrt(errSum / _delays.length);
+    return DelayMetrics(meanDelayMillis: mean, stdDevDelayMillis: stdDev);
+  }
+}
+
+class DelayMetrics {
+  final double meanDelayMillis;
+  final double stdDevDelayMillis;
+  DelayMetrics({this.meanDelayMillis, this.stdDevDelayMillis});
 }

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'drill_data.dart';
-import 'log.dart';
 import 'my_app_bar.dart';
 import 'practice_config_screen.dart';
 
 // Displays a list of drills.
 class DrillListScreen extends StatelessWidget {
-  static final _log = Log.get('DrillListScreen');
   static const routeName = '/drillList';
 
   @override

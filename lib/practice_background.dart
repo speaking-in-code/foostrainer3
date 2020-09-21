@@ -12,6 +12,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'album_art.dart';
+import 'debug_info.dart';
 import 'drill_data.dart';
 import 'duration_formatter.dart';
 import 'log.dart';
@@ -176,8 +177,10 @@ class _BackgroundTask extends BackgroundAudioTask {
   static const _elapsedSeconds = 'elapsed_seconds';
   static const _drillType = 'drill_type';
   static const _drillName = 'drill_name';
+
   // Time to retrieve ball (possession clock not active.)
   static const _resetTime = Duration(seconds: 3);
+
   // Time for setup (possession clock running.)
   static const _setupTime = Duration(seconds: 3);
 
@@ -191,6 +194,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   PracticeProgress _progress = PracticeProgress.empty();
   Timer _elapsedTimeUpdater;
   RandomDelay _randomDelay;
+
   // Stop time for the drill. zero means play forever.
   Duration _finishTime;
 
@@ -364,5 +368,17 @@ class _BackgroundTask extends BackgroundAudioTask {
       return;
     }
     return _pauseTimer.pause(length);
+  }
+
+  @override
+  Future<dynamic> onCustomAction(String name, dynamic arguments) async {
+    if (DebugInfo.action == name) {
+      final metrics = _pauseTimer.calculateDelayMetrics();
+      final resp = DebugInfoResponse(
+          meanDelayMillis: metrics.meanDelayMillis,
+          stdDevDelayMillis: metrics.stdDevDelayMillis);
+      return resp.toWire();
+    }
+    throw Exception('Unknown custom action $name');
   }
 }

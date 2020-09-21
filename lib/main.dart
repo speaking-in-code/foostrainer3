@@ -2,12 +2,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/debug_screen.dart';
 import 'package:ft3/practice_config_screen.dart';
 
 import 'album_art.dart';
 import 'drill_list_screen.dart';
 import 'drill_types_screen.dart';
-import 'feedback_sender.dart';
 import 'practice_screen.dart';
 
 void main() {
@@ -20,7 +20,6 @@ void main() {
 class MainApp extends StatelessWidget {
   static final _analytics = FirebaseAnalytics();
   static final _observer = FirebaseAnalyticsObserver(analytics: _analytics);
-  static final _feedbackSender = FeedbackSender();
 
   // Audio service wraps the entire application, so all routes can maintain a
   // connection to the service.
@@ -41,6 +40,7 @@ class MainApp extends StatelessWidget {
         DrillListScreen.routeName: (context) => DrillListScreen(),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) => PracticeScreen(),
+        DebugScreen.routeName: (context) => DebugScreen(),
       },
     ));
   }
