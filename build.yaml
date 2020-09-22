@@ -3,6 +3,7 @@ targets:
     builders:
       json_serializable:
         generate_for:
+          - lib/debug_info.dart
           - lib/drill_data.dart
         options:
           # Options configure how source code is generated for every

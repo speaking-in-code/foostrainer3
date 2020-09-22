@@ -377,7 +377,7 @@ class _BackgroundTask extends BackgroundAudioTask {
       final resp = DebugInfoResponse(
           meanDelayMillis: metrics.meanDelayMillis,
           stdDevDelayMillis: metrics.stdDevDelayMillis);
-      return resp.toWire();
+      return jsonEncode(resp.toJson());
     }
     throw Exception('Unknown custom action $name');
   }

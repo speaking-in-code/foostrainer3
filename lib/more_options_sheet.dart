@@ -44,6 +44,12 @@ class _AboutWidget extends StatefulWidget {
 }
 
 class _AboutWidgetState extends State<_AboutWidget> {
+  static const kMaxClickDelay = Duration(seconds: 1);
+  static const kClicksToEnter = 3;
+
+  DateTime lastClick;
+  int numClicks = 0;
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<PackageInfo>(
@@ -52,9 +58,23 @@ class _AboutWidgetState extends State<_AboutWidget> {
           return ListTile(
               title:
                   Text(_getVersion(snapshot), key: MoreOptionsSheet.versionKey),
-              onLongPress: () =>
-                  Navigator.pushNamed(context, DebugScreen.routeName));
+              onTap: _onTap);
         });
+  }
+
+  // Enter debug screen if there are three clicks on the version info tag.
+  void _onTap() {
+    final now = DateTime.now();
+    if (lastClick == null || now.difference(lastClick) > kMaxClickDelay) {
+      numClicks = 1;
+    } else {
+      ++numClicks;
+    }
+    lastClick = now;
+    if (numClicks >= kClicksToEnter) {
+      numClicks = 0;
+      Navigator.pushNamed(context, DebugScreen.routeName);
+    }
   }
 }
 

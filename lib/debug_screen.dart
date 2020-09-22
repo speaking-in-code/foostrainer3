@@ -1,18 +1,24 @@
+import 'dart:convert';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
 import 'debug_info.dart';
+import 'log.dart';
 import 'my_app_bar.dart';
 
 // Hidden screen for debug information. Accessed via long-press on the version
 // information.
 class DebugScreen extends StatelessWidget {
+  final _log = Log.get('DebugScreen');
   static const routeName = '/debug';
 
   @override
   Widget build(BuildContext context) {
-    Future<DebugInfoResponse> info = AudioService.customAction(DebugInfo.action)
-        .then((value) => DebugInfoResponse.fromWire(value));
+    Future<DebugInfoResponse> info =
+        AudioService.customAction(DebugInfo.action).then((value) {
+      return DebugInfoResponse.fromJson(jsonDecode(value));
+    });
     return FutureBuilder(
         future: info,
         initialData: DebugInfoResponse(),
@@ -36,8 +42,8 @@ class DebugScreen extends StatelessWidget {
   }
 
   String _formatData(DebugInfoResponse data) {
-    String mean = data.meanDelayMillis.toStringAsFixed(1);
-    String stdDev = data.stdDevDelayMillis.toStringAsFixed(1);
+    String mean = data.meanDelayMillis?.toStringAsFixed(1);
+    String stdDev = data.stdDevDelayMillis?.toStringAsFixed(1);
     return 'Mean: $mean ms. StdDev: $stdDev ms';
   }
 }
