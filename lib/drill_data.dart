@@ -17,10 +17,17 @@ class ActionData {
   Map<String, dynamic> toJson() => _$ActionDataToJson(this);
 }
 
+// Delay from ready to action.
 enum Tempo {
   RANDOM,
   FAST,
   SLOW,
+}
+
+// Signal for action.
+enum Signal {
+  AUDIO,
+  AUDIO_AND_FLASH,
 }
 
 // A set of actions with a name make up a drill.
@@ -31,6 +38,7 @@ class DrillData {
       this.type,
       this.possessionSeconds,
       this.tempo,
+      this.signal,
       this.practiceMinutes,
       List<ActionData> actions})
       : actions = (actions ?? []);
@@ -39,6 +47,7 @@ class DrillData {
   String type;
   int possessionSeconds;
   Tempo tempo;
+  Signal signal;
   int practiceMinutes;
   List<ActionData> actions;
 

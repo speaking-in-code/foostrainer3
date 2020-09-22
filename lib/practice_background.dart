@@ -9,6 +9,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:lamp/lamp.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'album_art.dart';
@@ -318,8 +319,11 @@ class _BackgroundTask extends BackgroundAudioTask {
     ActionData actionData = _progress.drill.actions[actionIndex];
     _progress.action = actionData.label;
     _updateMediaItem();
-    await _player.setAsset(actionData.audioAsset);
-    await _playUntilDone();
+    Lamp.turnOn();
+    await _pause(Duration(milliseconds: 500));
+    Lamp.turnOff();
+    // await _player.setAsset(actionData.audioAsset);
+    //await _playUntilDone();
     _pause(_resetTime).whenComplete(_waitForSetup);
   }
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ft3/debug_screen.dart';
+import 'package:lamp/lamp.dart';
 import 'package:package_info/package_info.dart';
 
+import 'debug_screen.dart';
 import 'feedback_sender.dart';
 import 'keys.dart';
 
@@ -19,6 +20,8 @@ class MoreOptionsSheet extends StatelessWidget {
       children: <Widget>[
         _FeedbackWidget(),
         _AboutWidget(),
+        ListTile(title: Text('Lamp On'), onTap: () => Lamp.turnOn()),
+        ListTile(title: Text('Lamp Off'), onTap: () => Lamp.turnOff()),
       ],
     ));
   }

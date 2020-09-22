@@ -15,4 +15,6 @@ class Keys {
   static const fastKey = 'drillTempoFast';
   static const slowKey = 'drillTempoSlow';
   static const randomKey = 'drillTempoRandom';
+  static const audioKey = 'drillSignalAudio';
+  static const audioAndFlashKey = 'drillSignalAudioAndFlash';
 }
