@@ -130,8 +130,8 @@ Needed features
 
 * End-user feedback system (done.)
 * Bing when timer starts (done.)
-* Signal action with flash. (maybe?)
-* Configurable timings (almost done, fix theme colors.)
+* Signal action with flash. (busted on Android.)
+* Configurable timings (done)
 * New screenshots.
 
 ### M5: i18n

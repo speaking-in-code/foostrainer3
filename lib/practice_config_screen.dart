@@ -1,6 +1,7 @@
+import 'dart:io' show Platform;
+
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import 'drill_data.dart';
 import 'keys.dart';
@@ -43,6 +44,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   Widget build(BuildContext context) {
     _drill = ModalRoute.of(context).settings.arguments;
     _drill.tempo ??= Tempo.RANDOM;
+    _drill.signal ??= Signal.AUDIO;
     _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
@@ -55,18 +57,26 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     );
   }
 
+  // Note: these panels don't obscure the FloatingActionButton, even on very
+  // small screens in landscape orientation... but it's close. Might need to
+  // add a spacer if the FAB and the other controls conflict in the future.
   Widget _expansionPanels() {
-    return SingleChildScrollView(
-        child: Container(
-            child: ExpansionPanelList.radio(children: [
+    List<ExpansionPanelRadio> children = [
       _tempoPicker(),
       _durationPicker(),
-      _signalPicker(),
-    ])));
-  }
-
-  Widget _tempoHeader(BuildContext context, bool isExpanded) {
-    return ListTile(title: Text('Tempo: ${_formatTempo()}'));
+    ];
+    // Light signal doesn't work on Android, need to do some debugging, send
+    // patches to the Lamp package.
+    if (Platform.isIOS) {
+      children.add(_signalPicker());
+    }
+    return SingleChildScrollView(
+      child: Container(
+        child: ExpansionPanelList.radio(
+          children: children,
+        ),
+      ),
+    );
   }
 
   ExpansionPanelRadio _tempoPicker() {
@@ -74,14 +84,35 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
         value: kTempoId,
         headerBuilder: _tempoHeader,
         body: Column(children: [
-          _makeTempo(PracticeConfigScreen.randomKey, 'Random', Tempo.RANDOM),
-          _makeTempo(PracticeConfigScreen.slowKey, 'Slow', Tempo.SLOW),
-          _makeTempo(PracticeConfigScreen.fastKey, 'Fast', Tempo.FAST),
+          _makeTempo(PracticeConfigScreen.randomKey, Tempo.RANDOM),
+          _makeTempo(PracticeConfigScreen.slowKey, Tempo.SLOW),
+          _makeTempo(PracticeConfigScreen.fastKey, Tempo.FAST),
         ]));
   }
 
-  String _formatTempo() {
-    switch (_drill.tempo) {
+  Widget _tempoHeader(BuildContext context, bool isExpanded) {
+    return ListTile(title: Text('Tempo: ${_formatTempo(_drill.tempo)}'));
+  }
+
+  RadioListTile _makeTempo(Key key, Tempo tempo) {
+    return RadioListTile<Tempo>(
+      key: key,
+      activeColor: Theme.of(context).buttonColor,
+      title: Text(_formatTempo(tempo)),
+      value: tempo,
+      groupValue: _drill.tempo,
+      onChanged: _onTempoChanged,
+    );
+  }
+
+  void _onTempoChanged(Tempo tempo) {
+    setState(() {
+      _drill.tempo = tempo;
+    });
+  }
+
+  String _formatTempo(Tempo tempo) {
+    switch (tempo) {
       case Tempo.SLOW:
         return 'Slow';
         break;
@@ -142,8 +173,9 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       case Signal.AUDIO_AND_FLASH:
         return 'Audio and Flash';
       case Signal.AUDIO:
-      default:
         return 'Audio';
+      default:
+        return null;
     }
   }
 
@@ -158,28 +190,17 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     );
   }
 
-  void _onSignalChanged(Signal signal) {
+  void _onSignalChanged(Signal signal) async {
     // TODO(brian): request permissions on Android M.
     setState(() {
       _drill.signal = signal;
     });
   }
 
-  // TODO(brian): test out expansion panel with FAB on small screen device,
-  // might need similar spacer.
-  Widget _listView() {
-    return ListView(
-        padding:
-            const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 48),
-        children: [
-          //_makeTempoPicker(),
-          //_makeDurationPicker(),
-        ]);
-  }
-
   Future<void> _startPractice() {
-    // Workaround for https://github.com/flutter/flutter/issues/35521, since
-    // triggering native UI tends to trigger that bug.
+    // Workaround for https://github.com/flutter/flutter/issues/35521: don't
+    // actually run the background process. Triggering native UI like music
+    // players tends to trigger that bug.
     _log.info('Starting drill ${_drill.name}');
     _drill.practiceMinutes = _practiceMinutes.round();
     if (ScreenshotData.progress == null) {
@@ -188,23 +209,6 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     }
     Navigator.pushNamed(context, PracticeScreen.routeName, arguments: _drill);
     return Future.value();
-  }
-
-  RadioListTile _makeTempo(Key key, String label, Tempo value) {
-    return RadioListTile<Tempo>(
-      key: key,
-      activeColor: Theme.of(context).buttonColor,
-      title: Text(label),
-      value: value,
-      groupValue: _drill.tempo,
-      onChanged: _onTempoChanged,
-    );
-  }
-
-  void _onTempoChanged(Tempo tempo) {
-    setState(() {
-      _drill.tempo = tempo;
-    });
   }
 
   String _formatDuration() {

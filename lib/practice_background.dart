@@ -319,11 +319,11 @@ class _BackgroundTask extends BackgroundAudioTask {
     ActionData actionData = _progress.drill.actions[actionIndex];
     _progress.action = actionData.label;
     _updateMediaItem();
-    Lamp.turnOn();
-    await _pause(Duration(milliseconds: 500));
-    Lamp.turnOff();
-    // await _player.setAsset(actionData.audioAsset);
-    //await _playUntilDone();
+    if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
+      Lamp.flash(Duration(seconds: 1));
+    }
+    await _player.setAsset(actionData.audioAsset);
+    await _playUntilDone();
     _pause(_resetTime).whenComplete(_waitForSetup);
   }
 

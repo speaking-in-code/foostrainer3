@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:lamp/lamp.dart';
 
 import 'debug_info.dart';
 import 'log.dart';
@@ -15,23 +16,24 @@ class DebugScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<DebugInfoResponse> info =
+    Future<DebugInfoResponse> pauseInfo =
         AudioService.customAction(DebugInfo.action).then((value) {
       return DebugInfoResponse.fromJson(jsonDecode(value));
     });
-    return FutureBuilder(
-        future: info,
-        initialData: DebugInfoResponse(),
-        builder: (context, AsyncSnapshot<DebugInfoResponse> snapshot) {
-          return Scaffold(
-              appBar: MyAppBar(title: 'Debug').build(context),
-              body: ListView(children: [
-                _pauseDelays(snapshot),
-              ]));
-        });
+    return Scaffold(
+        appBar: MyAppBar(title: 'Debug').build(context),
+        body: ListView(children: [
+          FutureBuilder(
+              future: pauseInfo,
+              initialData: DebugInfoResponse(),
+              builder: _pauseDelays),
+          ListTile(title: Text('Lamp On'), onTap: () => Lamp.turnOn()),
+          ListTile(title: Text('Lamp Off'), onTap: () => Lamp.turnOff()),
+        ]));
   }
 
-  Widget _pauseDelays(final AsyncSnapshot<DebugInfoResponse> info) {
+  Widget _pauseDelays(
+      BuildContext context, final AsyncSnapshot<DebugInfoResponse> info) {
     final String subtitle =
         info.hasData ? _formatData(info.data) : info.error?.toString();
     return Card(

@@ -41,7 +41,6 @@ class PauseTimer {
     stopwatch.stop();
     final over = stopwatch.elapsed - length;
     updateMetrics(over);
-    _log.info('Over time by ${over.inMilliseconds} ms');
   }
 
   Future<void> _pauseWithPlay(final Duration length) async {
