@@ -136,14 +136,5 @@ void main() {
     await tester.tap(find.byKey(MyAppBar.moreKey));
     await tester.pumpAndSettle();
     expect(find.text('Send Feedback'), findsOneWidget);
-
-    await tester.tap(find.text('Send Feedback'));
-    await tester.pumpAndSettle();
-    expect(find.text("What's wrong?"), findsOneWidget);
-    expect(find.text('Submit'), findsOneWidget);
-
-    await tester.tap(find.byKey(Key('close_controls_column')));
-    await tester.pumpAndSettle();
-    expect(find.text('Send Feedback'), findsOneWidget);
   });
 }
