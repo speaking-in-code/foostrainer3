@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lamp/lamp.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:wakelock/wakelock.dart';
 
 import 'album_art.dart';
 import 'debug_info.dart';
@@ -195,6 +196,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   PracticeProgress _progress = PracticeProgress.empty();
   Timer _elapsedTimeUpdater;
   RandomDelay _randomDelay;
+  bool _originalWakelock;
 
   // Stop time for the drill. zero means play forever.
   Duration _finishTime;
@@ -225,8 +227,12 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onPlayMediaItem(MediaItem mediaItem) {
+  Future<void> onPlayMediaItem(MediaItem mediaItem) async {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
+    if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
+      _originalWakelock = await Wakelock.isEnabled;
+      Wakelock.enable();
+    }
     _randomDelay = RandomDelay(
         min: _setupTime,
         max: Duration(seconds: _progress.drill.possessionSeconds),
@@ -274,6 +280,9 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.state = PracticeState.stopped;
     _stopwatch?.reset();
     _elapsedTimeUpdater?.cancel();
+    if (_originalWakelock != null) {
+      Wakelock.toggle(on: _originalWakelock);
+    }
     await _player.stop();
     await _player.dispose();
     await AudioServiceBackground.setState(
