@@ -33,6 +33,15 @@ void main() {
     return tempoTitle.data;
   }
 
+  String getSignal() {
+    final Text signalTitle = find
+        .byKey(PracticeConfigScreen.signalHeaderKey)
+        .evaluate()
+        .single
+        .widget as Text;
+    return signalTitle.data;
+  }
+
   Offset getSliderLeft(WidgetTester tester) {
     final Offset center =
         tester.getCenter(find.byKey(PracticeConfigScreen.drillTimeSliderKey));
@@ -93,5 +102,15 @@ void main() {
     await tester.tap(find.text('Random'));
     await tester.pumpAndSettle();
     expect(getTempo(), equals('Tempo: Random'));
+  });
+
+  testWidgets('Signal changes', (WidgetTester tester) async {
+    await _render(tester);
+    expect(getSignal(), equals('Signal: Audio'));
+    await tester.tap(find.text('Signal: Audio'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Audio and Flash'));
+    await tester.pumpAndSettle();
+    expect(getSignal(), equals('Signal: Audio and Flash'));
   });
 }

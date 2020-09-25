@@ -24,6 +24,7 @@ class PracticeConfigScreen extends StatefulWidget {
   static const playKey = Key(Keys.playKey);
   static const audioKey = Key(Keys.audioKey);
   static const audioAndFlashKey = Key(Keys.audioAndFlashKey);
+  static const signalHeaderKey = Key(Keys.signalHeaderKey);
 
   PracticeConfigScreen({Key key}) : super(key: key);
 
@@ -177,7 +178,9 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   }
 
   Widget _signalHeader(BuildContext context, bool isExpanded) {
-    return ListTile(title: Text('Signal: ${_formatSignal(_drill.signal)}'));
+    return ListTile(
+        title: Text('Signal: ${_formatSignal(_drill.signal)}',
+            key: PracticeConfigScreen.signalHeaderKey));
   }
 
   String _formatSignal(Signal signal) {

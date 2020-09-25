@@ -18,4 +18,5 @@ class Keys {
   static const randomKey = 'drillTempoRandom';
   static const audioKey = 'drillSignalAudio';
   static const audioAndFlashKey = 'drillSignalAudioAndFlash';
+  static const signalHeaderKey = 'drillSignalHeaderKey';
 }
