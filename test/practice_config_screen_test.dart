@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Tests navigation and rendering of the practice config screen.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ft3/drill_data.dart';
 import 'package:ft3/main.dart';
 import 'package:ft3/practice_config_screen.dart';
 
@@ -25,13 +24,13 @@ void main() {
         .widget as Text;
   }
 
-  Tempo getTempo() {
-    final RadioListTile<Tempo> tile = find
-        .byKey(PracticeConfigScreen.fastKey)
+  String getTempo() {
+    final Text tempoTitle = find
+        .byKey(PracticeConfigScreen.tempoHeaderKey)
         .evaluate()
         .single
-        .widget as RadioListTile<Tempo>;
-    return tile.groupValue;
+        .widget as Text;
+    return tempoTitle.data;
   }
 
   Offset getSliderLeft(WidgetTester tester) {
@@ -53,54 +52,46 @@ void main() {
   testWidgets('Renders OK', (WidgetTester tester) async {
     await _render(tester);
     expect(find.text('Up/Down/Middle'), findsOneWidget);
-    expect(find.text('Tempo'), findsOneWidget);
-    expect(find.text('Random'), findsOneWidget);
-    expect(find.text('Slow'), findsOneWidget);
-    expect(find.text('Fast'), findsOneWidget);
-
-    expect(find.text('Drill Time'), findsOneWidget);
-    expect(find.text('10 minutes'), findsOneWidget);
-
+    expect(find.text('Tempo: Random'), findsOneWidget);
+    expect(find.text('Drill Time: 10 minutes'), findsOneWidget);
+    expect(find.text('Signal: Audio'), findsOneWidget);
     expect(find.byIcon(Icons.play_arrow), findsOneWidget);
   });
 
   testWidgets('Slider changes drill time', (WidgetTester tester) async {
     await _render(tester);
-    expect(find.text('Up/Down/Middle'), findsOneWidget);
-    expect(find.text('Tempo'), findsOneWidget);
-    expect(find.text('Random'), findsOneWidget);
-    expect(find.text('Slow'), findsOneWidget);
-    expect(find.text('Fast'), findsOneWidget);
-
-    expect(find.text('Drill Time'), findsOneWidget);
-    expect(getDrillTime().data, equals('10 minutes'));
+    expect(getDrillTime().data, equals('Drill Time: 10 minutes'));
+    await tester.tap(find.text('Drill Time: 10 minutes'));
+    await tester.pumpAndSettle();
 
     final left = getSliderLeft(tester);
     await tester.tapAt(left);
     await tester.pumpAndSettle();
-    expect(getDrillTime().data, equals('5 minutes'));
+    expect(getDrillTime().data, equals('Drill Time: 5 minutes'));
 
     final drag = await tester.startGesture(left);
     await drag.moveTo(getSliderRight(tester));
     await tester.pumpAndSettle();
-    expect(getDrillTime().data, equals('60 minutes'));
+    expect(getDrillTime().data, equals('Drill Time: 60 minutes'));
   });
 
   testWidgets('Tempo changes', (WidgetTester tester) async {
     await _render(tester);
 
-    expect(getTempo(), equals(Tempo.RANDOM));
+    expect(getTempo(), equals('Tempo: Random'));
 
+    await tester.tap(find.text('Tempo: Random'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Slow'));
     await tester.pumpAndSettle();
-    expect(getTempo(), equals(Tempo.SLOW));
+    expect(getTempo(), equals('Tempo: Slow'));
 
     await tester.tap(find.text('Fast'));
     await tester.pumpAndSettle();
-    expect(getTempo(), equals(Tempo.FAST));
+    expect(getTempo(), equals('Tempo: Fast'));
 
     await tester.tap(find.text('Random'));
     await tester.pumpAndSettle();
-    expect(getTempo(), equals(Tempo.RANDOM));
+    expect(getTempo(), equals('Tempo: Random'));
   });
 }

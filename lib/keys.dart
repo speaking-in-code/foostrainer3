@@ -12,6 +12,7 @@ class Keys {
   // Practice Config Screen
   static const drillTimeSliderKey = 'drillTimeSliderKey';
   static const drillTimeTextKey = 'drillTimeTextKey';
+  static const tempoHeaderKey = 'drillTempoHeaderKey';
   static const fastKey = 'drillTempoFast';
   static const slowKey = 'drillTempoSlow';
   static const randomKey = 'drillTempoRandom';

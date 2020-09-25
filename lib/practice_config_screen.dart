@@ -17,6 +17,7 @@ class PracticeConfigScreen extends StatefulWidget {
   static const routeName = '/practiceConfig';
   static const drillTimeSliderKey = Key(Keys.drillTimeSliderKey);
   static const drillTimeTextKey = Key(Keys.drillTimeTextKey);
+  static const tempoHeaderKey = Key(Keys.tempoHeaderKey);
   static const fastKey = Key(Keys.fastKey);
   static const slowKey = Key(Keys.slowKey);
   static const randomKey = Key(Keys.randomKey);
@@ -67,7 +68,9 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     ];
     // Light signal doesn't work on Android, need to do some debugging, send
     // patches to the Lamp package.
-    if (Platform.isIOS) {
+    // For testing: assume we're on MacOS. Should probably do dependency
+    // injection here.
+    if (Platform.isIOS || Platform.isMacOS) {
       children.add(_signalPicker());
     }
     return SingleChildScrollView(
@@ -83,6 +86,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return ExpansionPanelRadio(
         value: kTempoId,
         headerBuilder: _tempoHeader,
+        canTapOnHeader: true,
         body: Column(children: [
           _makeTempo(PracticeConfigScreen.randomKey, Tempo.RANDOM),
           _makeTempo(PracticeConfigScreen.slowKey, Tempo.SLOW),
@@ -91,7 +95,11 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   }
 
   Widget _tempoHeader(BuildContext context, bool isExpanded) {
-    return ListTile(title: Text('Tempo: ${_formatTempo(_drill.tempo)}'));
+    return ListTile(
+        title: Text(
+      'Tempo: ${_formatTempo(_drill.tempo)}',
+      key: PracticeConfigScreen.tempoHeaderKey,
+    ));
   }
 
   RadioListTile _makeTempo(Key key, Tempo tempo) {
@@ -129,12 +137,15 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   ExpansionPanelRadio _durationPicker() {
     return ExpansionPanelRadio(
         value: kDurationId,
+        canTapOnHeader: true,
         headerBuilder: _durationHeader,
         body: _makeDurationSlider());
   }
 
   Widget _durationHeader(BuildContext context, bool isExpanded) {
-    return ListTile(title: Text('Drill Time: ${_formatDuration()}'));
+    return ListTile(
+        title: Text('Drill Time: ${_formatDuration()}',
+            key: PracticeConfigScreen.drillTimeTextKey));
   }
 
   Widget _makeDurationSlider() {
@@ -156,6 +167,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   ExpansionPanelRadio _signalPicker() {
     return ExpansionPanelRadio(
         value: kSignalId,
+        canTapOnHeader: true,
         headerBuilder: _signalHeader,
         body: Column(children: [
           _makeSignal(PracticeConfigScreen.audioKey, Signal.AUDIO),
