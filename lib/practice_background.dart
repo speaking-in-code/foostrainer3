@@ -186,6 +186,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   // Time for setup (possession clock running.)
   static const _setupTime = Duration(seconds: 3);
 
+  // Time for flash signal.
+  static const _flashTime = Duration(milliseconds: 500);
+
   static final _analytics = FirebaseAnalytics();
   static final _rand = Random.secure();
 
@@ -329,7 +332,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.action = actionData.label;
     _updateMediaItem();
     if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
-      Lamp.flash(Duration(seconds: 1));
+      Lamp.flash(_flashTime);
     }
     await _player.setAsset(actionData.audioAsset);
     await _playUntilDone();
