@@ -69,7 +69,30 @@ pub global activate screenshots
 
 Do Android first, then iOS. (Android does the version increment.)
 
-### Bump version.
+```
+flutter test
+```
+
+Start an android simulator:
+
+```
+flutter run --observatory-port 8888 --disable-service-auth-codes test_driver/main.dart
+flutter drive --use-existing-app=http://127.0.0.1:8888/ --driver test_driver/main_test.dart
+```
+
+Start an iOS simulator, repeat those steps.
+
+Take screenshots (this will take several minutes):
+
+```
+~/.pub-cache/bin/screenshots
+```
+
+If that fails with errors like `No device attached or simulator installed for device 'iPhone Xs Max'`,
+you need to create a new simulator. Open the xcode simulators app, and select 'New Simulator'. Specify
+the missing device, and press create.
+
+Bump the version:
 
 ```
 cd android
