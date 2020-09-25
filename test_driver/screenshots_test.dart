@@ -1,13 +1,18 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter_driver/flutter_driver.dart';
+import 'package:ft3/keys.dart';
 import 'package:screenshots/screenshots.dart' as screenshots;
 import 'package:test/test.dart';
 
 void main() {
   final config = screenshots.Config();
-  final drillTypes = 'Drill-Types';
-  final passTypes = 'Passing-Types';
-  final rolloverTypes = 'Rollover-Types';
-  final rolloverDrill = 'Rollover-Drill';
+  const kDrillTypes = 'Drill-Types';
+  const kPassTypes = 'Passing-Types';
+  const kRolloverTypes = 'Rollover-Types';
+  const kRolloverDrill = 'Rollover-Drill';
+  const kConfigScreen = 'Config-Screen';
+  const kAudioAndFlashScreen = 'Audio-And-Flash-Screen';
 
   group('FoosTrainer App Screenshots', () {
     FlutterDriver driver;
@@ -34,19 +39,29 @@ void main() {
 
     test('collect screenshots', () async {
       await driver.waitFor(find.text('Pass'));
-      await screenshot(drillTypes);
+      await screenshot(kDrillTypes);
 
       await driver.tap(find.text('Pass'));
-      await screenshot(passTypes);
+      await screenshot(kPassTypes);
 
       await driver.tap(find.byType('BackButton'));
       await driver.getText(find.text('Drill Type'));
       await driver.tap(find.text('Rollover'));
-      await screenshot(rolloverTypes);
+      await screenshot(kRolloverTypes);
 
       await driver.tap(find.text('Up/Down/Middle'));
+      await driver.tap(find.text('Drill Time: 10 minutes'));
+      await screenshot(kConfigScreen);
+
+      if (Platform.isIOS) {
+        await driver.tap(find.text('Signal: Audio'));
+        await driver.tap(find.text('Audio and Flash'));
+        await screenshot(kAudioAndFlashScreen);
+      }
+
+      await driver.tap(find.byValueKey(Keys.playKey));
       await driver.waitFor(find.text('Wait'));
-      await screenshot(rolloverDrill);
+      await screenshot(kRolloverDrill);
     });
   });
 }
