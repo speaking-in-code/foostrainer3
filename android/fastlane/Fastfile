@@ -54,8 +54,6 @@ platform :android do
 
   desc "Submit a new beta Build to Google Play Store"
   lane :beta do
-    system('flutter', 'build', 'appbundle', exception: true)
-    #gradle(task: "clean assembleRelease")
     upload_to_play_store(
       aab: '../build/app/outputs/bundle/release/app-release.aab',
       track: 'beta',
