@@ -80,9 +80,11 @@ This runs unit tests and integration tests, updates screenshots,
 builds release builds, and uploads to beta tracks for both iOS
 and Google Play app stores.
 
-Once beta testers are happy, do the prod release. (TODO: automate
-that step. It's close now, bash prod.sh <release-name> can be made
-to work.)
+Once beta testers are happy, promote to prod:
+
+```
+bash prod.sh
+```
 
 ## Development Plan
 
@@ -115,7 +117,7 @@ Needed features
 * Bing when timer starts (done.)
 * Signal action with flash. (busted on Android.)
 * Configurable timings (done)
-* New screenshots.
+* New screenshots. (done)kkkkk
 
 ### M5: i18n
 
