@@ -67,62 +67,22 @@ pub global activate screenshots
 
 ## Production Release
 
-Do Android first, then iOS. (Android does the version increment.)
+Edit CHANGELOG.md to include a description of user-visible changes
+for the new release. Pick a release name, e.g. 'M4'.
+
+Then run
 
 ```
-flutter test
+bash beta.sh <release-name>.
 ```
 
-Start an android simulator:
+This runs unit tests and integration tests, updates screenshots,
+builds release builds, and uploads to beta tracks for both iOS
+and Google Play app stores.
 
-```
-flutter run --observatory-port 8888 --disable-service-auth-codes test_driver/main.dart
-flutter drive --use-existing-app=http://127.0.0.1:8888/ --driver test_driver/main_test.dart
-```
-
-Start an iOS simulator, repeat those steps.
-
-Take screenshots (this will take several minutes):
-
-```
-~/.pub-cache/bin/screenshots
-```
-
-If that fails with errors like `No device attached or simulator installed for device 'iPhone Xs Max'`,
-you need to create a new simulator. Open the xcode simulators app, and select 'New Simulator'. Specify
-the missing device, and press create.
-
-Bump the version:
-
-```
-cd android
-bundle exec fastlane version
-```
-
-### Android
-
-Push a new beta release:
-
-```
-cd android
-bundle exec fastlane beta
-```
-
-Check the progress in the [beta track in the play store](https://play.google.com/apps/publish/?account=8099263646066676021#ManageReleasesPlace:p=net.speakingincode.foostrainer&appid=4972318416623669354).
-
-When you're ready to push to production:
-
-```
-cd android
-bundle exec fastlane prod
-```
-
-### iOS
-
-```
-cd ios
-bundle exec fastlane release
-```
+Once beta testers are happy, do the prod release. (TODO: automate
+that step. It's close now, bash prod.sh <release-name> can be made
+to work.)
 
 ## Development Plan
 
