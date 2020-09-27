@@ -51,9 +51,8 @@ module FlutterUtils
     return new_version
   end
 
-  def self.create_tag
-    version_name = self.version_name
-    system("git", "tag", "-a", version_name, "-m", "Version #{version_name}")
+  def self.create_tag(release)
+    system("git", "tag", "-a", "-f", "-m", "Version #{release}", release)
   end
 end
 

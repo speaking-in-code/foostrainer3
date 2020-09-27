@@ -22,12 +22,19 @@ default_platform(:ios)
 
 platform :ios do
   desc "Push a new beta build to TestFlight"
-  lane :beta do
-    # Let the flutter build system do it's thing. If this fails, run it manually.
-    system('flutter', 'build', 'ios', exception: true)
-    # Now let the fastlane build system catch up.
-    build_app(clean: true)
-    upload_to_testflight
+  lane :beta do |options|
+    build_app(clean: false)
+    release = options[:release]
+    version_name = FlutterUtils.version_name
+    changelog = read_changelog(
+      changelog_path: '../CHANGELOG.md',
+      section_identifier: "[#{release}]",
+      excluded_markdown_elements: ['-', '###']
+    )
+    upload_to_testflight(
+      beta_app_feedback_email: 'foostrainer@gmail.com',
+      changelog: changelog,
+    )
   end
 
   desc "Push a new release build to the App Store"

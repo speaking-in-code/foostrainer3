@@ -20,27 +20,23 @@ default_platform(:android)
 
 platform :android do
   desc "Test changelog functionality"
-  lane :changelog do
+  lane :changelog do |options|
+    release = options[:release]
     cl = read_changelog(
       changelog_path: '../CHANGELOG.md',
-      section_identifier: '[Unreleased]',
+      section_identifier: "[#{release}]",
       excluded_markdown_elements: ['-', '###']
     )
     print cl
   end
 
-  lane :make_changelog do
-    FlutterUtils.create_tag
-    version_name = FlutterUtils.version_name
+  lane :make_changelog do |options|
+    release = options[:release]
+    FlutterUtils.create_tag(release)
     version = FlutterUtils.version
-    stamp_changelog(
-      changelog_path: '../CHANGELOG.md',
-      section_identifier: "Release #{version_name}",
-      git_tag: version_name
-    )
     changelog = read_changelog(
       changelog_path: '../CHANGELOG.md',
-      section_identifier: "[Release #{version_name}]",
+      section_identifier: "[#{release}]",
       excluded_markdown_elements: ['-', '###']
     )
     android_path = 'metadata/android/en-US/changelogs/%d.txt' % version
