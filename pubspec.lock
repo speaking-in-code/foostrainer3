@@ -396,7 +396,7 @@ packages:
       name: json_rpc_2
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.2"
+    version: "2.2.1"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -438,7 +438,7 @@ packages:
       name: matcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.9"
+    version: "0.12.8"
   meta:
     dependency: "direct main"
     description:
@@ -772,21 +772,21 @@ packages:
       name: test
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.15.3"
+    version: "1.15.2"
   test_api:
     dependency: transitive
     description:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.18"
+    version: "0.2.17"
   test_core:
     dependency: transitive
     description:
       name: test_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.11"
+    version: "0.3.10"
   timing:
     dependency: transitive
     description:

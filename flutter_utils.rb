@@ -50,5 +50,10 @@ module FlutterUtils
            _config_path(), exception: true)
     return new_version
   end
+
+  def self.create_tag
+    version_name = self.version_name
+    system("git", "tag", "-a", version_name, "-m", "Version #{version_name}")
+  end
 end
 

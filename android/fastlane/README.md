@@ -16,14 +16,19 @@ or alternatively using `brew install fastlane`
 
 # Available Actions
 ## Android
-### android test
+### android changelog
 ```
-fastlane android test
+fastlane android changelog
 ```
-Runs all the tests
-### android version
+Test changelog functionality
+### android make_changelog
 ```
-fastlane android version
+fastlane android make_changelog
+```
+
+### android bump_version
+```
+fastlane android bump_version
 ```
 Increment build version
 ### android beta

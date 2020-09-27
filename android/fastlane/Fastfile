@@ -19,14 +19,37 @@ require '../../flutter_utils'
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
+  desc "Test changelog functionality"
+  lane :changelog do
+    cl = read_changelog(
+      changelog_path: '../CHANGELOG.md',
+      section_identifier: '[Unreleased]',
+      excluded_markdown_elements: ['-', '###']
+    )
+    print cl
+  end
+
+  lane :make_changelog do
+    FlutterUtils.create_tag
+    version_name = FlutterUtils.version_name
+    version = FlutterUtils.version
+    stamp_changelog(
+      changelog_path: '../CHANGELOG.md',
+      section_identifier: "Release #{version_name}",
+      git_tag: version_name
+    )
+    changelog = read_changelog(
+      changelog_path: '../CHANGELOG.md',
+      section_identifier: "[Release #{version_name}]",
+      excluded_markdown_elements: ['-', '###']
+    )
+    android_path = 'metadata/android/en-US/changelogs/%d.txt' % version
+    File.write(android_path, changelog)
   end
 
   desc "Increment build version"
-  lane :version do
-    FlutterUtils.bump_version()
+  lane :bump_version do
+    FlutterUtils.bump_version
   end
 
   desc "Submit a new beta Build to Google Play Store"
