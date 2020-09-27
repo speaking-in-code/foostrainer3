@@ -25,7 +25,6 @@ dependencies:
   mailto: ^1.0.0
   meta: ^1.1.8
   package_info: '>=0.4.3 <2.0.0'
-  permission_handler: 5.0.1+1
   just_audio: ^0.4.3
   sprintf: ^4.0.2
   url_launcher: ^5.5.3
