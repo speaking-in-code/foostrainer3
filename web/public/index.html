@@ -11,8 +11,8 @@
       #message h3 { color: #888; font-weight: normal; font-size: 16px; margin: 16px 0 12px; }
       #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
       #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
+      #message p { display: flex; justify-content: space-around; line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
+      #message a { text-align: center; min-width: 100px; background: #488CFF; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
       #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
       #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
       @media (max-width: 600px) {
@@ -23,9 +23,12 @@
   </head>
   <body>
     <div id="message">
-      <h1>FoosTrainer: Next level foosball</h1>
-      <p><a href="https://play.google.com/store/apps/details?id=net.speakingincode.foostrainer">Android</a></p>
-      <p><a href="">iOS (coming soon)</a></p>
+      <h1 style="text-align: center">FoosTrainer</h1>
+      <p>
+      <a href="https://play.google.com/store/apps/details?id=net.speakingincode.foostrainer">Android</a>
+      <a href="https://apps.apple.com/us/app/foostrainer/id1521160757">iOS</a>
+      </p>
+      <img src="web_hi_res_360_rounded_corners.jpg" height="360px" width="360px">
     </div>
   </body>
 </html>
