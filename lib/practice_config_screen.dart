@@ -1,7 +1,8 @@
+/// Widget to display list of drills.
 import 'dart:io' show Platform;
 
-/// Widget to display list of drills.
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'drill_data.dart';
 import 'keys.dart';
@@ -66,14 +67,8 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     List<ExpansionPanelRadio> children = [
       _tempoPicker(),
       _durationPicker(),
+      _signalPicker(),
     ];
-    // Light signal doesn't work on Android, need to do some debugging, send
-    // patches to the Lamp package.
-    // For testing: assume we're on MacOS. Should probably do dependency
-    // injection here.
-    if (Platform.isIOS || Platform.isMacOS) {
-      children.add(_signalPicker());
-    }
     return SingleChildScrollView(
       child: Container(
         child: ExpansionPanelList.radio(
@@ -206,7 +201,17 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   }
 
   void _onSignalChanged(Signal signal) async {
-    // TODO(brian): request permissions on Android M.
+    // iOS just lets us use the camera flash, no on-demand prompt for
+    // permissions.
+    if (signal == Signal.AUDIO_AND_FLASH && Platform.isAndroid) {
+      PermissionStatus status = await Permission.camera.status;
+      if (status != PermissionStatus.granted) {
+        status = await Permission.camera.request();
+      }
+      if (status != PermissionStatus.granted) {
+        signal = Signal.AUDIO;
+      }
+    }
     setState(() {
       _drill.signal = signal;
     });

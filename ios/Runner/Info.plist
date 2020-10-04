@@ -47,5 +47,8 @@
 	<false/>
   <key>NSMicrophoneUsageDescription</key>
   <string>Microphone is never used.</string>
+  <!-- Permission options for the `camera` group -->
+  <key>NSCameraUsageDescription</key>
+  <string>You can use the camera flash as a signal.</string>
 </dict>
 </plist>

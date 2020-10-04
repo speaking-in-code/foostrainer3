@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:lamp/lamp.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:torch_compat/torch_compat.dart';
 
 import 'debug_info.dart';
 import 'log.dart';
@@ -27,8 +28,22 @@ class DebugScreen extends StatelessWidget {
               future: pauseInfo,
               initialData: DebugInfoResponse(),
               builder: _pauseDelays),
-          ListTile(title: Text('Lamp On'), onTap: () => Lamp.turnOn()),
-          ListTile(title: Text('Lamp Off'), onTap: () => Lamp.turnOff()),
+          FutureBuilder(
+            future: Permission.camera.status,
+            builder: _permissionStatus,
+          ),
+          Card(
+            child: ListTile(
+              title: Text('Lamp On'),
+              onTap: () => TorchCompat.turnOn(),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              title: Text('Lamp Off'),
+              onTap: () => TorchCompat.turnOff(),
+            ),
+          ),
         ]));
   }
 
@@ -47,5 +62,23 @@ class DebugScreen extends StatelessWidget {
     String mean = data.meanDelayMillis?.toStringAsFixed(1);
     String stdDev = data.stdDevDelayMillis?.toStringAsFixed(1);
     return 'Mean: $mean ms. StdDev: $stdDev ms';
+  }
+
+  Widget _permissionStatus(
+      BuildContext context, final AsyncSnapshot<PermissionStatus> snapshot) {
+    String label;
+    if (snapshot.hasData) {
+      label = '${snapshot.data}';
+    } else if (snapshot.hasError) {
+      label = '${snapshot.error}';
+    } else {
+      label = 'unknown';
+    }
+    return Card(
+      child: ListTile(
+        title: Text('Flash Permission'),
+        subtitle: Text(label),
+      ),
+    );
   }
 }

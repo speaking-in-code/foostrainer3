@@ -9,8 +9,8 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:lamp/lamp.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'album_art.dart';
@@ -32,6 +32,9 @@ class PracticeBackground {
 
   /// Start practicing the provided drill.
   static Future<void> startPractice(DrillData drill) async {
+    if (drill.signal == Signal.AUDIO_AND_FLASH) {
+      Wakelock.enable();
+    }
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
@@ -73,6 +76,7 @@ class PracticeBackground {
 
   /// Stop practice.
   static Future<void> stopPractice() async {
+    Wakelock.disable();
     AudioService.stop();
     return true;
   }
@@ -199,7 +203,6 @@ class _BackgroundTask extends BackgroundAudioTask {
   PracticeProgress _progress = PracticeProgress.empty();
   Timer _elapsedTimeUpdater;
   RandomDelay _randomDelay;
-  bool _originalWakelock;
 
   // Stop time for the drill. zero means play forever.
   Duration _finishTime;
@@ -232,10 +235,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   @override
   Future<void> onPlayMediaItem(MediaItem mediaItem) async {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
-    if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
-      _originalWakelock = await Wakelock.isEnabled;
-      Wakelock.enable();
-    }
+
     _randomDelay = RandomDelay(
         min: _setupTime,
         max: Duration(seconds: _progress.drill.possessionSeconds),
@@ -283,9 +283,6 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.state = PracticeState.stopped;
     _stopwatch?.reset();
     _elapsedTimeUpdater?.cancel();
-    if (_originalWakelock != null) {
-      Wakelock.toggle(on: _originalWakelock);
-    }
     await _player.stop();
     await _player.dispose();
     await AudioServiceBackground.setState(
@@ -332,11 +329,17 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.action = actionData.label;
     _updateMediaItem();
     if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
-      Lamp.flash(_flashTime);
+      _flashTorch();
     }
     await _player.setAsset(actionData.audioAsset);
     await _playUntilDone();
     _pause(_resetTime).whenComplete(_waitForSetup);
+  }
+
+  Future<void> _flashTorch() async {
+    await TorchCompat.turnOn();
+    await Future.delayed(_flashTime);
+    await TorchCompat.turnOff();
   }
 
   // Calling this too frequently makes the notifications UI unresponsive, so

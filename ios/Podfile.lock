@@ -79,8 +79,6 @@ PODS:
     - GoogleUtilities/Logger
   - just_audio (0.0.1):
     - Flutter
-  - lamp (0.0.1):
-    - Flutter
   - nanopb (1.30905.0):
     - nanopb/decode (= 1.30905.0)
     - nanopb/encode (= 1.30905.0)
@@ -90,10 +88,14 @@ PODS:
     - Flutter
   - path_provider (0.0.1):
     - Flutter
+  - "permission_handler (5.0.1+1)":
+    - Flutter
   - PromisesObjC (1.2.9)
   - sqflite (0.0.1):
     - Flutter
     - FMDB (~> 2.7.2)
+  - torch_compat (0.0.1):
+    - Flutter
   - url_launcher (0.0.1):
     - Flutter
   - wakelock (0.0.1):
@@ -108,10 +110,11 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_isolate (from `.symlinks/plugins/flutter_isolate/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/ios`)
-  - lamp (from `.symlinks/plugins/lamp/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - torch_compat (from `.symlinks/plugins/torch_compat/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
   - wakelock (from `.symlinks/plugins/wakelock/ios`)
 
@@ -147,14 +150,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_isolate/ios"
   just_audio:
     :path: ".symlinks/plugins/just_audio/ios"
-  lamp:
-    :path: ".symlinks/plugins/lamp/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
+  torch_compat:
+    :path: ".symlinks/plugins/torch_compat/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
   wakelock:
@@ -179,15 +184,16 @@ SPEC CHECKSUMS:
   GoogleDataTransportCCTSupport: 489c1265d2c85b68187a83a911913d190012158d
   GoogleUtilities: 39530bc0ad980530298e9c4af8549e991fd033b1
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
-  lamp: d36cd3552d535c77ab49112704c0c9386b9268bb
   nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
+  permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
   PromisesObjC: b48e0338dbbac2207e611750777895f7a5811b75
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
+  torch_compat: 9796df0503acff574bbec5c12380f045f76870c4
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   wakelock: 0d4a70faf8950410735e3f61fb15d517c8a6efc4
 
-PODFILE CHECKSUM: 8e679eca47255a8ca8067c4c67aab20e64cb974d
+PODFILE CHECKSUM: 65875ed1fd8db64cc3404abb59bf5ba60291568d
 
 COCOAPODS: 1.9.3
