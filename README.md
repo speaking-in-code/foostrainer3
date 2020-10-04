@@ -117,7 +117,11 @@ Needed features
 * Bing when timer starts (done.)
 * Signal action with flash. (busted on Android.)
 * Configurable timings (done)
-* New screenshots. (done)kkkkk
+* New screenshots. (done)
+
+### M4.5: android flash
+
+* Flash works now.
 
 ### M5: i18n
 
