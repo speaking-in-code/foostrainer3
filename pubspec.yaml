@@ -3,10 +3,13 @@ description: FoosTrainer
 
 publish_to: 'none' 
 
-version: 2.0.37+37
+version: 2.0.38+38
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
+  # Restrict to prior to 1.22, because of screenshots problem:
+  # https://github.com/mmcc007/screenshots/issues/215
+  flutter: '>=1.20.0 <1.22.0'
 
 dependencies:
   #audio_service: ^0.14.0
@@ -42,7 +45,14 @@ dev_dependencies:
   json_serializable:
   mockito: ^4.1.1
   screenshots: ^2.1.1
+  #screenshots:
+  #  path: ../screenshots
   test:
+
+#dependency_overrides:
+#  process: ^4.0.0-nullsafety.2
+#  pl#atform: ^3.0.0-nullsafety.1
+#  file: ^6.0.0-nullsafety.1
 
 flutter:
   uses-material-design: true
