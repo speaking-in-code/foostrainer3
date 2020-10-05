@@ -38,11 +38,11 @@ platform :android do
       changelog_path: '../CHANGELOG.md',
       section_identifier: "[#{release}]",
       excluded_markdown_elements: ['-', '###']
-    )
+    ) + '\n'
     android_path = 'metadata/android/en-US/changelogs/%d.txt' % version
-    File.write(android_path + '\n', changelog)
+    File.write(android_path, changelog)
     ios_path = '../../ios/fastlane/metadata/en-US/release_notes.txt'
-    File.write(ios_path + '\n', changelog)
+    File.write(ios_path, changelog)
   end
 
   desc "Increment build version"
