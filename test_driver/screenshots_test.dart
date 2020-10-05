@@ -53,11 +53,9 @@ void main() {
       await driver.tap(find.text('Drill Time: 10 minutes'));
       await screenshot(kConfigScreen);
 
-      if (Platform.isIOS) {
-        await driver.tap(find.text('Signal: Audio'));
-        await driver.tap(find.text('Audio and Flash'));
-        await screenshot(kAudioAndFlashScreen);
-      }
+      await driver.tap(find.text('Signal: Audio'));
+      await driver.tap(find.text('Audio and Flash'));
+      await screenshot(kAudioAndFlashScreen);
 
       await driver.tap(find.byValueKey(Keys.playKey));
       await driver.waitFor(find.text('Wait'));
