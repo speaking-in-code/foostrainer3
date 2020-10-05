@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [M5]
+### Added
+- LED flash now supported on Android devices.
 
 ## [M4] - 2020-09-27
 ### Added
