@@ -1,0 +1,20 @@
+# A list of integration tests.
+tests:
+  # App under test is main.dart, test driver is main_test.dart.
+  - test_driver/main.dart
+
+# Ignore screenshots from integration tests.
+archive: /tmp/archive
+
+# A list of locales supported by the app
+locales:
+  - en-US
+
+# A map of devices to emulate
+devices:
+  ios:
+    iPhone 6s Plus:
+  android:
+    Nexus 5X:
+
+frame: true
