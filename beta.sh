@@ -16,11 +16,15 @@ function unit_test() {
   flutter test
 }
 
+# Uses screenshots to start a few simulators and run our integration tests.
+# Does not take app store screenshots.
 function integration_test() {
-  flutter pub global run screenshots:main -t integration_test.yaml
+  flutter pub global run screenshots:main -c integration_test.yaml -m archive
 }
 
+# Generate app store screenshots.
 function screenshots() {
+  #flutter run ../screenshots/bin/main.dart
   flutter pub global run screenshots:main
 }
 
@@ -49,9 +53,7 @@ function upload_ios_beta() {
 
 clean
 unit_test
-# TODO: add integration tests once the flutter driver isolate bug fix is
-# released.
-# integration_test
+#integration_test
 screenshots
 bump_version
 build_releases
