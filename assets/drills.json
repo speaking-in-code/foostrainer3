@@ -23,6 +23,28 @@
       ]
     },
     {
+      "name": "Bounce",
+      "type": "Pass",
+      "possessionSeconds": 10,
+      "actions": [
+        {
+          "label": "Bounce",
+          "audioAsset": "assets/pass_bounce.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Tic-Tac Wall",
+      "type": "Pass",
+      "possessionSeconds": 10,
+      "actions": [
+        {
+          "label": "Bounce",
+          "audioAsset": "assets/pass_tic_tac_wall.mp3"
+        }
+      ]
+    },
+    {
       "name": "Lane/Wall",
       "type": "Pass",
       "possessionSeconds": 10,
@@ -30,6 +52,21 @@
         {
           "label": "Lane",
           "audioAsset": "assets/pass_lane.mp3"
+        },
+        {
+          "label": "Wall",
+          "audioAsset": "assets/pass_wall.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Bounce/Wall",
+      "type": "Pass",
+      "possessionSeconds": 10,
+      "actions": [
+        {
+          "label": "Bounce",
+          "audioAsset": "assets/pass_bounce.mp3"
         },
         {
           "label": "Wall",
