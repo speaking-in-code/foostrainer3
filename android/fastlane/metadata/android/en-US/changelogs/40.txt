@@ -1,0 +1,2 @@
+Added
+LED flash now supported on Android devices.\n

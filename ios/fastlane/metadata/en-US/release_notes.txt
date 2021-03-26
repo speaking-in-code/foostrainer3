@@ -1,6 +1,2 @@
 Added
-Configurable delays for actions: fast, slow, or random.
-More accurate timers.
-Slider to manage practice time.
-Add bell at start of possession clock, and end of practice time.
-iOS only: LED flash option for actions.
+LED flash now supported on Android devices.\n
