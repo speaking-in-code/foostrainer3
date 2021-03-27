@@ -7,6 +7,6 @@ class DurationFormatter {
     int seconds = elapsed.inSeconds % 60;
     int minutes = elapsed.inMinutes % 60;
     int hours = elapsed.inHours;
-    return sprintf('%02d:%02d:%02d', [hours, minutes, seconds]) ?? '';
+    return sprintf('%02d:%02d:%02d', [hours, minutes, seconds]);
   }
 }

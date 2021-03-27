@@ -78,16 +78,15 @@ class PracticeBackground {
   static Future<void> stopPractice() async {
     Wakelock.disable();
     AudioService.stop();
-    return true;
   }
 
   /// Get a progress report from a MediaItem update.
   static PracticeProgress _transformBackgroundUpdate(
       MediaItem mediaItem, PlaybackState? playbackState) {
-    var extras = mediaItem?.extras ?? {};
+    var extras = mediaItem.extras ?? {};
     String? drillDataJson = extras[_drill];
     if (drillDataJson == null) {
-      throw StateError('MediaItem missing drill: ${mediaItem?.id}');
+      throw StateError('MediaItem missing drill: ${mediaItem.id}');
     }
     PracticeState state = PracticeState.paused;
     if (playbackState?.playing ?? false) {
@@ -136,9 +135,9 @@ enum PracticeState {
 class PracticeProgress {
   DrillData? drill;
   PracticeState state;
-  String? action;
-  int? shotCount;
-  String? elapsed;
+  String action;
+  int shotCount = 0;
+  String elapsed;
 
   PracticeProgress(
       {required this.drill,
@@ -218,8 +217,8 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   void _logEvent(String name) {
     _analytics.logEvent(name: name, parameters: {
-      _drillType: _progress?.drill?.type ?? '',
-      _drillName: _progress?.drill?.name ?? '',
+      _drillType: _progress.drill?.type ?? '',
+      _drillName: _progress.drill?.name ?? '',
       _elapsedSeconds: _stopwatch.elapsed.inSeconds,
     });
   }
@@ -281,7 +280,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _log.info('Stopping player');
     _logEvent(_stopEvent);
     _progress.state = PracticeState.stopped;
-    _stopwatch?.reset();
+    _stopwatch.reset();
     _elapsedTimeUpdater?.cancel();
     await _player.stop();
     await _player.dispose();
@@ -326,7 +325,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     ++_progress.shotCount;
     int actionIndex = _rand.nextInt(_progress.drill!.actions.length);
     ActionData actionData = _progress.drill!.actions[actionIndex];
-    _progress.action = actionData.label;
+    _progress.action = actionData.label!;
     _updateMediaItem();
     if (_progress.drill!.signal == Signal.AUDIO_AND_FLASH) {
       _flashTorch();

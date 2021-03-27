@@ -17,7 +17,7 @@ class DrillTypesScreen extends StatelessWidget {
             return Scaffold();
           }
           StaticDrills drills = snapshot.requireData;
-          var children = List<Widget>();
+          List<Widget> children = [];
           for (String? type in drills.types!) {
             children.add(Card(
                 child: ListTile(

@@ -3,6 +3,7 @@ import 'dart:ui';
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
 
+import 'drill_data.dart';
 import 'keys.dart';
 import 'my_app_bar.dart';
 import 'practice_background.dart';
@@ -52,12 +53,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 }
                 return Scaffold();
               }
-              var progress = snapshot?.data;
+              var progress = snapshot.data;
               if (progress == null) {
                 // Stream still being initialized, use the passed in drill to
                 // speed up rendering.
                 progress = PracticeProgress.empty();
-                progress.drill = ModalRoute.of(context)!.settings.arguments as DrillData?;
+                progress.drill =
+                    ModalRoute.of(context)!.settings.arguments as DrillData?;
               }
               return Scaffold(
                   appBar: MyAppBar(title: progress.drill!.name).build(context),
