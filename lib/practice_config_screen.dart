@@ -26,6 +26,9 @@ class PracticeConfigScreen extends StatefulWidget {
   static const audioKey = Key(Keys.audioKey);
   static const audioAndFlashKey = Key(Keys.audioAndFlashKey);
   static const signalHeaderKey = Key(Keys.signalHeaderKey);
+  static const loggingHeaderKey = Key(Keys.loggingHeaderKey);
+  static const loggingOnKey = Key(Keys.loggingOnKey);
+  static const loggingOffKey = Key(Keys.loggingOffKey);
 
   PracticeConfigScreen({Key key}) : super(key: key);
 
@@ -38,6 +41,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   static const kTempoId = 0;
   static const kDurationId = 1;
   static const kSignalId = 2;
+  static const kLogId = 3;
 
   static const kDefaultMinutes = 10;
   DrillData _drill;
@@ -68,6 +72,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       _tempoPicker(),
       _durationPicker(),
       _signalPicker(),
+      _loggingPicker(),
     ];
     return SingleChildScrollView(
       child: Container(
@@ -214,6 +219,44 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     }
     setState(() {
       _drill.signal = signal;
+    });
+  }
+
+  ExpansionPanelRadio _loggingPicker() {
+    return ExpansionPanelRadio(
+        value: kLogId,
+        canTapOnHeader: true,
+        headerBuilder: _loggingHeader,
+        body: Column(children: [
+          _makeLogging(PracticeConfigScreen.loggingOnKey, true),
+          _makeLogging(PracticeConfigScreen.loggingOffKey, false),
+        ]));
+  }
+
+  Widget _loggingHeader(BuildContext context, bool isExpanded) {
+    return ListTile(
+        title: Text('Practice Log: ${_formatLogging(_drill.logging)}',
+            key: PracticeConfigScreen.loggingHeaderKey));
+  }
+
+  String _formatLogging(bool on) {
+    return on ? "On" : "Off";
+  }
+
+  RadioListTile _makeLogging(Key key, bool on) {
+    return RadioListTile<bool>(
+      key: key,
+      activeColor: Theme.of(context).buttonColor,
+      title: Text(_formatLogging(on)),
+      value: on,
+      groupValue: _drill.logging,
+      onChanged: _onLoggingChanged,
+    );
+  }
+
+  void _onLoggingChanged(bool on) async {
+    setState(() {
+      _drill.logging = on;
     });
   }
 

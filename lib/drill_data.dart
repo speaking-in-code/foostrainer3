@@ -40,6 +40,7 @@ class DrillData {
       this.tempo,
       this.signal,
       this.practiceMinutes,
+      this.logging,
       List<ActionData> actions})
       : actions = (actions ?? []);
 
@@ -50,6 +51,7 @@ class DrillData {
   Signal signal;
   int practiceMinutes;
   List<ActionData> actions;
+  bool logging;
 
   factory DrillData.fromJson(Map<String, dynamic> json) =>
       _$DrillDataFromJson(json);

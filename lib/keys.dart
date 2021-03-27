@@ -19,4 +19,7 @@ class Keys {
   static const audioKey = 'drillSignalAudio';
   static const audioAndFlashKey = 'drillSignalAudioAndFlash';
   static const signalHeaderKey = 'drillSignalHeaderKey';
+  static const loggingHeaderKey = 'loggingHeaderKey';
+  static const loggingOnKey = 'loggingOnKey';
+  static const loggingOffKey = 'loggingOffKey';
 }
