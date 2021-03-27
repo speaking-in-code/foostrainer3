@@ -1,5 +1,8 @@
 import 'dart:io' show Platform;
 
+// TODO(brian): figure out how to support screenshots, since mmc007 screenshots
+// doesn't seem likely to be upgraded soon.
+/*
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:ft3/keys.dart';
 import 'package:screenshots/screenshots.dart' as screenshots;
@@ -63,3 +66,4 @@ void main() {
     });
   });
 }
+*/

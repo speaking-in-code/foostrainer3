@@ -50,7 +50,7 @@ class DebugScreen extends StatelessWidget {
   Widget _pauseDelays(
       BuildContext context, final AsyncSnapshot<DebugInfoResponse> info) {
     final String subtitle =
-        info.hasData ? _formatData(info.data) : info.error?.toString();
+        (info.hasData ? _formatData(info.data!) : info.error?.toString())!;
     return Card(
         child: ListTile(
       title: Text('Pause Delay'),
@@ -59,8 +59,8 @@ class DebugScreen extends StatelessWidget {
   }
 
   String _formatData(DebugInfoResponse data) {
-    String mean = data.meanDelayMillis?.toStringAsFixed(1);
-    String stdDev = data.stdDevDelayMillis?.toStringAsFixed(1);
+    String? mean = data.meanDelayMillis?.toStringAsFixed(1);
+    String? stdDev = data.stdDevDelayMillis?.toStringAsFixed(1);
     return 'Mean: $mean ms. StdDev: $stdDev ms';
   }
 

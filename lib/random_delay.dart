@@ -9,13 +9,13 @@ class RandomDelay {
 
   final Duration min;
   final Duration max;
-  final Tempo tempo;
+  final Tempo? tempo;
 
-  RandomDelay({@required this.min, @required this.max, @required this.tempo});
+  RandomDelay({required this.min, required this.max, required this.tempo});
 
   Duration get() {
-    int start;
-    int end;
+    late int start;
+    late int end;
     switch (tempo) {
       case Tempo.RANDOM:
         start = this.min.inMilliseconds;

@@ -10,8 +10,8 @@ part 'drill_data.g.dart'; // Allows private access to generated code.
 class ActionData {
   ActionData({this.label, this.audioAsset});
 
-  String label;
-  String audioAsset;
+  String? label;
+  String? audioAsset;
   factory ActionData.fromJson(Map<String, dynamic> json) =>
       _$ActionDataFromJson(json);
   Map<String, dynamic> toJson() => _$ActionDataToJson(this);
@@ -40,15 +40,15 @@ class DrillData {
       this.tempo,
       this.signal,
       this.practiceMinutes,
-      List<ActionData> actions})
+      List<ActionData>? actions})
       : actions = (actions ?? []);
 
-  String name;
-  String type;
-  int possessionSeconds;
-  Tempo tempo;
-  Signal signal;
-  int practiceMinutes;
+  String? name;
+  String? type;
+  int? possessionSeconds;
+  Tempo? tempo;
+  Signal? signal;
+  int? practiceMinutes;
   List<ActionData> actions;
 
   factory DrillData.fromJson(Map<String, dynamic> json) =>
@@ -58,7 +58,7 @@ class DrillData {
 
 @JsonSerializable()
 class DrillListData {
-  DrillListData({List<DrillData> drills}) : drills = drills ?? [];
+  DrillListData({List<DrillData>? drills}) : drills = drills ?? [];
 
   List<DrillData> drills;
 

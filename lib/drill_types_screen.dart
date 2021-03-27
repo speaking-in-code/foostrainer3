@@ -18,10 +18,10 @@ class DrillTypesScreen extends StatelessWidget {
           }
           StaticDrills drills = snapshot.requireData;
           var children = List<Widget>();
-          for (String type in drills.types) {
+          for (String? type in drills.types!) {
             children.add(Card(
                 child: ListTile(
-                    title: Text(type),
+                    title: Text(type!),
                     onTap: () {
                       Navigator.pushNamed(context, DrillListScreen.routeName,
                           arguments: drills.getDrills(type));

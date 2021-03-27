@@ -24,7 +24,7 @@ void main() {
         .widget as Text;
   }
 
-  String getTempo() {
+  String? getTempo() {
     final Text tempoTitle = find
         .byKey(PracticeConfigScreen.tempoHeaderKey)
         .evaluate()
@@ -33,7 +33,7 @@ void main() {
     return tempoTitle.data;
   }
 
-  String getSignal() {
+  String? getSignal() {
     final Text signalTitle = find
         .byKey(PracticeConfigScreen.signalHeaderKey)
         .evaluate()

@@ -14,7 +14,7 @@ void main() async {
   // Override the screenshot so that it looks good, and also works around
   // https://github.com/flutter/flutter/issues/35521 which sometimes triggers.
   var rollover;
-  var drills = await StaticDrills.load();
+  var drills = await StaticDrills.load()!;
   for (var drill in drills.getDrills('Rollover')) {
     if (drill.name == 'Up/Down/Middle') {
       rollover = drill;

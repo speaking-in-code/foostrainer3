@@ -27,7 +27,7 @@ class PracticeConfigScreen extends StatefulWidget {
   static const audioAndFlashKey = Key(Keys.audioAndFlashKey);
   static const signalHeaderKey = Key(Keys.signalHeaderKey);
 
-  PracticeConfigScreen({Key key}) : super(key: key);
+  PracticeConfigScreen({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PracticeConfigScreenState();
@@ -40,17 +40,17 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   static const kSignalId = 2;
 
   static const kDefaultMinutes = 10;
-  DrillData _drill;
-  double _practiceMinutes;
+  DrillData? _drill;
+  double? _practiceMinutes;
 
   @override
   Widget build(BuildContext context) {
-    _drill = ModalRoute.of(context).settings.arguments;
-    _drill.tempo ??= Tempo.RANDOM;
-    _drill.signal ??= Signal.AUDIO;
-    _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
+    _drill = ModalRoute.of(context)!.settings.arguments as DrillData?;
+    _drill!.tempo ??= Tempo.RANDOM;
+    _drill!.signal ??= Signal.AUDIO;
+    _practiceMinutes ??= (_drill!.practiceMinutes ?? kDefaultMinutes).toDouble();
     return Scaffold(
-      appBar: MyAppBar(title: _drill.name).build(context),
+      appBar: MyAppBar(title: _drill!.name).build(context),
       body: _expansionPanels(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).buttonColor,
@@ -93,7 +93,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   Widget _tempoHeader(BuildContext context, bool isExpanded) {
     return ListTile(
         title: Text(
-      'Tempo: ${_formatTempo(_drill.tempo)}',
+      'Tempo: ${_formatTempo(_drill!.tempo)}',
       key: PracticeConfigScreen.tempoHeaderKey,
     ));
   }
@@ -102,20 +102,20 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return RadioListTile<Tempo>(
       key: key,
       activeColor: Theme.of(context).buttonColor,
-      title: Text(_formatTempo(tempo)),
+      title: Text(_formatTempo(tempo)!),
       value: tempo,
-      groupValue: _drill.tempo,
+      groupValue: _drill!.tempo,
       onChanged: _onTempoChanged,
     );
   }
 
-  void _onTempoChanged(Tempo tempo) {
+  void _onTempoChanged(Tempo? tempo) {
     setState(() {
-      _drill.tempo = tempo;
+      _drill!.tempo = tempo;
     });
   }
 
-  String _formatTempo(Tempo tempo) {
+  String? _formatTempo(Tempo? tempo) {
     switch (tempo) {
       case Tempo.SLOW:
         return 'Slow';
@@ -148,7 +148,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return Slider(
         activeColor: Theme.of(context).buttonColor,
         key: PracticeConfigScreen.drillTimeSliderKey,
-        value: _practiceMinutes,
+        value: _practiceMinutes!,
         min: 5,
         max: 60,
         divisions: 11,
@@ -174,11 +174,11 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
 
   Widget _signalHeader(BuildContext context, bool isExpanded) {
     return ListTile(
-        title: Text('Signal: ${_formatSignal(_drill.signal)}',
+        title: Text('Signal: ${_formatSignal(_drill!.signal)}',
             key: PracticeConfigScreen.signalHeaderKey));
   }
 
-  String _formatSignal(Signal signal) {
+  String? _formatSignal(Signal? signal) {
     switch (signal) {
       case Signal.AUDIO_AND_FLASH:
         return 'Audio and Flash';
@@ -193,14 +193,14 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return RadioListTile<Signal>(
       key: key,
       activeColor: Theme.of(context).buttonColor,
-      title: Text(_formatSignal(value)),
+      title: Text(_formatSignal(value)!),
       value: value,
-      groupValue: _drill.signal,
+      groupValue: _drill!.signal,
       onChanged: _onSignalChanged,
     );
   }
 
-  void _onSignalChanged(Signal signal) async {
+  void _onSignalChanged(Signal? signal) async {
     // iOS just lets us use the camera flash, no on-demand prompt for
     // permissions.
     if (signal == Signal.AUDIO_AND_FLASH && Platform.isAndroid) {
@@ -213,7 +213,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       }
     }
     setState(() {
-      _drill.signal = signal;
+      _drill!.signal = signal;
     });
   }
 
@@ -221,17 +221,17 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     // Workaround for https://github.com/flutter/flutter/issues/35521: don't
     // actually run the background process. Triggering native UI like music
     // players tends to trigger that bug.
-    _log.info('Starting drill ${_drill.name}');
-    _drill.practiceMinutes = _practiceMinutes.round();
+    _log.info('Starting drill ${_drill!.name}');
+    _drill!.practiceMinutes = _practiceMinutes!.round();
     if (ScreenshotData.progress == null) {
       // Normal flow.
-      PracticeBackground.startPractice(_drill);
+      PracticeBackground.startPractice(_drill!);
     }
     Navigator.pushNamed(context, PracticeScreen.routeName, arguments: _drill);
     return Future.value();
   }
 
   String _formatDuration() {
-    return '${_practiceMinutes.toStringAsFixed(0)} minutes';
+    return '${_practiceMinutes!.toStringAsFixed(0)} minutes';
   }
 }

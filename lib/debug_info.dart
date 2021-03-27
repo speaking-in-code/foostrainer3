@@ -11,8 +11,8 @@ class DebugInfo {
 
 @JsonSerializable()
 class DebugInfoResponse {
-  double meanDelayMillis = 0;
-  double stdDevDelayMillis = 0;
+  double? meanDelayMillis = 0;
+  double? stdDevDelayMillis = 0;
 
   DebugInfoResponse({this.meanDelayMillis, this.stdDevDelayMillis});
 

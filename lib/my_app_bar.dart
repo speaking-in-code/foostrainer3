@@ -5,13 +5,13 @@ import 'more_options_sheet.dart';
 
 class MyAppBar {
   static final Key moreKey = Key(Keys.moreKey);
-  final Key key;
-  final String title;
+  final Key? key;
+  final String? title;
 
   const MyAppBar({this.key, this.title});
 
   AppBar build(BuildContext context) {
-    return AppBar(key: key, title: Text(title), actions: <Widget>[
+    return AppBar(key: key, title: Text(title!), actions: <Widget>[
       IconButton(
         icon: const Icon(Icons.more_vert),
         key: moreKey,

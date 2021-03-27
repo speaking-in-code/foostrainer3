@@ -13,7 +13,7 @@ class PracticeScreen extends StatefulWidget {
   static const elapsedKey = Key(Keys.elapsedKey);
   static const routeName = '/practice';
 
-  PracticeScreen({Key key}) : super(key: key);
+  PracticeScreen({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -46,7 +46,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 // Drill was stopped via notification media controls.
                 if (!_popInProgress) {
                   _popInProgress = true;
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                  WidgetsBinding.instance!.addPostFrameCallback((_) {
                     Navigator.pop(context);
                   });
                 }
@@ -57,10 +57,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 // Stream still being initialized, use the passed in drill to
                 // speed up rendering.
                 progress = PracticeProgress.empty();
-                progress.drill = ModalRoute.of(context).settings.arguments;
+                progress.drill = ModalRoute.of(context)!.settings.arguments as DrillData?;
               }
               return Scaffold(
-                  appBar: MyAppBar(title: progress.drill.name).build(context),
+                  appBar: MyAppBar(title: progress.drill!.name).build(context),
                   body: _PracticeScreenProgress(progress: progress));
             }));
   }
@@ -78,14 +78,14 @@ class _PracticeScreenProgress extends StatelessWidget {
   static const pauseKey = Key(Keys.pauseKey);
   static const playKey = Key(Keys.playKey);
   static const kLargeFontMinWidth = 480;
-  final PracticeProgress progress;
+  final PracticeProgress? progress;
 
-  _PracticeScreenProgress({Key key, this.progress}) : super(key: key);
+  _PracticeScreenProgress({Key? key, this.progress}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     RaisedButton actionButton;
-    if (progress.state == PracticeState.playing) {
+    if (progress!.state == PracticeState.playing) {
       actionButton = RaisedButton(
           key: pauseKey,
           child: Icon(Icons.pause),
@@ -99,19 +99,19 @@ class _PracticeScreenProgress extends StatelessWidget {
     final tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
     // Smaller devices in portrait orientation do better with a smaller font.
     final textStyle = MediaQuery.of(context).size.width > kLargeFontMinWidth
-        ? Theme.of(context).textTheme.headline3
-        : Theme.of(context).textTheme.headline4;
+        ? Theme.of(context).textTheme.headline3!
+        : Theme.of(context).textTheme.headline4!;
     return DefaultTextStyle(
         style: textStyle,
         child:
             Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          Text('${progress.action}'),
+          Text('${progress!.action}'),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Reps'),
-                Text('${progress.shotCount}',
+                Text('${progress!.shotCount}',
                     key: PracticeScreen.repsKey, style: tabular),
               ],
             ),
@@ -119,7 +119,7 @@ class _PracticeScreenProgress extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Time'),
-                Text('${progress.elapsed}',
+                Text('${progress!.elapsed}',
                     key: PracticeScreen.elapsedKey, style: tabular),
               ],
             ),

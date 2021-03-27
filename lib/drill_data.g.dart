@@ -8,8 +8,8 @@ part of 'drill_data.dart';
 
 ActionData _$ActionDataFromJson(Map<String, dynamic> json) {
   return ActionData(
-    label: json['label'] as String,
-    audioAsset: json['audioAsset'] as String,
+    label: json['label'] as String?,
+    audioAsset: json['audioAsset'] as String?,
   );
 }
 
@@ -21,16 +21,15 @@ Map<String, dynamic> _$ActionDataToJson(ActionData instance) =>
 
 DrillData _$DrillDataFromJson(Map<String, dynamic> json) {
   return DrillData(
-    name: json['name'] as String,
-    type: json['type'] as String,
-    possessionSeconds: json['possessionSeconds'] as int,
+    name: json['name'] as String?,
+    type: json['type'] as String?,
+    possessionSeconds: json['possessionSeconds'] as int?,
     tempo: _$enumDecodeNullable(_$TempoEnumMap, json['tempo']),
     signal: _$enumDecodeNullable(_$SignalEnumMap, json['signal']),
-    practiceMinutes: json['practiceMinutes'] as int,
-    actions: (json['actions'] as List)
-        ?.map((e) =>
-            e == null ? null : ActionData.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+    practiceMinutes: json['practiceMinutes'] as int?,
+    actions: (json['actions'] as List<dynamic>?)
+        ?.map((e) => ActionData.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
@@ -44,36 +43,41 @@ Map<String, dynamic> _$DrillDataToJson(DrillData instance) => <String, dynamic>{
       'actions': instance.actions,
     };
 
-T _$enumDecode<T>(
-  Map<T, dynamic> enumValues,
-  dynamic source, {
-  T unknownValue,
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
 }) {
   if (source == null) {
-    throw ArgumentError('A value must be provided. Supported values: '
-        '${enumValues.values.join(', ')}');
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
   }
 
-  final value = enumValues.entries
-      .singleWhere((e) => e.value == source, orElse: () => null)
-      ?.key;
-
-  if (value == null && unknownValue == null) {
-    throw ArgumentError('`$source` is not one of the supported values: '
-        '${enumValues.values.join(', ')}');
-  }
-  return value ?? unknownValue;
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
 }
 
-T _$enumDecodeNullable<T>(
-  Map<T, dynamic> enumValues,
+K? _$enumDecodeNullable<K, V>(
+  Map<K, V> enumValues,
   dynamic source, {
-  T unknownValue,
+  K? unknownValue,
 }) {
   if (source == null) {
     return null;
   }
-  return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
+  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
 }
 
 const _$TempoEnumMap = {
@@ -89,10 +93,9 @@ const _$SignalEnumMap = {
 
 DrillListData _$DrillListDataFromJson(Map<String, dynamic> json) {
   return DrillListData(
-    drills: (json['drills'] as List)
-        ?.map((e) =>
-            e == null ? null : DrillData.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+    drills: (json['drills'] as List<dynamic>?)
+        ?.map((e) => DrillData.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 

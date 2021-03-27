@@ -83,9 +83,9 @@ class PracticeBackground {
 
   /// Get a progress report from a MediaItem update.
   static PracticeProgress _transformBackgroundUpdate(
-      MediaItem mediaItem, PlaybackState playbackState) {
+      MediaItem mediaItem, PlaybackState? playbackState) {
     var extras = mediaItem?.extras ?? {};
-    String drillDataJson = extras[_drill];
+    String? drillDataJson = extras[_drill];
     if (drillDataJson == null) {
       throw StateError('MediaItem missing drill: ${mediaItem?.id}');
     }
@@ -104,16 +104,16 @@ class PracticeBackground {
   /// Get a media item from the specified progress.
   static MediaItem getMediaItemFromProgress(PracticeProgress progress) {
     return MediaItem(
-        id: progress.drill.name,
+        id: progress.drill!.name!,
         title: 'Time: ${progress.elapsed}, Reps: ${progress.shotCount}',
-        album: progress.drill.name,
+        album: progress.drill!.name!,
         artist: 'FoosTrainer',
-        artUri: AlbumArt.getUri(),
+        artUri: AlbumArt.getUri()!,
         extras: {
           _action: progress.action,
           _shotCount: progress.shotCount,
           _elapsed: progress.elapsed,
-          _drill: jsonEncode(progress.drill.toJson()),
+          _drill: jsonEncode(progress.drill!.toJson()),
         });
   }
 
@@ -134,18 +134,18 @@ enum PracticeState {
 
 /// Current state of practice.
 class PracticeProgress {
-  DrillData drill;
+  DrillData? drill;
   PracticeState state;
-  String action;
-  int shotCount;
-  String elapsed;
+  String? action;
+  int? shotCount;
+  String? elapsed;
 
   PracticeProgress(
-      {@required this.drill,
-      @required this.state,
-      @required this.action,
-      @required this.shotCount,
-      @required this.elapsed});
+      {required this.drill,
+      required this.state,
+      required this.action,
+      required this.shotCount,
+      required this.elapsed});
 
   factory PracticeProgress.empty() {
     return PracticeProgress(
@@ -201,11 +201,11 @@ class _BackgroundTask extends BackgroundAudioTask {
   final _stopwatch = Stopwatch();
 
   PracticeProgress _progress = PracticeProgress.empty();
-  Timer _elapsedTimeUpdater;
-  RandomDelay _randomDelay;
+  Timer? _elapsedTimeUpdater;
+  late RandomDelay _randomDelay;
 
   // Stop time for the drill. zero means play forever.
-  Duration _finishTime;
+  Duration? _finishTime;
 
   factory _BackgroundTask() {
     _log.info('Creating player');
@@ -238,9 +238,9 @@ class _BackgroundTask extends BackgroundAudioTask {
 
     _randomDelay = RandomDelay(
         min: _setupTime,
-        max: Duration(seconds: _progress.drill.possessionSeconds),
-        tempo: _progress.drill.tempo);
-    _finishTime = Duration(minutes: _progress.drill.practiceMinutes);
+        max: Duration(seconds: _progress.drill!.possessionSeconds!),
+        tempo: _progress.drill!.tempo);
+    _finishTime = Duration(minutes: _progress.drill!.practiceMinutes!);
     _stopwatch.reset();
     _logEvent(_startEvent);
     return onPlay();
@@ -267,7 +267,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _logEvent(_pauseEvent);
     _progress.state = PracticeState.paused;
     _stopwatch.stop();
-    _elapsedTimeUpdater.cancel();
+    _elapsedTimeUpdater!.cancel();
     _progress.action = 'Paused';
     _updateMediaItem();
     await AudioServiceBackground.setState(
@@ -324,14 +324,14 @@ class _BackgroundTask extends BackgroundAudioTask {
       return;
     }
     ++_progress.shotCount;
-    int actionIndex = _rand.nextInt(_progress.drill.actions.length);
-    ActionData actionData = _progress.drill.actions[actionIndex];
+    int actionIndex = _rand.nextInt(_progress.drill!.actions.length);
+    ActionData actionData = _progress.drill!.actions[actionIndex];
     _progress.action = actionData.label;
     _updateMediaItem();
-    if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
+    if (_progress.drill!.signal == Signal.AUDIO_AND_FLASH) {
       _flashTorch();
     }
-    await _player.setAsset(actionData.audioAsset);
+    await _player.setAsset(actionData.audioAsset!);
     await _playUntilDone();
     _pause(_resetTime).whenComplete(_waitForSetup);
   }
@@ -350,7 +350,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     // If practice time has completed, give a moment, then play the "finished"
     // sound and pause.
-    if (_finishTime != Duration.zero && _stopwatch.elapsed > _finishTime) {
+    if (_finishTime != Duration.zero && _stopwatch.elapsed > _finishTime!) {
       _pause(const Duration(seconds: 1)).whenComplete(_finishPractice);
       onPause();
       return;

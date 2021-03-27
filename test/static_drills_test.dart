@@ -5,7 +5,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('Loads', () async {
-    StaticDrills drills = await StaticDrills.load();
+    StaticDrills drills = await StaticDrills.load()!;
     expect(drills.types, containsAll([
       'Pass',
       'Rollover',
@@ -15,8 +15,8 @@ void main() {
   });
 
   test('All types have at least two drills', () async {
-    StaticDrills drills = await StaticDrills.load();
-    for (var type in drills.types) {
+    StaticDrills drills = await StaticDrills.load()!;
+    for (var type in drills.types!) {
       var drillsForType = drills.getDrills(type);
       expect(drillsForType.length, greaterThanOrEqualTo(2));
     }
