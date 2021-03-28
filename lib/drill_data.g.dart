@@ -90,8 +90,8 @@ const _$SignalEnumMap = {
 };
 
 const _$TrackingEnumMap = {
-  Tracking.NO_ACCURACY: 'NO_ACCURACY',
-  Tracking.ACCURACY: 'ACCURACY',
+  Tracking.OFF: 'OFF',
+  Tracking.ON: 'ON',
 };
 
 DrillListData _$DrillListDataFromJson(Map<String, dynamic> json) {

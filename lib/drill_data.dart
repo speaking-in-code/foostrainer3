@@ -31,8 +31,8 @@ enum Signal {
 }
 
 enum Tracking {
-  NO_ACCURACY,
-  ACCURACY,
+  OFF,
+  ON,
 }
 
 // A set of actions with a name make up a drill.

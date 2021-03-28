@@ -52,6 +52,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill = ModalRoute.of(context).settings.arguments;
     _drill.tempo ??= Tempo.RANDOM;
     _drill.signal ??= Signal.AUDIO;
+    _drill.tracking ??= Tracking.OFF;
     _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
@@ -228,26 +229,27 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
         canTapOnHeader: true,
         headerBuilder: _trackingHeader,
         body: Column(children: [
-          _makeTracking(PracticeConfigScreen.trackingAccuracyOffKey,
-              Tracking.NO_ACCURACY),
           _makeTracking(
-              PracticeConfigScreen.trackingAccuracyOnKey, Tracking.ACCURACY),
+              PracticeConfigScreen.trackingAccuracyOffKey, Tracking.OFF),
+          _makeTracking(
+              PracticeConfigScreen.trackingAccuracyOnKey, Tracking.ON),
         ]));
   }
 
   Widget _trackingHeader(BuildContext context, bool isExpanded) {
     return ListTile(
-        title: Text('Tracking: ${_formatTracking(_drill.tracking)}',
+        title: Text('Accuracy Tracking: ${_formatTracking(_drill.tracking)}',
             key: PracticeConfigScreen.trackingHeaderKey));
   }
 
   String _formatTracking(Tracking tracking) {
     switch (tracking) {
-      case Tracking.ACCURACY:
-        return 'Accuracy Tracking';
-      case Tracking.NO_ACCURACY:
+      case Tracking.ON:
+        return 'On';
+      case Tracking.OFF:
+        return 'Off';
       default:
-        return 'No Accuracy Tracking';
+        return null;
     }
   }
 

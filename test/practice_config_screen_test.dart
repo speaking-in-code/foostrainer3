@@ -125,11 +125,11 @@ void main() {
 
   testWidgets('Tracking changes', (WidgetTester tester) async {
     await _render(tester);
-    expect(getTracking(), equals('Tracking: No Accuracy Tracking'));
-    await tester.tap(find.text('Tracking: No Accuracy Tracking'));
+    expect(getTracking(), equals('Accuracy Tracking: Off'));
+    await tester.tap(find.text('Accuracy Tracking: Off'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Accuracy Tracking'));
+    await tester.tap(find.text('On'));
     await tester.pumpAndSettle();
-    expect(getTracking(), equals('Tracking: Accuracy Tracking'));
+    expect(getTracking(), equals('Accuracy Tracking: On'));
   });
 }
