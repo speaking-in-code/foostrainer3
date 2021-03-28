@@ -13,7 +13,7 @@ class DrillListScreen extends StatelessWidget {
     // Extract the arguments from the current ModalRoute settings and cast
     // them as ScreenArguments.
     final List<DrillData> drills = ModalRoute.of(context).settings.arguments;
-    var children = List<Widget>();
+    List<Widget> children = [];
     String type = drills[0]?.type ?? '';
     for (DrillData drill in drills) {
       children.add(Card(

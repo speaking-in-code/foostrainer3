@@ -90,14 +90,14 @@ class _PracticeScreenProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    RaisedButton actionButton;
+    ElevatedButton actionButton;
     if (progress.state == PracticeState.playing) {
-      actionButton = RaisedButton(
+      actionButton = ElevatedButton(
           key: pauseKey,
           child: Icon(Icons.pause),
           onPressed: PracticeBackground.pause);
     } else {
-      actionButton = RaisedButton(
+      actionButton = ElevatedButton(
           key: playKey,
           child: Icon(Icons.play_arrow),
           onPressed: PracticeBackground.play);
