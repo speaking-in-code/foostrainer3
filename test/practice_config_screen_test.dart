@@ -42,6 +42,15 @@ void main() {
     return signalTitle.data;
   }
 
+  String getTracking() {
+    final Text trackingTitle = find
+        .byKey(PracticeConfigScreen.trackingHeaderKey)
+        .evaluate()
+        .single
+        .widget as Text;
+    return trackingTitle.data;
+  }
+
   Offset getSliderLeft(WidgetTester tester) {
     final Offset center =
         tester.getCenter(find.byKey(PracticeConfigScreen.drillTimeSliderKey));
@@ -112,5 +121,15 @@ void main() {
     await tester.tap(find.text('Audio and Flash'));
     await tester.pumpAndSettle();
     expect(getSignal(), equals('Signal: Audio and Flash'));
+  });
+
+  testWidgets('Tracking changes', (WidgetTester tester) async {
+    await _render(tester);
+    expect(getTracking(), equals('Tracking: No Accuracy Tracking'));
+    await tester.tap(find.text('Tracking: No Accuracy Tracking'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Accuracy Tracking'));
+    await tester.pumpAndSettle();
+    expect(getTracking(), equals('Tracking: Accuracy Tracking'));
   });
 }

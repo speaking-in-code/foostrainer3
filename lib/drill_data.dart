@@ -30,6 +30,11 @@ enum Signal {
   AUDIO_AND_FLASH,
 }
 
+enum Tracking {
+  NO_ACCURACY,
+  ACCURACY,
+}
+
 // A set of actions with a name make up a drill.
 @JsonSerializable()
 class DrillData {
@@ -40,6 +45,7 @@ class DrillData {
       this.tempo,
       this.signal,
       this.practiceMinutes,
+      this.tracking,
       List<ActionData> actions})
       : actions = (actions ?? []);
 
@@ -49,6 +55,7 @@ class DrillData {
   Tempo tempo;
   Signal signal;
   int practiceMinutes;
+  Tracking tracking;
   List<ActionData> actions;
 
   factory DrillData.fromJson(Map<String, dynamic> json) =>

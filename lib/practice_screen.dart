@@ -4,9 +4,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'keys.dart';
+import 'log.dart';
 import 'my_app_bar.dart';
 import 'practice_background.dart';
 import 'screenshot_data.dart';
+
+final _log = Log.get('PracticeScreen');
 
 class PracticeScreen extends StatefulWidget {
   static const repsKey = Key(Keys.repsKey);
@@ -41,7 +44,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
             stream: stream,
             initialData: ScreenshotData.progress,
             builder: (context, snapshot) {
-              if (!PracticeBackground.running &&
+              _log.info(
+                  'PracticeBackground.running = ${PracticeBackground.running}');
+              if (PracticeBackground.running != null &&
+                  !PracticeBackground.running &&
                   ScreenshotData.progress == null) {
                 // Drill was stopped via notification media controls.
                 if (!_popInProgress) {

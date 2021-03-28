@@ -26,6 +26,9 @@ class PracticeConfigScreen extends StatefulWidget {
   static const audioKey = Key(Keys.audioKey);
   static const audioAndFlashKey = Key(Keys.audioAndFlashKey);
   static const signalHeaderKey = Key(Keys.signalHeaderKey);
+  static const trackingHeaderKey = Key(Keys.trackingHeaderKey);
+  static const trackingAccuracyOnKey = Key(Keys.trackingAccuracyOnKey);
+  static const trackingAccuracyOffKey = Key(Keys.trackingAccuracyOffKey);
 
   PracticeConfigScreen({Key key}) : super(key: key);
 
@@ -38,6 +41,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   static const kTempoId = 0;
   static const kDurationId = 1;
   static const kSignalId = 2;
+  static const kTrackingId = 3;
 
   static const kDefaultMinutes = 10;
   DrillData _drill;
@@ -68,6 +72,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       _tempoPicker(),
       _durationPicker(),
       _signalPicker(),
+      _trackingPicker(),
     ];
     return SingleChildScrollView(
       child: Container(
@@ -214,6 +219,52 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     }
     setState(() {
       _drill.signal = signal;
+    });
+  }
+
+  ExpansionPanelRadio _trackingPicker() {
+    return ExpansionPanelRadio(
+        value: kTrackingId,
+        canTapOnHeader: true,
+        headerBuilder: _trackingHeader,
+        body: Column(children: [
+          _makeTracking(PracticeConfigScreen.trackingAccuracyOffKey,
+              Tracking.NO_ACCURACY),
+          _makeTracking(
+              PracticeConfigScreen.trackingAccuracyOnKey, Tracking.ACCURACY),
+        ]));
+  }
+
+  Widget _trackingHeader(BuildContext context, bool isExpanded) {
+    return ListTile(
+        title: Text('Tracking: ${_formatTracking(_drill.tracking)}',
+            key: PracticeConfigScreen.trackingHeaderKey));
+  }
+
+  String _formatTracking(Tracking tracking) {
+    switch (tracking) {
+      case Tracking.ACCURACY:
+        return 'Accuracy Tracking';
+      case Tracking.NO_ACCURACY:
+      default:
+        return 'No Accuracy Tracking';
+    }
+  }
+
+  RadioListTile _makeTracking(Key key, Tracking value) {
+    return RadioListTile<Tracking>(
+      key: key,
+      activeColor: Theme.of(context).buttonColor,
+      title: Text(_formatTracking(value)),
+      value: value,
+      groupValue: _drill.tracking,
+      onChanged: _onTrackingChanged,
+    );
+  }
+
+  void _onTrackingChanged(Tracking tracking) async {
+    setState(() {
+      _drill.tracking = tracking;
     });
   }
 
