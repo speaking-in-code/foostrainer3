@@ -24,9 +24,9 @@ class PauseTimer {
   static const kMinPlay = Duration(seconds: 2);
   static final _log = Log.get('PauseTimer');
   final ListQueue<double> _delays = ListQueue(kMetricWindow + 1);
-  final AudioPlayer _player;
+  final AudioPlayer? _player;
 
-  PauseTimer({AudioPlayer player}) : _player = player;
+  PauseTimer({AudioPlayer? player}) : _player = player;
 
   Future<void> pause(final Duration length) async {
     final stopwatch = Stopwatch();
@@ -44,15 +44,15 @@ class PauseTimer {
   }
 
   Future<void> _pauseWithPlay(final Duration length) async {
-    final Duration loaded = await _player.setAsset('assets/silence_30s.mp3');
+    final Duration loaded = await _player!.setAsset('assets/silence_30s.mp3');
     Duration targetEnd = length;
     if (loaded < targetEnd) {
       targetEnd = loaded;
       _log.warning('Could not pause for $targetEnd, clipping to $loaded.');
     }
-    await _player.setClip(start: Duration.zero, end: targetEnd);
-    await _player.pause();
-    await _player.play();
+    await _player!.setClip(start: Duration.zero, end: targetEnd);
+    await _player!.pause();
+    await _player!.play();
   }
 
   @visibleForTesting
@@ -80,7 +80,7 @@ class PauseTimer {
 }
 
 class DelayMetrics {
-  final double meanDelayMillis;
-  final double stdDevDelayMillis;
+  final double? meanDelayMillis;
+  final double? stdDevDelayMillis;
   DelayMetrics({this.meanDelayMillis, this.stdDevDelayMillis});
 }

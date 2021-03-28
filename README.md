@@ -123,11 +123,13 @@ Needed features
 
 * Flash works now.
 
-### M5: i18n
+### M5: practice logging
+
+### M6: i18n
 
 * Why not...? seems like a larger user base.
 
-### M6: custom drills
+### M7: custom drills
 
 * Allow creation of new drills.
 * Allow save and restoration of drills across devices.

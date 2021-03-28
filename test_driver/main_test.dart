@@ -33,7 +33,7 @@ void main() {
     // extra because emulators are slow sometimes.
     const maxShotTime = Duration(seconds: 20);
 
-    FlutterDriver driver;
+    FlutterDriver? driver;
 
     // Connect to the Flutter driver before running any tests.
     setUpAll(() async {
@@ -52,7 +52,7 @@ void main() {
     tearDown(() async {});
 
     Future<void> waitForReps(String expected) {
-      return driver.waitFor(
+      return driver!.waitFor(
           find.descendant(
               of: practiceRepsFinder,
               matching: find.text(expected),
@@ -61,30 +61,30 @@ void main() {
     }
 
     Future<String> getDuration() {
-      return driver.getText(durationFinder);
+      return driver!.getText(durationFinder);
     }
 
     Duration parseDuration(String duration) {
       final re = RegExp(r'^(\d\d):(\d\d):(\d\d)$');
-      var match = re.firstMatch(duration);
+      var match = re.firstMatch(duration)!;
       expect(match, isNotNull, reason: 'Duration "$duration" has bad format.');
       return Duration(
-          hours: int.parse(match.group(1)),
-          minutes: int.parse(match.group(2)),
-          seconds: int.parse(match.group(3)));
+          hours: int.parse(match.group(1)!),
+          minutes: int.parse(match.group(2)!),
+          seconds: int.parse(match.group(3)!));
     }
 
     Future<void> navigatePracticeToHome() async {
-      await driver.tap(find.byType('BackButton'));
-      await driver.tap(find.byType('BackButton'));
-      await driver.tap(find.byType('BackButton'));
-      await driver.getText(find.text('Drill Type'));
+      await driver!.tap(find.byType('BackButton'));
+      await driver!.tap(find.byType('BackButton'));
+      await driver!.tap(find.byType('BackButton'));
+      await driver!.getText(find.text('Drill Type'));
     }
 
     test('runs passing drill', () async {
-      await driver.tap(find.text('Pass'));
-      await driver.tap(find.text('Lane/Wall/Bounce'));
-      await driver.tap(playFinder);
+      await driver!.tap(find.text('Pass'));
+      await driver!.tap(find.text('Lane/Wall/Bounce'));
+      await driver!.tap(playFinder);
       await waitForReps('0');
       var timeToFirst = Stopwatch();
       timeToFirst.start();
@@ -99,9 +99,9 @@ void main() {
     });
 
     test('runs rollover drill', () async {
-      await driver.tap(find.text('Rollover'));
-      await driver.tap(find.text('Up/Down/Middle'));
-      await driver.tap(playFinder);
+      await driver!.tap(find.text('Rollover'));
+      await driver!.tap(find.text('Up/Down/Middle'));
+      await driver!.tap(playFinder);
       sleep(Duration(seconds: 1));
       await waitForReps('0');
       var timeToFirst = Stopwatch();
@@ -117,16 +117,16 @@ void main() {
     });
 
     test('pause and resume work', () async {
-      await driver.getText(find.text('Drill Type'));
-      await driver.tap(find.text('Rollover'));
-      await driver.tap(find.text('Up/Down'));
-      await driver.tap(playFinder);
+      await driver!.getText(find.text('Drill Type'));
+      await driver!.tap(find.text('Rollover'));
+      await driver!.tap(find.text('Up/Down'));
+      await driver!.tap(playFinder);
       await waitForReps('0');
       await waitForReps('1');
 
       // Hit the pause button
-      driver.tap(pauseFinder);
-      await driver.getText(find.text('Paused'));
+      driver!.tap(pauseFinder);
+      await driver!.getText(find.text('Paused'));
       Duration orig = parseDuration(await getDuration());
       sleep(Duration(seconds: 5));
       Duration afterSleep = parseDuration(await getDuration());
@@ -134,7 +134,7 @@ void main() {
       await waitForReps('1');
 
       // Hit the play button
-      driver.tap(playFinder);
+      driver!.tap(playFinder);
       sleep(Duration(seconds: 5));
       var afterPlay = parseDuration(await getDuration());
       expect(afterPlay.inSeconds, greaterThan(orig.inSeconds));
