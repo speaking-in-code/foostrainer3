@@ -27,6 +27,7 @@ DrillData _$DrillDataFromJson(Map<String, dynamic> json) {
     tempo: _$enumDecodeNullable(_$TempoEnumMap, json['tempo']),
     signal: _$enumDecodeNullable(_$SignalEnumMap, json['signal']),
     practiceMinutes: json['practiceMinutes'] as int?,
+    tracking: _$enumDecodeNullable(_$TrackingEnumMap, json['tracking']),
     actions: (json['actions'] as List<dynamic>?)
         ?.map((e) => ActionData.fromJson(e as Map<String, dynamic>))
         .toList(),
@@ -40,6 +41,7 @@ Map<String, dynamic> _$DrillDataToJson(DrillData instance) => <String, dynamic>{
       'tempo': _$TempoEnumMap[instance.tempo],
       'signal': _$SignalEnumMap[instance.signal],
       'practiceMinutes': instance.practiceMinutes,
+      'tracking': _$TrackingEnumMap[instance.tracking],
       'actions': instance.actions,
     };
 
@@ -89,6 +91,11 @@ const _$TempoEnumMap = {
 const _$SignalEnumMap = {
   Signal.AUDIO: 'AUDIO',
   Signal.AUDIO_AND_FLASH: 'AUDIO_AND_FLASH',
+};
+
+const _$TrackingEnumMap = {
+  Tracking.ACCURACY_DISABLED: 'ACCURACY_DISABLED',
+  Tracking.ACCURACY_ENABLED: 'ACCURACY_ENABLED',
 };
 
 DrillListData _$DrillListDataFromJson(Map<String, dynamic> json) {

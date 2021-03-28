@@ -26,6 +26,11 @@ class PracticeConfigScreen extends StatefulWidget {
   static const audioKey = Key(Keys.audioKey);
   static const audioAndFlashKey = Key(Keys.audioAndFlashKey);
   static const signalHeaderKey = Key(Keys.signalHeaderKey);
+  static const trackingHeaderKey = Key(Keys.trackingHeaderKey);
+  static const trackingAccuracyEnabledKey =
+      Key(Keys.trackingAccuracyEnabledKey);
+  static const trackingAccuracyDisabledKey =
+      Key(Keys.trackingAccuracyDisabledKey);
 
   PracticeConfigScreen({Key? key}) : super(key: key);
 
@@ -38,6 +43,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   static const kTempoId = 0;
   static const kDurationId = 1;
   static const kSignalId = 2;
+  static const kLogId = 3;
 
   static const kDefaultMinutes = 10;
   DrillData? _drill;
@@ -48,7 +54,8 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill = ModalRoute.of(context)!.settings.arguments as DrillData?;
     _drill!.tempo ??= Tempo.RANDOM;
     _drill!.signal ??= Signal.AUDIO;
-    _practiceMinutes ??= (_drill!.practiceMinutes ?? kDefaultMinutes).toDouble();
+    _practiceMinutes ??=
+        (_drill!.practiceMinutes ?? kDefaultMinutes).toDouble();
     return Scaffold(
       appBar: MyAppBar(title: _drill!.name).build(context),
       body: _expansionPanels(),
@@ -68,6 +75,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       _tempoPicker(),
       _durationPicker(),
       _signalPicker(),
+      _trackingPicker(),
     ];
     return SingleChildScrollView(
       child: Container(
@@ -214,6 +222,52 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     }
     setState(() {
       _drill!.signal = signal;
+    });
+  }
+
+  ExpansionPanelRadio _trackingPicker() {
+    return ExpansionPanelRadio(
+        value: kLogId,
+        canTapOnHeader: true,
+        headerBuilder: _trackingHeader,
+        body: Column(children: [
+          _makeTracking(PracticeConfigScreen.trackingAccuracyEnabledKey,
+              Tracking.ACCURACY_ENABLED),
+          _makeTracking(PracticeConfigScreen.trackingAccuracyDisabledKey,
+              Tracking.ACCURACY_DISABLED),
+        ]));
+  }
+
+  Widget _trackingHeader(BuildContext context, bool isExpanded) {
+    return ListTile(
+        title: Text('Practice Log: ${_formatTracking(_drill!.tracking)}',
+            key: PracticeConfigScreen.trackingHeaderKey));
+  }
+
+  String _formatTracking(Tracking? t) {
+    switch (t) {
+      case Tracking.ACCURACY_ENABLED:
+        return "Accuracy";
+      case Tracking.ACCURACY_DISABLED:
+      default:
+        return "Time and Reps";
+    }
+  }
+
+  RadioListTile _makeTracking(Key key, Tracking tracking) {
+    return RadioListTile<Tracking>(
+      key: key,
+      activeColor: Theme.of(context).buttonColor,
+      title: Text(_formatTracking(tracking)),
+      value: tracking,
+      groupValue: _drill!.tracking,
+      onChanged: _onTrackingChanged,
+    );
+  }
+
+  void _onTrackingChanged(Tracking? tracking) async {
+    setState(() {
+      _drill!.tracking = tracking;
     });
   }
 
