@@ -6,34 +6,30 @@ publish_to: 'none'
 version: 2.0.40+40
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
-  # Restrict to prior to 1.22, because of screenshots problem:
-  # https://github.com/mmcc007/screenshots/issues/215
-  flutter: '>=1.20.0 <1.22.0'
+  sdk: '>=2.7.0 <3.0.0'
+  flutter: '>=2.0.0 <3.0.0'
 
 dependencies:
-  #audio_service: ^0.14.0
-  audio_service:
-    path: ../audio_service
-  audio_session: ^0.0.6
-  build: ^1.3.0
-  device_info: '>=0.4.2+7 <2.0.0'
-  firebase_analytics: ^5.0.2
-  firebase_core: ^0.4.0+9
+  audio_service: ^0.16.2+1
+  audio_session: ^0.0.11
+  build: ^1.5.2
+  device_info: ^2.0.0
+  firebase_analytics: ^7.0.1
+  firebase_core: ^0.7.0
   flutter:
     sdk: flutter
   torch_compat:
     path: ../flutter_torch_compat
   json_annotation:
-  logging: ^0.11.4
+  logging: ^1.0.1
   mailto: ^1.0.0
   meta: ^1.1.8
-  package_info: '>=0.4.3 <2.0.0'
+  package_info: ^2.0.0
   permission_handler: ^5.0.1+1
-  just_audio: ^0.4.3
-  sprintf: ^4.0.2
-  url_launcher: ^5.5.3
-  wakelock: ^0.1.4+2
+  just_audio: ^0.6.15+1
+  sprintf: ^6.0.0
+  url_launcher: ^6.0.3
+  wakelock: ^0.5.0+2
 
 dev_dependencies:
   build_config: ^0.4.2
@@ -42,17 +38,12 @@ dev_dependencies:
     sdk: flutter
   flutter_test:
     sdk: flutter
-  json_serializable:
+  json_serializable: ^3.4.1
   mockito: ^4.1.1
-  screenshots: ^2.1.1
+  #screenshots: ^2.1.1
   #screenshots:
   #  path: ../screenshots
   test:
-
-#dependency_overrides:
-#  process: ^4.0.0-nullsafety.2
-#  pl#atform: ^3.0.0-nullsafety.1
-#  file: ^6.0.0-nullsafety.1
 
 flutter:
   uses-material-design: true
