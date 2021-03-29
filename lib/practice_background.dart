@@ -29,6 +29,7 @@ class PracticeBackground {
   static const _shotCount = 'shotCount';
   static const _elapsed = 'elapsed';
   static const _drill = 'drill';
+  static const _confirm = 'confirm';
 
   /// Start practicing the provided drill.
   static Future<void> startPractice(DrillData drill) async {
@@ -46,7 +47,8 @@ class PracticeBackground {
           state: PracticeState.paused,
           elapsed: DurationFormatter.zero,
           action: '',
-          shotCount: 0);
+          shotCount: 0,
+          confirm: 0);
       AudioService.playMediaItem(getMediaItemFromProgress(progress));
     } else {
       throw StateError('Failed to start AudioService.');
@@ -94,11 +96,13 @@ class PracticeBackground {
       state = PracticeState.playing;
     }
     return PracticeProgress(
-        drill: DrillData.fromJson(jsonDecode(extras[_drill])),
-        state: state,
-        action: extras[_action],
-        shotCount: extras[_shotCount],
-        elapsed: extras[_elapsed]);
+      drill: DrillData.fromJson(jsonDecode(extras[_drill])),
+      state: state,
+      action: extras[_action],
+      shotCount: extras[_shotCount],
+      elapsed: extras[_elapsed],
+      confirm: extras[_confirm] ?? 0,
+    );
   }
 
   /// Get a media item from the specified progress.
@@ -114,11 +118,8 @@ class PracticeBackground {
           _shotCount: progress.shotCount,
           _elapsed: progress.elapsed,
           _drill: jsonEncode(progress.drill.toJson()),
+          _confirm: progress.confirm,
         });
-  }
-
-  static int getDelays() {
-    return 0;
   }
 }
 
@@ -139,21 +140,28 @@ class PracticeProgress {
   String action;
   int shotCount;
   String elapsed;
+  // The shot count to confirm. Flutter stream-based widget rendering will
+  // sometimes redeliver rendering states, so we use this as a sequence number
+  // to avoid repeating the same confirmation.
+  int confirm;
 
   PracticeProgress(
       {@required this.drill,
       @required this.state,
       @required this.action,
       @required this.shotCount,
-      @required this.elapsed});
+      @required this.elapsed,
+      @required this.confirm});
 
   factory PracticeProgress.empty() {
     return PracticeProgress(
-        drill: null,
-        state: PracticeState.stopped,
-        action: 'Loading',
-        shotCount: 0,
-        elapsed: DurationFormatter.zero);
+      drill: null,
+      state: PracticeState.stopped,
+      action: 'Loading',
+      shotCount: 0,
+      elapsed: DurationFormatter.zero,
+      confirm: 0,
+    );
   }
 }
 
@@ -333,7 +341,17 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     await _player.setAsset(actionData.audioAsset);
     await _playUntilDone();
-    _pause(_resetTime).whenComplete(_waitForSetup);
+    if (_progress.drill.tracking == Tracking.ON) {
+      _waitForTracking();
+    } else {
+      _pause(_resetTime).whenComplete(_waitForSetup);
+    }
+  }
+
+  void _waitForTracking() {
+    _progress.confirm = _progress.shotCount;
+    onPause();
+    _progress.confirm = 0;
   }
 
   Future<void> _flashTorch() async {
@@ -369,6 +387,8 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   Future<void> _updateMediaItem() async {
+    _log.info(
+        'Updating media item: ${_progress.action}, confirm: ${_progress.confirm}');
     _progress.elapsed = DurationFormatter.format(_stopwatch.elapsed);
     final MediaItem item =
         PracticeBackground.getMediaItemFromProgress(_progress);

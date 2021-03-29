@@ -52,7 +52,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill = ModalRoute.of(context).settings.arguments;
     _drill.tempo ??= Tempo.RANDOM;
     _drill.signal ??= Signal.AUDIO;
-    _drill.tracking ??= Tracking.OFF;
+    _drill.tracking ??= Tracking.ON;
     _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
