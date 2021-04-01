@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/results_screen.dart';
 
 import 'album_art.dart';
 import 'debug_screen.dart';
@@ -26,8 +27,7 @@ class MainApp extends StatelessWidget {
   // connection to the service.
   @override
   Widget build(BuildContext context) {
-    return AudioServiceWidget(
-        child: MaterialApp(
+    return MaterialApp(
       title: 'FoosTrainer',
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -37,12 +37,14 @@ class MainApp extends StatelessWidget {
       navigatorObservers: <NavigatorObserver>[_observer],
       initialRoute: DrillTypesScreen.routeName,
       routes: {
-        DrillTypesScreen.routeName: (context) => DrillTypesScreen(),
+        DrillTypesScreen.routeName: (context) =>
+            AudioServiceWidget(child: DrillTypesScreen()),
         DrillListScreen.routeName: (context) => DrillListScreen(),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) => PracticeScreen(),
+        ResultsScreen.routeName: (context) => ResultsScreen(),
         DebugScreen.routeName: (context) => DebugScreen(),
       },
-    ));
+    );
   }
 }

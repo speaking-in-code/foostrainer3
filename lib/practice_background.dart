@@ -8,8 +8,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/tracking_info.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -20,6 +22,7 @@ import 'duration_formatter.dart';
 import 'log.dart';
 import 'pause_timer.dart';
 import 'random_delay.dart';
+import 'results_info.dart';
 
 final _log = Log.get('PracticeBackground');
 
@@ -42,13 +45,12 @@ class PracticeBackground {
         androidNotificationIcon: 'drawable/ic_stat_ic_notification',
         androidNotificationColor: Colors.blueAccent.value);
     if (AudioService.running) {
-      var progress = PracticeProgress(
-          drill: drill,
-          state: PracticeState.paused,
-          elapsed: DurationFormatter.zero,
-          action: '',
-          shotCount: 0,
-          confirm: 0);
+      final progress = PracticeProgress()
+        ..drill = drill
+        ..state = PracticeState.paused
+        ..action = ''
+        ..shotCount = 0
+        ..confirm = 0;
       AudioService.playMediaItem(getMediaItemFromProgress(progress));
     } else {
       throw StateError('Failed to start AudioService.');
@@ -95,14 +97,13 @@ class PracticeBackground {
     if (playbackState?.playing ?? false) {
       state = PracticeState.playing;
     }
-    return PracticeProgress(
-      drill: DrillData.fromJson(jsonDecode(extras[_drill])),
-      state: state,
-      action: extras[_action],
-      shotCount: extras[_shotCount],
-      elapsed: extras[_elapsed],
-      confirm: extras[_confirm] ?? 0,
-    );
+    return PracticeProgress()
+      ..drill = DrillData.fromJson(jsonDecode(extras[_drill]))
+      ..state = state
+      ..action = extras[_action]
+      ..shotCount = extras[_shotCount]
+      ..elapsed = extras[_elapsed]
+      ..confirm = (extras[_confirm] ?? 0);
   }
 
   /// Get a media item from the specified progress.
@@ -136,33 +137,16 @@ enum PracticeState {
 /// Current state of practice.
 class PracticeProgress {
   DrillData drill;
-  PracticeState state;
-  String action;
-  int shotCount;
-  String elapsed;
+  PracticeState state = PracticeState.stopped;
+  String action = 'Loading';
+  int shotCount = 0;
+  String elapsed = DurationFormatter.zero;
   // The shot count to confirm. Flutter stream-based widget rendering will
   // sometimes redeliver rendering states, so we use this as a sequence number
   // to avoid repeating the same confirmation.
-  int confirm;
-
-  PracticeProgress(
-      {@required this.drill,
-      @required this.state,
-      @required this.action,
-      @required this.shotCount,
-      @required this.elapsed,
-      @required this.confirm});
-
-  factory PracticeProgress.empty() {
-    return PracticeProgress(
-      drill: null,
-      state: PracticeState.stopped,
-      action: 'Loading',
-      shotCount: 0,
-      elapsed: DurationFormatter.zero,
-      confirm: 0,
-    );
-  }
+  int confirm = 0;
+  // null means not tracking success/failure.
+  int good;
 }
 
 const MediaControl _pauseControl = MediaControl(
@@ -208,7 +192,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   final PauseTimer _pauseTimer;
   final _stopwatch = Stopwatch();
 
-  PracticeProgress _progress = PracticeProgress.empty();
+  PracticeProgress _progress = PracticeProgress();
   Timer _elapsedTimeUpdater;
   RandomDelay _randomDelay;
 
@@ -243,7 +227,6 @@ class _BackgroundTask extends BackgroundAudioTask {
   @override
   Future<void> onPlayMediaItem(MediaItem mediaItem) async {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
-
     _randomDelay = RandomDelay(
         min: _setupTime,
         max: Duration(seconds: _progress.drill.possessionSeconds),
@@ -258,6 +241,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   Future<void> onPlay() async {
     _logEvent(_playEvent);
     _progress.state = PracticeState.playing;
+    if (_progress.drill.tracking == Tracking.ON) {
+      _progress.good ??= 0;
+    }
     await AudioServiceBackground.setState(
         controls: [_pauseControl, _stopControl],
         playing: true,
@@ -289,8 +275,28 @@ class _BackgroundTask extends BackgroundAudioTask {
     _log.info('Stopping player');
     _logEvent(_stopEvent);
     _progress.state = PracticeState.stopped;
-    _stopwatch?.reset();
+    _stopwatch?.stop();
     _elapsedTimeUpdater?.cancel();
+
+    final prefs = await SharedPreferences.getInstance();
+    final resultsInfo = ResultsInfo();
+    resultsInfo.drill = _progress.drill.name;
+    resultsInfo.elapsedSeconds = _stopwatch.elapsed.inSeconds;
+    resultsInfo.reps = _progress.shotCount;
+    if (_progress.drill.tracking == Tracking.ON) {
+      resultsInfo.good = _progress.good;
+    }
+    final encoded = resultsInfo.encode();
+    _log.info('Writing results: $encoded');
+    // TODO(brian): there is weird stuff that happens where this write completes,
+    // but subsequent reads from the app return old data. This is possibly because
+    // the two components are running in different isolates.
+    // Also we shouldn't be using shared prefs for this at all, using a small
+    // in-app DB (sqllite or room or objectbox) is probably a better choice.
+    await prefs.setString(ResultsInfo.prefsKey, encoded);
+    _log.info('Write complete');
+
+    _stopwatch?.reset();
     await _player.stop();
     await _player.dispose();
     await AudioServiceBackground.setState(
@@ -349,9 +355,8 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   void _waitForTracking() {
-    _progress.confirm = _progress.shotCount;
+    ++_progress.confirm;
     onPause();
-    _progress.confirm = 0;
   }
 
   Future<void> _flashTorch() async {
@@ -411,13 +416,37 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<dynamic> onCustomAction(String name, dynamic arguments) async {
-    if (DebugInfo.action == name) {
-      final metrics = _pauseTimer.calculateDelayMetrics();
-      final resp = DebugInfoResponse(
-          meanDelayMillis: metrics.meanDelayMillis,
-          stdDevDelayMillis: metrics.stdDevDelayMillis);
-      return jsonEncode(resp.toJson());
+    switch (name) {
+      case DebugInfo.action:
+        return _handleDebugInfo();
+      case SetTrackingRequest.action:
+        return _handleSetTracking(arguments);
+      default:
+        break;
     }
     throw Exception('Unknown custom action $name');
+  }
+
+  String _handleDebugInfo() {
+    final metrics = _pauseTimer.calculateDelayMetrics();
+    final resp = DebugInfoResponse(
+        meanDelayMillis: metrics.meanDelayMillis,
+        stdDevDelayMillis: metrics.stdDevDelayMillis);
+    return jsonEncode(resp.toJson());
+  }
+
+  void _handleSetTracking(String arguments) {
+    _log.info('Handle setTracking ${_progress.good}');
+    final request = SetTrackingRequest.fromJson(jsonDecode(arguments));
+    switch (request.trackingResult) {
+      case TrackingResult.GOOD:
+        ++_progress.good;
+        break;
+      case TrackingResult.SKIP:
+        --_progress.shotCount;
+        break;
+      case TrackingResult.MISSED:
+        break;
+    }
   }
 }

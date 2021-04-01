@@ -230,9 +230,9 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
         headerBuilder: _trackingHeader,
         body: Column(children: [
           _makeTracking(
-              PracticeConfigScreen.trackingAccuracyOffKey, Tracking.OFF),
-          _makeTracking(
               PracticeConfigScreen.trackingAccuracyOnKey, Tracking.ON),
+          _makeTracking(
+              PracticeConfigScreen.trackingAccuracyOffKey, Tracking.OFF),
         ]));
   }
 
@@ -278,6 +278,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill.practiceMinutes = _practiceMinutes.round();
     if (ScreenshotData.progress == null) {
       // Normal flow.
+      _log.info('Starting practice');
       PracticeBackground.startPractice(_drill);
     }
     Navigator.pushNamed(context, PracticeScreen.routeName, arguments: _drill);
