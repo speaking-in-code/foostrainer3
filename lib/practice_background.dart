@@ -30,6 +30,7 @@ final _log = Log.get('PracticeBackground');
 class PracticeBackground {
   static const _action = 'action';
   static const _shotCount = 'shotCount';
+  static const _goodCount = 'goodCount';
   static const _elapsed = 'elapsed';
   static const _drill = 'drill';
   static const _confirm = 'confirm';
@@ -102,22 +103,26 @@ class PracticeBackground {
       ..state = state
       ..action = extras[_action]
       ..shotCount = extras[_shotCount]
-      ..elapsed = extras[_elapsed]
+      ..good = extras[_goodCount]
+      ..elapsedSeconds = extras[_elapsed]
       ..confirm = (extras[_confirm] ?? 0);
   }
 
   /// Get a media item from the specified progress.
   static MediaItem getMediaItemFromProgress(PracticeProgress progress) {
+    final timeStr =
+        DurationFormatter.format(Duration(seconds: progress.elapsedSeconds));
     return MediaItem(
         id: progress.drill.name,
-        title: 'Time: ${progress.elapsed}, Reps: ${progress.shotCount}',
+        title: 'Time: $timeStr, Reps: ${progress.shotCount}',
         album: progress.drill.name,
         artist: 'FoosTrainer',
         artUri: AlbumArt.getUri(),
         extras: {
           _action: progress.action,
           _shotCount: progress.shotCount,
-          _elapsed: progress.elapsed,
+          _goodCount: progress.good,
+          _elapsed: progress.elapsedSeconds,
           _drill: jsonEncode(progress.drill.toJson()),
           _confirm: progress.confirm,
         });
@@ -140,7 +145,7 @@ class PracticeProgress {
   PracticeState state = PracticeState.stopped;
   String action = 'Loading';
   int shotCount = 0;
-  String elapsed = DurationFormatter.zero;
+  int elapsedSeconds = 0;
   // The shot count to confirm. Flutter stream-based widget rendering will
   // sometimes redeliver rendering states, so we use this as a sequence number
   // to avoid repeating the same confirmation.
@@ -378,8 +383,7 @@ class _BackgroundTask extends BackgroundAudioTask {
       onPause();
       return;
     }
-    String elapsed = DurationFormatter.format(_stopwatch.elapsed);
-    if (elapsed == _progress.elapsed) {
+    if (_stopwatch.elapsed.inSeconds == _progress.elapsedSeconds) {
       return;
     }
     _updateMediaItem();
@@ -394,7 +398,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   Future<void> _updateMediaItem() async {
     _log.info(
         'Updating media item: ${_progress.action}, confirm: ${_progress.confirm}');
-    _progress.elapsed = DurationFormatter.format(_stopwatch.elapsed);
+    _progress.elapsedSeconds = _stopwatch.elapsed.inSeconds;
     final MediaItem item =
         PracticeBackground.getMediaItemFromProgress(_progress);
     await AudioServiceBackground.setMediaItem(item);

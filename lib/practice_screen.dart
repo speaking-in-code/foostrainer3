@@ -12,6 +12,8 @@ import 'keys.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'practice_background.dart';
+import 'results_info.dart';
+import 'results_widget.dart';
 import 'screenshot_data.dart';
 
 final _log = Log.get('PracticeScreen');
@@ -40,9 +42,13 @@ class PracticeScreen extends StatefulWidget {
 // I'm tempted, but not sure, about adding a confirmation for the stop step as
 // well as the back step.
 class _PracticeScreenState extends State<PracticeScreen> {
+  static const pauseKey = Key(Keys.pauseKey);
+  static const playKey = Key(Keys.playKey);
   // True if we're already leaving this widget.
   bool _popInProgress = false;
   int _lastRenderedConfirm = 0;
+  bool _pauseForDrillComplete = false;
+  PracticeState _practiceState = PracticeState.stopped;
 
   Stream<PracticeProgress> _progressStream() {
     if (ScreenshotData.progress == null) {
@@ -79,6 +85,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 progress = PracticeProgress()
                   ..drill = ModalRoute.of(context).settings.arguments;
               }
+              // Sometimes we stop after the drill has reached time. For that
+              // case, wait for an explicit 'play' action from the user instead
+              // of automatically resuming.
+              _pauseForDrillComplete =
+                  Duration(minutes: progress.drill.practiceMinutes).inSeconds ==
+                      progress.elapsedSeconds;
+              _practiceState = progress.state;
               // StreamBuilder will redeliver progress messages, but we only
               // want to show the dialog once per shot.
               if (progress.confirm > this._lastRenderedConfirm) {
@@ -86,11 +99,43 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 Future.delayed(
                     Duration.zero, () => _showTrackingDialog(context));
               }
+              final resultsInfo = ResultsInfo()
+                ..drill = progress.drill.name
+                ..elapsedSeconds = progress.elapsedSeconds
+                ..good = progress.good
+                ..reps = progress.shotCount;
               return Scaffold(
                   appBar: MyAppBar(title: progress.drill.name).build(context),
-                  body: _PracticeScreenProgress(
-                      progress: progress, onStop: _onStop));
+                  body: ResultsWidget(results: resultsInfo),
+                  bottomNavigationBar: _controlButtons(context, progress));
             }));
+  }
+
+  BottomAppBar _controlButtons(
+      BuildContext context, PracticeProgress progress) {
+    final stopButton = ElevatedButton(
+      child: Icon(Icons.stop),
+      onPressed: _onStop,
+    );
+    final actionButton = _actionButton(progress);
+    return BottomAppBar(
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      stopButton,
+      actionButton,
+    ]));
+  }
+
+  ButtonStyleButton _actionButton(PracticeProgress progress) {
+    if (progress.state == PracticeState.playing) {
+      return ElevatedButton(
+          key: pauseKey,
+          child: Icon(Icons.pause),
+          onPressed: PracticeBackground.pause);
+    }
+    return ElevatedButton(
+        key: playKey,
+        child: Icon(Icons.play_arrow),
+        onPressed: PracticeBackground.play);
   }
 
   // Stop the audio service on navigation away from this screen. This is only
@@ -99,22 +144,25 @@ class _PracticeScreenState extends State<PracticeScreen> {
   // - the in-app back button.
   Future<bool> _onBackPressed(BuildContext context) async {
     _log.info('Phone back button pressed');
-    PracticeBackground.pause();
+    bool shouldResume = false;
+    if (_practiceState == PracticeState.playing) {
+      PracticeBackground.pause();
+      shouldResume = true;
+    }
     bool allowBack = await showDialog(
       context: context,
       builder: (context) => SimpleDialog(
         title: Text('Cancel Drill'),
         children: <Widget>[
           _SimpleDialogItem(
-              text: 'Keep Practicing',
+              text: 'Continue',
               icon: Icons.play_arrow,
               color: Theme.of(context).accentColor,
               onPressed: () {
-                PracticeBackground.play();
                 Navigator.pop(context, false);
               }),
           _SimpleDialogItem(
-            text: 'Cancel',
+            text: 'Stop',
             icon: Icons.clear,
             color: Theme.of(context).unselectedWidgetColor,
             onPressed: () async {
@@ -126,10 +174,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
       ),
     );
     _log.info('Allowing back $allowBack');
-    if (allowBack == null) {
+    allowBack ??= false;
+    if (!allowBack && shouldResume) {
       // Clicked outside alert/did not respond. Keep going.
       PracticeBackground.play();
-      allowBack = false;
     }
     return allowBack;
   }
@@ -146,7 +194,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
     Navigator.pushReplacementNamed(context, ResultsScreen.routeName);
   }
 
+  // Consider replacing this with a dialog that flexes depending on screen
+  // orientation, using a column in portrait mode, and a row in landscape mode.
   void _showTrackingDialog(BuildContext context) async {
+    final bool shouldResume = !_pauseForDrillComplete;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -154,19 +205,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
           title: Text('Enter Result'),
           children: <Widget>[
             _SimpleDialogItem(
-              onPressed: () => _finishTracking(context, TrackingResult.GOOD),
+              onPressed: () =>
+                  _finishTracking(context, TrackingResult.GOOD, shouldResume),
               text: 'Good',
               icon: Icons.thumb_up,
               color: Theme.of(context).accentColor,
             ),
             _SimpleDialogItem(
-              onPressed: () => _finishTracking(context, TrackingResult.MISSED),
+              onPressed: () =>
+                  _finishTracking(context, TrackingResult.MISSED, shouldResume),
               text: 'Missed',
               icon: Icons.thumb_down,
               color: Theme.of(context).unselectedWidgetColor,
             ),
             _SimpleDialogItem(
-              onPressed: () => _finishTracking(context, TrackingResult.SKIP),
+              onPressed: () =>
+                  _finishTracking(context, TrackingResult.SKIP, shouldResume),
               text: 'Skip',
               icon: Icons.double_arrow,
               color: Theme.of(context).primaryColor,
@@ -177,11 +231,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
   }
 
-  void _finishTracking(BuildContext context, TrackingResult result) {
+  void _finishTracking(
+      BuildContext context, TrackingResult result, bool shouldResume) {
     AudioService.customAction(SetTrackingRequest.action,
         jsonEncode(SetTrackingRequest(trackingResult: result).toJson()));
     Navigator.pop(context);
-    PracticeBackground.play();
+    if (shouldResume) {
+      PracticeBackground.play();
+    }
   }
 }
 
@@ -198,85 +255,21 @@ class _SimpleDialogItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double iconSize = 48;
+    TextStyle textStyle = Theme.of(context).textTheme.headline6;
     return SimpleDialogOption(
       onPressed: onPressed,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 36.0, color: color),
+          Icon(icon, size: iconSize, color: color),
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 16.0),
-            child: Text(text),
+            child: Text(text, style: textStyle),
           ),
         ],
       ),
     );
-  }
-}
-
-class _PracticeScreenProgress extends StatelessWidget {
-  static const pauseKey = Key(Keys.pauseKey);
-  static const playKey = Key(Keys.playKey);
-  static const kLargeFontMinWidth = 480;
-  final PracticeProgress progress;
-  final VoidCallback onStop;
-
-  _PracticeScreenProgress({Key key, this.progress, this.onStop})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final actionButton = _actionButton();
-    final stopButton = ElevatedButton(
-      child: Icon(Icons.stop),
-      onPressed: () => onStop(),
-    );
-    final tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
-    // Smaller devices in portrait orientation do better with a smaller font.
-    final textStyle = MediaQuery.of(context).size.width > kLargeFontMinWidth
-        ? Theme.of(context).textTheme.headline3
-        : Theme.of(context).textTheme.headline4;
-    return DefaultTextStyle(
-        style: textStyle,
-        child:
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          Text('${progress.action}'),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Reps'),
-                Text('${progress.shotCount}',
-                    key: PracticeScreen.repsKey, style: tabular),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Time'),
-                Text('${progress.elapsed}',
-                    key: PracticeScreen.elapsedKey, style: tabular),
-              ],
-            ),
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            stopButton,
-            actionButton,
-          ]),
-        ]));
-  }
-
-  ElevatedButton _actionButton() {
-    if (progress.state == PracticeState.playing) {
-      return ElevatedButton(
-          key: pauseKey,
-          child: Icon(Icons.pause),
-          onPressed: PracticeBackground.pause);
-    }
-    return ElevatedButton(
-        key: playKey,
-        child: Icon(Icons.play_arrow),
-        onPressed: PracticeBackground.play);
   }
 }
