@@ -8,7 +8,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:ft3/tracking_info.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +22,7 @@ import 'log.dart';
 import 'pause_timer.dart';
 import 'random_delay.dart';
 import 'results_info.dart';
+import 'tracking_info.dart';
 
 final _log = Log.get('PracticeBackground');
 

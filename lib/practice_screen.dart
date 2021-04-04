@@ -5,16 +5,16 @@ import 'package:audio_service/audio_service.dart';
 
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
-import 'package:ft3/results_screen.dart';
-import 'package:ft3/tracking_info.dart';
 
 import 'keys.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'practice_background.dart';
 import 'results_info.dart';
+import 'results_screen.dart';
 import 'results_widget.dart';
 import 'screenshot_data.dart';
+import 'tracking_info.dart';
 
 final _log = Log.get('PracticeScreen');
 

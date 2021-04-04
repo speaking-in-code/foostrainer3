@@ -2,7 +2,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
-import 'package:ft3/results_screen.dart';
 
 import 'album_art.dart';
 import 'debug_screen.dart';
@@ -10,6 +9,7 @@ import 'drill_list_screen.dart';
 import 'drill_types_screen.dart';
 import 'practice_config_screen.dart';
 import 'practice_screen.dart';
+import 'results_screen.dart';
 
 void main() {
   // Start the album art load asynchronously.
