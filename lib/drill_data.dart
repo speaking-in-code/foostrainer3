@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// Data object describing a drill.
 /// To regenerate json serialization:
 ///   flutter pub run build_runner build
@@ -30,11 +32,6 @@ enum Signal {
   AUDIO_AND_FLASH,
 }
 
-enum Tracking {
-  OFF,
-  ON,
-}
-
 // A set of actions with a name make up a drill.
 @JsonSerializable()
 class DrillData {
@@ -55,12 +52,14 @@ class DrillData {
   Tempo tempo;
   Signal signal;
   int practiceMinutes;
-  Tracking tracking;
+  bool tracking;
   List<ActionData> actions;
 
+  factory DrillData.decode(String json) =>
+      _$DrillDataFromJson(jsonDecode(json));
   factory DrillData.fromJson(Map<String, dynamic> json) =>
       _$DrillDataFromJson(json);
-  Map<String, dynamic> toJson() => _$DrillDataToJson(this);
+  String encode() => jsonEncode(_$DrillDataToJson(this));
 }
 
 @JsonSerializable()
@@ -69,7 +68,7 @@ class DrillListData {
 
   List<DrillData> drills;
 
-  factory DrillListData.fromJson(Map<String, dynamic> json) =>
-      _$DrillListDataFromJson(json);
-  Map<String, dynamic> toJson() => _$DrillListDataToJson(this);
+  factory DrillListData.decode(String json) =>
+      _$DrillListDataFromJson(jsonDecode(json));
+  String encode() => jsonEncode(_$DrillListDataToJson(this));
 }

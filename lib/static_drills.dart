@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'drill_data.dart';
@@ -24,7 +22,7 @@ class StaticDrills {
   List<String> types;
 
   StaticDrills._create(String json) {
-    var drillListData = DrillListData.fromJson(jsonDecode(json));
+    final drillListData = DrillListData.decode(json);
     for (DrillData drill in drillListData.drills) {
       var list = _type2drills.putIfAbsent(drill.type, () => []);
       list.add(drill);

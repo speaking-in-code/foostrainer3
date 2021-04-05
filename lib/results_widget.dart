@@ -45,7 +45,7 @@ class ResultsWidget extends StatelessWidget {
   }
 
   Widget _firstColumn({TextStyle labelStyle, TextStyle dataStyle}) {
-    final successText = results.good ?? _noData;
+    final successText = results.good > -1 ? results.good : _noData;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -60,7 +60,7 @@ class ResultsWidget extends StatelessWidget {
   Widget _secondColumn({TextStyle labelStyle, TextStyle dataStyle}) {
     final durationText =
         DurationFormatter.format(Duration(seconds: results.elapsedSeconds));
-    final accuracyText = (results.good != null && results.reps > 0)
+    final accuracyText = (results.good > -1 && results.reps > 0)
         ? _pctFormatter.format(results.good / results.reps)
         : _noData;
     return Column(

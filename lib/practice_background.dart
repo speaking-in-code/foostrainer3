@@ -10,7 +10,6 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -21,6 +20,7 @@ import 'duration_formatter.dart';
 import 'log.dart';
 import 'pause_timer.dart';
 import 'random_delay.dart';
+import 'results_db.dart';
 import 'results_info.dart';
 import 'tracking_info.dart';
 
@@ -29,9 +29,7 @@ final _log = Log.get('PracticeBackground');
 /// Methods to manage the practice background task.
 class PracticeBackground {
   static const _action = 'action';
-  static const _shotCount = 'shotCount';
-  static const _goodCount = 'goodCount';
-  static const _elapsed = 'elapsed';
+  static const _results = 'results';
   static const _drill = 'drill';
   static const _confirm = 'confirm';
 
@@ -48,10 +46,13 @@ class PracticeBackground {
     if (AudioService.running) {
       final progress = PracticeProgress()
         ..drill = drill
+        ..results =
+            ResultsInfo.newDrill(drill: drill.name, tracking: drill.tracking)
         ..state = PracticeState.paused
         ..action = ''
-        ..shotCount = 0
         ..confirm = 0;
+      _log.info('Playing with drill ${progress.drill.encode()}');
+      _log.info('Playing with results ${progress.results.encode()}');
       AudioService.playMediaItem(getMediaItemFromProgress(progress));
     } else {
       throw StateError('Failed to start AudioService.');
@@ -99,31 +100,27 @@ class PracticeBackground {
       state = PracticeState.playing;
     }
     return PracticeProgress()
-      ..drill = DrillData.fromJson(jsonDecode(extras[_drill]))
+      ..drill = DrillData.decode(extras[_drill])
       ..state = state
       ..action = extras[_action]
-      ..shotCount = extras[_shotCount]
-      ..good = extras[_goodCount]
-      ..elapsedSeconds = extras[_elapsed]
+      ..results = ResultsInfo.decode(extras[_results])
       ..confirm = (extras[_confirm] ?? 0);
   }
 
   /// Get a media item from the specified progress.
   static MediaItem getMediaItemFromProgress(PracticeProgress progress) {
-    final timeStr =
-        DurationFormatter.format(Duration(seconds: progress.elapsedSeconds));
+    final timeStr = DurationFormatter.format(
+        Duration(seconds: progress.results.elapsedSeconds));
     return MediaItem(
         id: progress.drill.name,
-        title: 'Time: $timeStr, Reps: ${progress.shotCount}',
+        title: 'Time: $timeStr, Reps: ${progress.results.reps}',
         album: progress.drill.name,
         artist: 'FoosTrainer',
         artUri: AlbumArt.getUri(),
         extras: {
           _action: progress.action,
-          _shotCount: progress.shotCount,
-          _goodCount: progress.good,
-          _elapsed: progress.elapsedSeconds,
-          _drill: jsonEncode(progress.drill.toJson()),
+          _results: progress.results.encode(),
+          _drill: progress.drill.encode(),
           _confirm: progress.confirm,
         });
   }
@@ -143,15 +140,12 @@ enum PracticeState {
 class PracticeProgress {
   DrillData drill;
   PracticeState state = PracticeState.stopped;
-  String action = 'Loading';
-  int shotCount = 0;
-  int elapsedSeconds = 0;
+  String action;
+  ResultsInfo results;
   // The shot count to confirm. Flutter stream-based widget rendering will
   // sometimes redeliver rendering states, so we use this as a sequence number
   // to avoid repeating the same confirmation.
   int confirm = 0;
-  // null means not tracking success/failure.
-  int good;
 }
 
 const MediaControl _pauseControl = MediaControl(
@@ -196,6 +190,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   final AudioPlayer _player;
   final PauseTimer _pauseTimer;
   final _stopwatch = Stopwatch();
+  ResultsDatabase _resultsDatabase;
 
   PracticeProgress _progress = PracticeProgress();
   Timer _elapsedTimeUpdater;
@@ -223,10 +218,13 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStart(Map<String, dynamic> params) async {
+    Future<ResultsDatabase> db =
+        $FloorResultsDatabase.databaseBuilder('results.db').build();
     Future<void> artLoading = AlbumArt.load();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
     await artLoading;
+    _resultsDatabase = await db;
   }
 
   @override
@@ -246,9 +244,6 @@ class _BackgroundTask extends BackgroundAudioTask {
   Future<void> onPlay() async {
     _logEvent(_playEvent);
     _progress.state = PracticeState.playing;
-    if (_progress.drill.tracking == Tracking.ON) {
-      _progress.good ??= 0;
-    }
     await AudioServiceBackground.setState(
         controls: [_pauseControl, _stopControl],
         playing: true,
@@ -283,22 +278,8 @@ class _BackgroundTask extends BackgroundAudioTask {
     _stopwatch?.stop();
     _elapsedTimeUpdater?.cancel();
 
-    final prefs = await SharedPreferences.getInstance();
-    final resultsInfo = ResultsInfo();
-    resultsInfo.drill = _progress.drill.name;
-    resultsInfo.elapsedSeconds = _stopwatch.elapsed.inSeconds;
-    resultsInfo.reps = _progress.shotCount;
-    if (_progress.drill.tracking == Tracking.ON) {
-      resultsInfo.good = _progress.good;
-    }
-    final encoded = resultsInfo.encode();
-    _log.info('Writing results: $encoded');
-    // TODO(brian): there is weird stuff that happens where this write completes,
-    // but subsequent reads from the app return old data. This is possibly because
-    // the two components are running in different isolates.
-    // Also we shouldn't be using shared prefs for this at all, using a small
-    // in-app DB (sqllite or room or objectbox) is probably a better choice.
-    await prefs.setString(ResultsInfo.prefsKey, encoded);
+    _log.info('Writing results: ${_progress.results.encode()}');
+    await _resultsDatabase.resultsInfoDao.insertResults(_progress.results);
     _log.info('Write complete');
 
     _stopwatch?.reset();
@@ -342,19 +323,19 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.state != PracticeState.playing) {
       return;
     }
-    ++_progress.shotCount;
     int actionIndex = _rand.nextInt(_progress.drill.actions.length);
     ActionData actionData = _progress.drill.actions[actionIndex];
     _progress.action = actionData.label;
-    _updateMediaItem();
     if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
       _flashTorch();
     }
     await _player.setAsset(actionData.audioAsset);
     await _playUntilDone();
-    if (_progress.drill.tracking == Tracking.ON) {
+    if (_progress.drill.tracking) {
       _waitForTracking();
     } else {
+      ++_progress.results.reps;
+      _updateMediaItem();
       _pause(_resetTime).whenComplete(_waitForSetup);
     }
   }
@@ -383,7 +364,7 @@ class _BackgroundTask extends BackgroundAudioTask {
       onPause();
       return;
     }
-    if (_stopwatch.elapsed.inSeconds == _progress.elapsedSeconds) {
+    if (_stopwatch.elapsed.inSeconds == _progress.results.elapsedSeconds) {
       return;
     }
     _updateMediaItem();
@@ -398,10 +379,14 @@ class _BackgroundTask extends BackgroundAudioTask {
   Future<void> _updateMediaItem() async {
     _log.info(
         'Updating media item: ${_progress.action}, confirm: ${_progress.confirm}');
-    _progress.elapsedSeconds = _stopwatch.elapsed.inSeconds;
+    _progress.results.elapsedSeconds = _stopwatch.elapsed.inSeconds;
+    _log.info('Writing result ${_progress.results.encode()}');
+    final writeOp =
+        _resultsDatabase.resultsInfoDao.insertResults(_progress.results);
     final MediaItem item =
         PracticeBackground.getMediaItemFromProgress(_progress);
     await AudioServiceBackground.setMediaItem(item);
+    await writeOp;
   }
 
   // Dart async methods are not entirely reliable in this isolate, see
@@ -440,16 +425,16 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   void _handleSetTracking(String arguments) {
-    _log.info('Handle setTracking ${_progress.good}');
     final request = SetTrackingRequest.fromJson(jsonDecode(arguments));
     switch (request.trackingResult) {
       case TrackingResult.GOOD:
-        ++_progress.good;
-        break;
-      case TrackingResult.SKIP:
-        --_progress.shotCount;
+        ++_progress.results.reps;
+        ++_progress.results.good;
         break;
       case TrackingResult.MISSED:
+        ++_progress.results.reps;
+        break;
+      case TrackingResult.SKIP:
         break;
     }
   }

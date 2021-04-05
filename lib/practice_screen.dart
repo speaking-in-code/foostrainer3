@@ -84,13 +84,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 // speed up rendering.
                 progress = PracticeProgress()
                   ..drill = ModalRoute.of(context).settings.arguments;
+                progress.results = ResultsInfo.newDrill(
+                    drill: progress.drill.name,
+                    tracking: progress.drill.tracking);
               }
+              _log.info('Rendering screen with ${progress.results.encode()}');
               // Sometimes we stop after the drill has reached time. For that
               // case, wait for an explicit 'play' action from the user instead
               // of automatically resuming.
               _pauseForDrillComplete =
                   Duration(minutes: progress.drill.practiceMinutes).inSeconds ==
-                      progress.elapsedSeconds;
+                      progress.results?.elapsedSeconds;
               _practiceState = progress.state;
               // StreamBuilder will redeliver progress messages, but we only
               // want to show the dialog once per shot.
@@ -99,14 +103,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 Future.delayed(
                     Duration.zero, () => _showTrackingDialog(context));
               }
-              final resultsInfo = ResultsInfo()
-                ..drill = progress.drill.name
-                ..elapsedSeconds = progress.elapsedSeconds
-                ..good = progress.good
-                ..reps = progress.shotCount;
               return Scaffold(
                   appBar: MyAppBar(title: progress.drill.name).build(context),
-                  body: ResultsWidget(results: resultsInfo),
+                  body: ResultsWidget(results: progress.results),
                   bottomNavigationBar: _controlButtons(context, progress));
             }));
   }

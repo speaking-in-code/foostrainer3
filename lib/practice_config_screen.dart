@@ -52,7 +52,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill = ModalRoute.of(context).settings.arguments;
     _drill.tempo ??= Tempo.RANDOM;
     _drill.signal ??= Signal.AUDIO;
-    _drill.tracking ??= Tracking.ON;
+    _drill.tracking ??= true; // TODO(brian): switch default to false
     _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
@@ -229,10 +229,8 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
         canTapOnHeader: true,
         headerBuilder: _trackingHeader,
         body: Column(children: [
-          _makeTracking(
-              PracticeConfigScreen.trackingAccuracyOnKey, Tracking.ON),
-          _makeTracking(
-              PracticeConfigScreen.trackingAccuracyOffKey, Tracking.OFF),
+          _makeTracking(PracticeConfigScreen.trackingAccuracyOnKey, true),
+          _makeTracking(PracticeConfigScreen.trackingAccuracyOffKey, false),
         ]));
   }
 
@@ -242,19 +240,12 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
             key: PracticeConfigScreen.trackingHeaderKey));
   }
 
-  String _formatTracking(Tracking tracking) {
-    switch (tracking) {
-      case Tracking.ON:
-        return 'On';
-      case Tracking.OFF:
-        return 'Off';
-      default:
-        return null;
-    }
+  String _formatTracking(bool tracking) {
+    return tracking ? 'On' : 'Off';
   }
 
-  RadioListTile _makeTracking(Key key, Tracking value) {
-    return RadioListTile<Tracking>(
+  RadioListTile _makeTracking(Key key, bool value) {
+    return RadioListTile<bool>(
       key: key,
       activeColor: Theme.of(context).buttonColor,
       title: Text(_formatTracking(value)),
@@ -264,7 +255,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     );
   }
 
-  void _onTrackingChanged(Tracking tracking) async {
+  void _onTrackingChanged(bool tracking) async {
     setState(() {
       _drill.tracking = tracking;
     });

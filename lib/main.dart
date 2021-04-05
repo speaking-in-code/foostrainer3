@@ -9,19 +9,23 @@ import 'drill_list_screen.dart';
 import 'drill_types_screen.dart';
 import 'practice_config_screen.dart';
 import 'practice_screen.dart';
+import 'results_db.dart';
 import 'results_screen.dart';
 
-void main() {
-  // Start the album art load asynchronously.
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Start the album art load asynchronously.
   AlbumArt.load();
-
-  runApp(MainApp());
+  final db = await $FloorResultsDatabase.databaseBuilder('results.db').build();
+  runApp(MainApp(db.resultsInfoDao));
 }
 
 class MainApp extends StatelessWidget {
   static final _analytics = FirebaseAnalytics();
   static final _observer = FirebaseAnalyticsObserver(analytics: _analytics);
+  final ResultsInfoDao resultsInfoDao;
+
+  const MainApp(this.resultsInfoDao);
 
   // Audio service wraps the entire application, so all routes can maintain a
   // connection to the service.
@@ -42,7 +46,8 @@ class MainApp extends StatelessWidget {
         DrillListScreen.routeName: (context) => DrillListScreen(),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) => PracticeScreen(),
-        ResultsScreen.routeName: (context) => ResultsScreen(),
+        ResultsScreen.routeName: (context) =>
+            ResultsScreen(resultsInfoDao: resultsInfoDao),
         DebugScreen.routeName: (context) => DebugScreen(),
       },
     );
