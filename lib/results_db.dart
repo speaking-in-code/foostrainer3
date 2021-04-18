@@ -143,6 +143,21 @@ class _WeeklyDrillReps {
   _WeeklyDrillReps(this.startDay, this.endDay, this.reps, this.accuracy);
 }
 
+// Useful notes on Floor/SQL translation.
+// - if you forget @DatabaseView annotation on the output of a query, you get
+//   get a compilation error: "The getter 'constructor' was called on null."
+// - you also get that error if you forget to list the view on the @Database
+//   annotation.
+// - the query argument @DatabaseView is mandatory, but is not required to be
+//   used. SELECT NULL works just fine.
+// - arguments are substituted in order, not by name. This means that arguments
+//   may only appear in the SQL query once, and that they must appear in the
+//   same order as in the function signature.
+// - if you reference an argument more than once, you'll see an error like
+//   "SQL query arguments and method parameters have to match."
+// - if you reference arguments in the wrong order AND you're very lucky, you'll
+//   get a runtime type error from SQLite about argument type mismatches. If
+//   you're unlucky, your query will just do the wrong thing.
 @dao
 abstract class SummariesDao {
   @Query('''
