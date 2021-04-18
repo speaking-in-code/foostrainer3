@@ -10,44 +10,65 @@ import 'package:json_annotation/json_annotation.dart';
 part 'results_info.g.dart';
 
 @JsonSerializable()
-@entity
+@Entity(tableName: 'Drills')
 class ResultsInfo {
-  @primaryKey
+  @PrimaryKey(autoGenerate: true)
+  final int id;
+
   final int startSeconds;
   final String drill;
+  final bool tracking;
   int elapsedSeconds;
-  int reps;
-  // Good reps of -1 means disabled.
-  int good;
 
   ResultsInfo({
+    this.id,
     this.startSeconds,
     this.drill,
+    this.tracking,
     int elapsedSeconds,
-    int reps,
-    int good,
   }) {
     this.elapsedSeconds = elapsedSeconds ?? 0;
-    this.reps = reps ?? 0;
-    this.good = good ?? -1;
   }
 
   factory ResultsInfo.newDrill({String drill, bool tracking}) {
     return ResultsInfo(
       startSeconds: (DateTime.now().millisecondsSinceEpoch ~/ 1000),
       drill: drill,
-      good: tracking ? 0 : -1,
+      tracking: tracking,
     );
-  }
-
-  factory ResultsInfo.decode(String json) {
-    return _$ResultsInfoFromJson(jsonDecode(json));
   }
 
   String encode() {
     return jsonEncode(_$ResultsInfoToJson(this));
   }
 
+  factory ResultsInfo.decode(String json) {
+    return _$ResultsInfoFromJson(jsonDecode(json));
+  }
+
   factory ResultsInfo.fromJson(Map<String, dynamic> json) =>
       _$ResultsInfoFromJson(json);
+}
+
+@Entity(tableName: 'Actions', foreignKeys: [
+  ForeignKey(
+    childColumns: ['drillId'],
+    parentColumns: ['id'],
+    entity: ResultsInfo,
+  )
+])
+class ResultsActionsInfo {
+  @primaryKey
+  final int id;
+
+  final int drillId;
+  final String action;
+  int reps;
+  // null means not counted
+  int good;
+
+  ResultsActionsInfo(
+      {this.id, this.drillId, this.action, this.reps, this.good}) {
+    reps = reps ?? 0;
+  }
 }
