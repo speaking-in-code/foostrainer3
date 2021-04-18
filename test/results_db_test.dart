@@ -47,9 +47,13 @@ void main() {
       }
     }
 
-    Future<List<WeeklyDrill>> _summary() async {
+    Future<List<WeeklyDrill>> _summary({String drill, String action}) async {
       const MAX_WEEKS = 4;
-      return summaries.weeklyDrills(END_SECONDS, MAX_WEEKS);
+      return summaries.weeklyDrills(
+          endSeconds: END_SECONDS,
+          numWeeks: MAX_WEEKS,
+          drill: drill,
+          action: action);
     }
 
     test('summarizes empty table', () async {
@@ -187,6 +191,80 @@ void main() {
                 DateTime(2017, 8, 28), DateTime(2017, 9, 3), 1200, 250, 0.0),
             WeeklyDrill(
                 DateTime(2017, 8, 21), DateTime(2017, 8, 27), 1200, 250, 0.0),
+          ]));
+    });
+
+    test('summary filters by drill', () async {
+      await _addResults(
+          ResultsInfo(
+              startSeconds: START_SECONDS,
+              drill: 'Brush Pass',
+              tracking: true,
+              elapsedSeconds: 1200),
+          actionList: [
+            _Actions('Lane', 50, 30),
+            _Actions('Wall', 50, 30),
+          ]);
+      await _addResults(
+          ResultsInfo(
+              startSeconds: START_SECONDS,
+              drill: 'Stick Pass',
+              tracking: false,
+              elapsedSeconds: 600),
+          actionList: [
+            _Actions('Lane', 50, 40),
+            _Actions('Wall', 50, 40),
+          ]);
+      var weeks = await _summary(drill: 'Stick Pass');
+      expect(
+          weeks,
+          equals([
+            WeeklyDrill(
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), 600, 100, null),
+          ]));
+      weeks = await _summary(drill: 'Brush Pass');
+      expect(
+          weeks,
+          equals([
+            WeeklyDrill(
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), 1200, 100, 0.6),
+          ]));
+    });
+
+    test('summary filters by action', () async {
+      await _addResults(
+          ResultsInfo(
+              startSeconds: START_SECONDS,
+              drill: 'Wall & Bounce Pass',
+              tracking: true,
+              elapsedSeconds: 1200),
+          actionList: [
+            _Actions('Bounce', 50, 30),
+            _Actions('Wall', 50, 30),
+          ]);
+      await _addResults(
+          ResultsInfo(
+              startSeconds: START_SECONDS,
+              drill: 'Stick Pass',
+              tracking: true,
+              elapsedSeconds: 600),
+          actionList: [
+            _Actions('Lane', 50, 40),
+            _Actions('Wall', 50, 40),
+          ]);
+      var weeks = await _summary(action: 'Lane');
+      expect(
+          weeks,
+          equals([
+            WeeklyDrill(
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), null, 50, 0.8),
+          ]));
+      weeks = await _summary(action: 'Wall');
+      expect(
+          weeks,
+          equals([
+            WeeklyDrill(
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), null, 100, 0.7),
           ]));
     });
 

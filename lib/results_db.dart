@@ -151,12 +151,15 @@ abstract class SummariesDao {
      DATE(startSeconds, "unixepoch", "weekday 0") endDay,
      SUM(elapsedSeconds) elapsedSeconds
    FROM Drills
-   WHERE startSeconds < :endSeconds
+   WHERE
+     startSeconds < :endSeconds
+     AND (NOT :matchDrill OR drill = :drill) 
    GROUP BY startDay
    ORDER BY startDay DESC
    LIMIT :numWeeks
   ''')
-  Future<List<_WeeklyDrillTime>> _weeklyDrillTime(int endSeconds, int numWeeks);
+  Future<List<_WeeklyDrillTime>> _weeklyDrillTime(
+      int endSeconds, bool matchDrill, String drill, int numWeeks);
 
   @Query('''
    SELECT
@@ -167,19 +170,36 @@ abstract class SummariesDao {
        / CAST(SUM(IIF(drills.tracking, Actions.reps, 0)) AS DOUBLE) accuracy
    FROM Drills
    LEFT JOIN Actions ON Drills.id = Actions.drillId
-   WHERE startSeconds < :endSeconds
+   WHERE
+     startSeconds < :endSeconds
+     AND (NOT :matchDrill OR drill = :drill) 
+     AND (NOT :matchAction OR action = :action)
    GROUP BY startDay
    ORDER BY startDay DESC
    LIMIT :numWeeks
   ''')
-  Future<List<_WeeklyDrillReps>> _weeklyDrillReps(int endSeconds, int numWeeks);
+  Future<List<_WeeklyDrillReps>> _weeklyDrillReps(
+      int endSeconds,
+      bool matchDrill,
+      String drill,
+      bool matchAction,
+      String action,
+      int numWeeks);
 
   // Return a weekly summary of drill progress, most recent first.
-  Future<List<WeeklyDrill>> weeklyDrills(int endSeconds, int numWeeks) async {
-    Future<List<_WeeklyDrillTime>> times =
-        _weeklyDrillTime(endSeconds, numWeeks);
-    Future<List<_WeeklyDrillReps>> reps =
-        _weeklyDrillReps(endSeconds, numWeeks);
+  Future<List<WeeklyDrill>> weeklyDrills(
+      {int endSeconds, int numWeeks, String drill, String action}) async {
+    drill ??= '';
+    action ??= '';
+    Future<List<_WeeklyDrillTime>> times;
+    // Drill time is not defined for specific actions.
+    if (action.isEmpty) {
+      times = _weeklyDrillTime(endSeconds, drill.isNotEmpty, drill, numWeeks);
+    } else {
+      times = Future.value([]);
+    }
+    Future<List<_WeeklyDrillReps>> reps = _weeklyDrillReps(endSeconds,
+        drill.isNotEmpty, drill, action.isNotEmpty, action, numWeeks);
     return _mergeWeekly(await times, await reps);
   }
 
@@ -187,13 +207,11 @@ abstract class SummariesDao {
       List<_WeeklyDrillTime> times, List<_WeeklyDrillReps> reps) {
     final builders = Map<String, _WeeklyDrillBuilder>();
     for (_WeeklyDrillTime time in times) {
-      _WeeklyDrillBuilder b = _getBuilder(builders, time.startDay);
-      b.startDay = DateTime.parse(time.startDay);
-      b.endDay = DateTime.parse(time.endDay);
+      _WeeklyDrillBuilder b = _getBuilder(builders, time.startDay, time.endDay);
       b.elapsedSeconds = time.elapsedSeconds;
     }
     for (_WeeklyDrillReps rep in reps) {
-      _WeeklyDrillBuilder b = _getBuilder(builders, rep.startDay);
+      _WeeklyDrillBuilder b = _getBuilder(builders, rep.startDay, rep.endDay);
       b.reps = rep.reps;
       b.accuracy = rep.accuracy;
     }
@@ -206,11 +224,13 @@ abstract class SummariesDao {
     return out;
   }
 
-  _WeeklyDrillBuilder _getBuilder(
-      Map<String, _WeeklyDrillBuilder> builders, String startDay) {
+  _WeeklyDrillBuilder _getBuilder(Map<String, _WeeklyDrillBuilder> builders,
+      String startDay, String endDay) {
     _WeeklyDrillBuilder b = builders[startDay];
     if (b == null) {
       b = _WeeklyDrillBuilder();
+      b.startDay = DateTime.parse(startDay);
+      b.endDay = DateTime.parse(endDay);
       builders[startDay] = b;
     }
     return b;

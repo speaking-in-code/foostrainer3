@@ -240,10 +240,15 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<_WeeklyDrillTime>> _weeklyDrillTime(
-      int endSeconds, int numWeeks) async {
+      int endSeconds, bool matchDrill, String drill, int numWeeks) async {
     return _queryAdapter.queryList(
-        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, SUM(elapsedSeconds) elapsedSeconds FROM Drills WHERE startSeconds < ? GROUP BY startDay ORDER BY startDay DESC LIMIT ?',
-        arguments: <dynamic>[endSeconds, numWeeks],
+        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, SUM(elapsedSeconds) elapsedSeconds FROM Drills WHERE startSeconds < ? AND (NOT ? OR drill = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ?',
+        arguments: <dynamic>[
+          endSeconds,
+          matchDrill == null ? null : (matchDrill ? 1 : 0),
+          drill,
+          numWeeks
+        ],
         mapper: (Map<String, dynamic> row) => _WeeklyDrillTime(
             row['startDay'] as String,
             row['endDay'] as String,
@@ -252,10 +257,22 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<_WeeklyDrillReps>> _weeklyDrillReps(
-      int endSeconds, int numWeeks) async {
+      int endSeconds,
+      bool matchDrill,
+      String drill,
+      bool matchAction,
+      String action,
+      int numWeeks) async {
     return _queryAdapter.queryList(
-        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, IFNULL(SUM(reps), 0) reps, CAST(SUM(IIF(Drills.tracking, Actions.good, 0)) AS DOUBLE) / CAST(SUM(IIF(drills.tracking, Actions.reps, 0)) AS DOUBLE) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE startSeconds < ? GROUP BY startDay ORDER BY startDay DESC LIMIT ?',
-        arguments: <dynamic>[endSeconds, numWeeks],
+        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, IFNULL(SUM(reps), 0) reps, CAST(SUM(IIF(Drills.tracking, Actions.good, 0)) AS DOUBLE) / CAST(SUM(IIF(drills.tracking, Actions.reps, 0)) AS DOUBLE) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE startSeconds < ? AND (NOT ? OR drill = ?) AND (NOT ? OR action = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ?',
+        arguments: <dynamic>[
+          endSeconds,
+          matchDrill == null ? null : (matchDrill ? 1 : 0),
+          drill,
+          matchAction == null ? null : (matchAction ? 1 : 0),
+          action,
+          numWeeks
+        ],
         mapper: (Map<String, dynamic> row) => _WeeklyDrillReps(
             row['startDay'] as String,
             row['endDay'] as String,
