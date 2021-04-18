@@ -252,10 +252,6 @@ abstract class SummariesDao {
   }
 }
 
-// TODO(brian): add summary/history views of this database.
-// time and reps and accuracy overall
-// time and reps and accuracy for drill
-// time and reps and accuracy for action
 @Database(
     version: 1,
     entities: [ResultsInfo, ResultsActionsInfo],
