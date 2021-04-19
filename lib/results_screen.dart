@@ -4,7 +4,7 @@ import 'drill_types_screen.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'results_db.dart';
-import 'results_info.dart';
+import 'results_entities.dart';
 import 'results_widget.dart';
 
 final _log = Log.get('results_screen');
@@ -13,8 +13,8 @@ class ResultsScreen extends StatelessWidget {
   static const routeName = '/results';
   final Future<ResultsInfo> _resultsInfo;
 
-  ResultsScreen({Key key, ResultsInfoDao resultsInfoDao})
-      : _resultsInfo = resultsInfoDao.findLastResults(),
+  ResultsScreen({Key key, ResultsDatabase resultsDb})
+      : _resultsInfo = resultsDb.drillsDao.f
         super(key: key);
 
   @override

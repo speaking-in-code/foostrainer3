@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'duration_formatter.dart';
-import 'results_info.dart';
+import 'results_entities.dart';
 
 class ResultsWidget extends StatelessWidget {
   static const _noData = '--';

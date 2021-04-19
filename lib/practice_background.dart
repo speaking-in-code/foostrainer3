@@ -21,7 +21,7 @@ import 'log.dart';
 import 'pause_timer.dart';
 import 'random_delay.dart';
 import 'results_db.dart';
-import 'results_info.dart';
+import 'results_entities.dart';
 import 'tracking_info.dart';
 
 final _log = Log.get('PracticeBackground');
@@ -279,7 +279,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _elapsedTimeUpdater?.cancel();
 
     _log.info('Writing results: ${_progress.results.encode()}');
-    await _resultsDatabase.resultsInfoDao.insertResults(_progress.results);
+    await _resultsDatabase.resultsInfoDao.insertDrill(_progress.results);
     _log.info('Write complete');
 
     _stopwatch?.reset();
@@ -382,7 +382,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _progress.results.elapsedSeconds = _stopwatch.elapsed.inSeconds;
     _log.info('Writing result ${_progress.results.encode()}');
     final writeOp =
-        _resultsDatabase.resultsInfoDao.insertResults(_progress.results);
+        _resultsDatabase.resultsInfoDao.insertDrill(_progress.results);
     final MediaItem item =
         PracticeBackground.getMediaItemFromProgress(_progress);
     await AudioServiceBackground.setMediaItem(item);

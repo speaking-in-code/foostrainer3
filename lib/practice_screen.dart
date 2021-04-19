@@ -10,7 +10,7 @@ import 'keys.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'practice_background.dart';
-import 'results_info.dart';
+import 'results_entities.dart';
 import 'results_screen.dart';
 import 'results_widget.dart';
 import 'screenshot_data.dart';

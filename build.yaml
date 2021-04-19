@@ -5,7 +5,7 @@ targets:
         generate_for:
           - lib/debug_info.dart
           - lib/drill_data.dart
-          - lib/results_info.dart
+          - lib/results_entities.dart
           - lib/tracking_info.dart
         options:
           # Options configure how source code is generated for every

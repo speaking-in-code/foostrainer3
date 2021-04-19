@@ -1,124 +1,63 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:equatable/equatable.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
-import 'results_info.dart';
+import 'results_entities.dart';
 
 part 'results_db.g.dart';
 
 @dao
 abstract class DrillsDao {
   @Insert(onConflict: OnConflictStrategy.replace)
-  Future<int> insertResults(ResultsInfo results);
+  Future<int> insertDrill(StoredDrill results);
 
   @Query('SELECT * FROM Drills WHERE id = :id')
-  Future<ResultsInfo> findResults(int id);
+  Future<StoredDrill> loadDrill(int id);
 }
 
 @dao
 abstract class ActionsDao {
+  @Insert(onConflict: OnConflictStrategy.replace)
+  Future<int> insertAction(StoredAction results);
+
   @Query('SELECT * from Actions WHERE drillId = :drillId AND action = :action')
-  Future<ResultsActionsInfo> findAction(int drillId, String action);
+  Future<StoredAction> loadAction(int drillId, String action);
 
   @Query('SELECT * from Actions WHERE drillId = :drillId')
-  Future<List<ResultsActionsInfo>> findActions(int drillId);
-
-  @Insert(onConflict: OnConflictStrategy.replace)
-  Future<int> insertAction(ResultsActionsInfo results);
+  Future<List<StoredAction>> loadActions(int drillId);
 
   @transaction
   Future<void> incrementAction(int drillId, String action, bool good) async {
-    ResultsActionsInfo actionInfo = await findAction(drillId, action);
+    final actionInfo = await loadAction(drillId, action);
+    int id = actionInfo?.id;
+    int reps = (actionInfo?.reps ?? 0) + 1;
+    int goodCount;
     if (actionInfo == null) {
-      actionInfo = ResultsActionsInfo(
-          drillId: drillId,
-          action: action,
-          reps: 0,
-          good: good != null ? 0 : null);
-    }
-    ++actionInfo.reps;
-    if (actionInfo.good != null && good) {
-      ++actionInfo.good;
-    }
-    await insertAction(actionInfo);
-  }
-}
-
-// Summary of results for a single drill.
-class DrillSummary {
-  final String drill;
-  final int reps;
-  final int elapsedSeconds;
-  final int good; // nullable
-  final double accuracy; // nullable
-  // use SplayTreeMap for implementation.
-  final Map<String, int> actionReps;
-
-  DrillSummary(
-      {this.drill,
-      this.reps,
-      this.elapsedSeconds,
-      this.good,
-      this.accuracy,
-      this.actionReps});
-
-  static Future<DrillSummary> load(
-      DrillsDao drills, ActionsDao actions, int drillId) async {
-    // Could optimize this into a single more complex SQL query, but it doesn't
-    // seem worth it.
-    Future<ResultsInfo> futureResults = drills.findResults(drillId);
-    Future<List<ResultsActionsInfo>> futureCounts =
-        actions.findActions(drillId);
-    final results = await futureResults;
-    final counts = await futureCounts;
-    final actionReps = SplayTreeMap<String, int>();
-    int good = results.tracking ? 0 : null;
-    int reps = 0;
-    for (final action in counts) {
-      actionReps[action.action] = action.reps;
-      reps += action.reps;
       if (good != null) {
-        good += action.good;
+        goodCount = good ? 1 : 0;
+      }
+    } else if (actionInfo.good != null) {
+      goodCount = actionInfo.good;
+      if (good) {
+        ++goodCount;
       }
     }
-    final accuracy = (reps > 0 && good != null) ? (good / reps) : null;
-    return DrillSummary(
-        drill: results.drill,
-        elapsedSeconds: results.elapsedSeconds,
-        reps: reps,
-        good: good,
-        accuracy: accuracy,
-        actionReps: actionReps);
+    await insertAction(StoredAction(
+        id: id, drillId: drillId, action: action, reps: reps, good: goodCount));
   }
 }
 
-/// Summary of drill results by day.
-class WeeklyDrill extends Equatable {
-  final DateTime startDay;
-  final DateTime endDay;
-  final int elapsedSeconds;
-  final int reps;
-  final double accuracy;
-
-  WeeklyDrill(this.startDay, this.endDay, this.elapsedSeconds, this.reps,
-      this.accuracy);
-
-  @override
-  List<Object> get props => [startDay, endDay, elapsedSeconds, reps, accuracy];
-}
-
-class _WeeklyDrillBuilder {
+class _WeeklyDrillSummaryBuilder {
   DateTime startDay;
   DateTime endDay;
   int elapsedSeconds;
   int reps;
   double accuracy;
 
-  WeeklyDrill build() {
-    return WeeklyDrill(startDay, endDay, elapsedSeconds, reps, accuracy);
+  WeeklyDrillSummary build() {
+    return WeeklyDrillSummary(startDay, endDay, elapsedSeconds, reps, accuracy);
   }
 }
 
@@ -160,6 +99,51 @@ class _WeeklyDrillReps {
 //   you're unlucky, your query will just do the wrong thing.
 @dao
 abstract class SummariesDao {
+  Future<DrillSummary> loadDrill(ResultsDatabase db, int drillId) async {
+    Future<StoredDrill> drill = db.drillsDao.loadDrill(drillId);
+    Future<List<StoredAction>> actions = db.actionsDao.loadActions(drillId);
+    return _buildDrillSummary(await drill, await actions);
+  }
+
+  static DrillSummary _buildDrillSummary(
+      StoredDrill drill, List<StoredAction> actions) {
+    final actionReps = SplayTreeMap<String, int>();
+    int good = drill.tracking ? 0 : null;
+    int reps = 0;
+    actions.forEach((action) {
+      actionReps[action.action] = action.reps;
+      reps += action.reps;
+      if (good != null) {
+        good += action.good;
+      }
+    });
+    final accuracy = (reps > 0 && good != null) ? (good / reps) : null;
+    return DrillSummary(
+        drill: drill.drill,
+        elapsedSeconds: drill.elapsedSeconds,
+        reps: reps,
+        good: good,
+        accuracy: accuracy,
+        actionReps: actionReps);
+  }
+
+  // Return a weekly summary of drill progress, most recent first.
+  Future<List<WeeklyDrillSummary>> weeklyDrills(
+      {int endSeconds, int numWeeks, String drill, String action}) async {
+    drill ??= '';
+    action ??= '';
+    Future<List<_WeeklyDrillTime>> times;
+    // Drill time is not defined for specific actions.
+    if (action.isEmpty) {
+      times = _weeklyDrillTime(endSeconds, drill.isNotEmpty, drill, numWeeks);
+    } else {
+      times = Future.value([]);
+    }
+    Future<List<_WeeklyDrillReps>> reps = _weeklyDrillReps(endSeconds,
+        drill.isNotEmpty, drill, action.isNotEmpty, action, numWeeks);
+    return _mergeWeekly(await times, await reps);
+  }
+
   @Query('''
    SELECT
      DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay,
@@ -201,60 +185,42 @@ abstract class SummariesDao {
       String action,
       int numWeeks);
 
-  // Return a weekly summary of drill progress, most recent first.
-  Future<List<WeeklyDrill>> weeklyDrills(
-      {int endSeconds, int numWeeks, String drill, String action}) async {
-    drill ??= '';
-    action ??= '';
-    Future<List<_WeeklyDrillTime>> times;
-    // Drill time is not defined for specific actions.
-    if (action.isEmpty) {
-      times = _weeklyDrillTime(endSeconds, drill.isNotEmpty, drill, numWeeks);
-    } else {
-      times = Future.value([]);
-    }
-    Future<List<_WeeklyDrillReps>> reps = _weeklyDrillReps(endSeconds,
-        drill.isNotEmpty, drill, action.isNotEmpty, action, numWeeks);
-    return _mergeWeekly(await times, await reps);
-  }
-
-  List<WeeklyDrill> _mergeWeekly(
+  List<WeeklyDrillSummary> _mergeWeekly(
       List<_WeeklyDrillTime> times, List<_WeeklyDrillReps> reps) {
-    final builders = Map<String, _WeeklyDrillBuilder>();
-    for (_WeeklyDrillTime time in times) {
-      _WeeklyDrillBuilder b = _getBuilder(builders, time.startDay, time.endDay);
+    final builders = Map<String, _WeeklyDrillSummaryBuilder>();
+    times.forEach((time) {
+      _WeeklyDrillSummaryBuilder b =
+          _getBuilder(builders, time.startDay, time.endDay);
       b.elapsedSeconds = time.elapsedSeconds;
-    }
-    for (_WeeklyDrillReps rep in reps) {
-      _WeeklyDrillBuilder b = _getBuilder(builders, rep.startDay, rep.endDay);
+    });
+    reps.forEach((rep) {
+      _WeeklyDrillSummaryBuilder b =
+          _getBuilder(builders, rep.startDay, rep.endDay);
       b.reps = rep.reps;
       b.accuracy = rep.accuracy;
-    }
-    List<WeeklyDrill> out = [];
-    for (_WeeklyDrillBuilder b in builders.values) {
-      out.add(b.build());
-    }
-    out.sort(
-        (WeeklyDrill a, WeeklyDrill b) => b.startDay.compareTo(a.startDay));
+    });
+    List<WeeklyDrillSummary> out =
+        builders.values.map((b) => b.build()).toList();
+    out.sort((WeeklyDrillSummary a, WeeklyDrillSummary b) =>
+        b.startDay.compareTo(a.startDay));
     return out;
   }
 
-  _WeeklyDrillBuilder _getBuilder(Map<String, _WeeklyDrillBuilder> builders,
-      String startDay, String endDay) {
-    _WeeklyDrillBuilder b = builders[startDay];
-    if (b == null) {
-      b = _WeeklyDrillBuilder();
-      b.startDay = DateTime.parse(startDay);
-      b.endDay = DateTime.parse(endDay);
-      builders[startDay] = b;
-    }
-    return b;
+  _WeeklyDrillSummaryBuilder _getBuilder(
+      Map<String, _WeeklyDrillSummaryBuilder> builders,
+      String startDay,
+      String endDay) {
+    return builders.putIfAbsent(
+        startDay,
+        () => _WeeklyDrillSummaryBuilder()
+          ..startDay = DateTime.parse(startDay)
+          ..endDay = DateTime.parse(endDay));
   }
 }
 
 @Database(
     version: 1,
-    entities: [ResultsInfo, ResultsActionsInfo],
+    entities: [StoredDrill, StoredAction],
     views: [_WeeklyDrillTime, _WeeklyDrillReps])
 abstract class ResultsDatabase extends FloorDatabase {
   DrillsDao get drillsDao;

@@ -118,10 +118,10 @@ class _$ResultsDatabase extends ResultsDatabase {
 class _$DrillsDao extends DrillsDao {
   _$DrillsDao(this.database, this.changeListener)
       : _queryAdapter = QueryAdapter(database),
-        _resultsInfoInsertionAdapter = InsertionAdapter(
+        _storedDrillInsertionAdapter = InsertionAdapter(
             database,
             'Drills',
-            (ResultsInfo item) => <String, dynamic>{
+            (StoredDrill item) => <String, dynamic>{
                   'id': item.id,
                   'startSeconds': item.startSeconds,
                   'drill': item.drill,
@@ -136,13 +136,13 @@ class _$DrillsDao extends DrillsDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<ResultsInfo> _resultsInfoInsertionAdapter;
+  final InsertionAdapter<StoredDrill> _storedDrillInsertionAdapter;
 
   @override
-  Future<ResultsInfo> findResults(int id) async {
+  Future<StoredDrill> loadDrill(int id) async {
     return _queryAdapter.query('SELECT * FROM Drills WHERE id = ?',
         arguments: <dynamic>[id],
-        mapper: (Map<String, dynamic> row) => ResultsInfo(
+        mapper: (Map<String, dynamic> row) => StoredDrill(
             id: row['id'] as int,
             startSeconds: row['startSeconds'] as int,
             drill: row['drill'] as String,
@@ -152,8 +152,8 @@ class _$DrillsDao extends DrillsDao {
   }
 
   @override
-  Future<int> insertResults(ResultsInfo results) {
-    return _resultsInfoInsertionAdapter.insertAndReturnId(
+  Future<int> insertDrill(StoredDrill results) {
+    return _storedDrillInsertionAdapter.insertAndReturnId(
         results, OnConflictStrategy.replace);
   }
 }
@@ -161,10 +161,10 @@ class _$DrillsDao extends DrillsDao {
 class _$ActionsDao extends ActionsDao {
   _$ActionsDao(this.database, this.changeListener)
       : _queryAdapter = QueryAdapter(database),
-        _resultsActionsInfoInsertionAdapter = InsertionAdapter(
+        _storedActionInsertionAdapter = InsertionAdapter(
             database,
             'Actions',
-            (ResultsActionsInfo item) => <String, dynamic>{
+            (StoredAction item) => <String, dynamic>{
                   'id': item.id,
                   'drillId': item.drillId,
                   'action': item.action,
@@ -178,15 +178,14 @@ class _$ActionsDao extends ActionsDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<ResultsActionsInfo>
-      _resultsActionsInfoInsertionAdapter;
+  final InsertionAdapter<StoredAction> _storedActionInsertionAdapter;
 
   @override
-  Future<ResultsActionsInfo> findAction(int drillId, String action) async {
+  Future<StoredAction> loadAction(int drillId, String action) async {
     return _queryAdapter.query(
         'SELECT * from Actions WHERE drillId = ? AND action = ?',
         arguments: <dynamic>[drillId, action],
-        mapper: (Map<String, dynamic> row) => ResultsActionsInfo(
+        mapper: (Map<String, dynamic> row) => StoredAction(
             id: row['id'] as int,
             drillId: row['drillId'] as int,
             action: row['action'] as String,
@@ -195,10 +194,10 @@ class _$ActionsDao extends ActionsDao {
   }
 
   @override
-  Future<List<ResultsActionsInfo>> findActions(int drillId) async {
+  Future<List<StoredAction>> loadActions(int drillId) async {
     return _queryAdapter.queryList('SELECT * from Actions WHERE drillId = ?',
         arguments: <dynamic>[drillId],
-        mapper: (Map<String, dynamic> row) => ResultsActionsInfo(
+        mapper: (Map<String, dynamic> row) => StoredAction(
             id: row['id'] as int,
             drillId: row['drillId'] as int,
             action: row['action'] as String,
@@ -207,8 +206,8 @@ class _$ActionsDao extends ActionsDao {
   }
 
   @override
-  Future<int> insertAction(ResultsActionsInfo results) {
-    return _resultsActionsInfoInsertionAdapter.insertAndReturnId(
+  Future<int> insertAction(StoredAction results) {
+    return _storedActionInsertionAdapter.insertAndReturnId(
         results, OnConflictStrategy.replace);
   }
 

@@ -17,15 +17,15 @@ void main() async {
   // Start the album art load asynchronously.
   AlbumArt.load();
   final db = await $FloorResultsDatabase.databaseBuilder('results.db').build();
-  runApp(MainApp(db.resultsInfoDao));
+  runApp(MainApp(db));
 }
 
 class MainApp extends StatelessWidget {
   static final _analytics = FirebaseAnalytics();
   static final _observer = FirebaseAnalyticsObserver(analytics: _analytics);
-  final ResultsInfoDao resultsInfoDao;
+  final ResultsDatabase resultsDb;
 
-  const MainApp(this.resultsInfoDao);
+  const MainApp(this.resultsDb);
 
   // Audio service wraps the entire application, so all routes can maintain a
   // connection to the service.
@@ -47,7 +47,7 @@ class MainApp extends StatelessWidget {
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) => PracticeScreen(),
         ResultsScreen.routeName: (context) =>
-            ResultsScreen(resultsInfoDao: resultsInfoDao),
+            ResultsScreen(resultsDb: resultsDb),
         DebugScreen.routeName: (context) => DebugScreen(),
       },
     );

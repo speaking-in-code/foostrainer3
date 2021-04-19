@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'results_info.dart';
+part of 'results_entities.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-ResultsInfo _$ResultsInfoFromJson(Map<String, dynamic> json) {
-  return ResultsInfo(
+StoredDrill _$StoredDrillFromJson(Map<String, dynamic> json) {
+  return StoredDrill(
     id: json['id'] as int,
     startSeconds: json['startSeconds'] as int,
     drill: json['drill'] as String,
@@ -16,7 +16,7 @@ ResultsInfo _$ResultsInfoFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$ResultsInfoToJson(ResultsInfo instance) =>
+Map<String, dynamic> _$StoredDrillToJson(StoredDrill instance) =>
     <String, dynamic>{
       'id': instance.id,
       'startSeconds': instance.startSeconds,
