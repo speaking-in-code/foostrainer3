@@ -24,3 +24,26 @@ Map<String, dynamic> _$StoredDrillToJson(StoredDrill instance) =>
       'tracking': instance.tracking,
       'elapsedSeconds': instance.elapsedSeconds,
     };
+
+DrillSummary _$DrillSummaryFromJson(Map<String, dynamic> json) {
+  return DrillSummary(
+    drill: json['drill'] == null
+        ? null
+        : StoredDrill.fromJson(json['drill'] as Map<String, dynamic>),
+    reps: json['reps'] as int,
+    good: json['good'] as int,
+    accuracy: (json['accuracy'] as num)?.toDouble(),
+    actionReps: (json['actionReps'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e as int),
+    ),
+  );
+}
+
+Map<String, dynamic> _$DrillSummaryToJson(DrillSummary instance) =>
+    <String, dynamic>{
+      'drill': instance.drill,
+      'reps': instance.reps,
+      'good': instance.good,
+      'accuracy': instance.accuracy,
+      'actionReps': instance.actionReps,
+    };

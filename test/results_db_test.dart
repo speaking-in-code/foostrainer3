@@ -279,8 +279,8 @@ void main() {
       expect(results.elapsedSeconds, equals(0));
 
       final summary = await summaries.loadDrill(db, id);
-      expect(summary.drill, equals('Drill'));
-      expect(summary.elapsedSeconds, equals(0));
+      expect(summary.drill.drill, equals('Drill'));
+      expect(summary.drill.elapsedSeconds, equals(0));
       expect(summary.good, equals(null));
       expect(summary.accuracy, equals(null));
       expect(summary.reps, equals(0));
@@ -305,8 +305,8 @@ void main() {
       expect(lane.good, equals(null));
 
       final summary = await summaries.loadDrill(db, drillId);
-      expect(summary.drill, equals('Passing'));
-      expect(summary.elapsedSeconds, equals(0));
+      expect(summary.drill.drill, equals('Passing'));
+      expect(summary.drill.elapsedSeconds, equals(0));
       expect(summary.good, equals(null));
       expect(summary.accuracy, equals(null));
       expect(summary.reps, equals(4));
@@ -334,8 +334,8 @@ void main() {
       expect(lane.good, equals(3));
 
       final summary = await summaries.loadDrill(db, drillId);
-      expect(summary.drill, equals('Passing'));
-      expect(summary.elapsedSeconds, equals(0));
+      expect(summary.drill.drill, equals('Passing'));
+      expect(summary.drill.elapsedSeconds, equals(0));
       expect(summary.good, equals(3));
       expect(summary.accuracy, equals(0.75));
       expect(summary.reps, equals(4));

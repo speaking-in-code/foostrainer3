@@ -119,8 +119,7 @@ abstract class SummariesDao {
     });
     final accuracy = (reps > 0 && good != null) ? (good / reps) : null;
     return DrillSummary(
-        drill: drill.drill,
-        elapsedSeconds: drill.elapsedSeconds,
+        drill: drill,
         reps: reps,
         good: good,
         accuracy: accuracy,
@@ -226,4 +225,8 @@ abstract class ResultsDatabase extends FloorDatabase {
   DrillsDao get drillsDao;
   ActionsDao get actionsDao;
   SummariesDao get summariesDao;
+
+  static Future<ResultsDatabase> init() {
+    return $FloorResultsDatabase.databaseBuilder('results3.db').build();
+  }
 }

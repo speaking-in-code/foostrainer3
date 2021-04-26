@@ -11,26 +11,26 @@ final _log = Log.get('results_screen');
 
 class ResultsScreen extends StatelessWidget {
   static const routeName = '/results';
-  final Future<ResultsInfo> _resultsInfo;
+  final Future<DrillSummary> _summary;
 
-  ResultsScreen({Key key, ResultsDatabase resultsDb})
-      : _resultsInfo = resultsDb.drillsDao.f
+  ResultsScreen({Key key, ResultsDatabase resultsDb, int drillId})
+      : _summary = resultsDb.summariesDao.loadDrill(resultsDb, drillId),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ResultsInfo>(
-        future: _resultsInfo,
-        builder: (BuildContext context, AsyncSnapshot<ResultsInfo> snapshot) {
+    return FutureBuilder<DrillSummary>(
+        future: _summary,
+        builder: (BuildContext context, AsyncSnapshot<DrillSummary> snapshot) {
           _log.info('Results error: ${snapshot.error}');
-          ResultsInfo results = snapshot.data;
+          DrillSummary results = snapshot.data;
           if (results == null) {
-            results = ResultsInfo(startSeconds: 0, drill: '');
+            results = DrillSummary(
+                drill: StoredDrill(drill: '', elapsedSeconds: 0), reps: 0);
           }
-          _log.info('Rendering results with data ${results.encode()}');
           return Scaffold(
             appBar: MyAppBar(title: 'Drill Complete').build(context),
-            body: ResultsWidget(results: results),
+            body: ResultsWidget(summary: results),
             floatingActionButton: FloatingActionButton(
               backgroundColor: Theme.of(context).buttonColor,
               onPressed: () => Navigator.pushReplacementNamed(

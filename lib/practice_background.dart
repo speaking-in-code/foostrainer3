@@ -1,6 +1,7 @@
 // Start a background isolate for executing drills.
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -46,12 +47,22 @@ class PracticeBackground {
     if (AudioService.running) {
       final progress = PracticeProgress()
         ..drill = drill
-        ..results =
-            ResultsInfo.newDrill(drill: drill.name, tracking: drill.tracking)
+        ..results = DrillSummary(
+            drill: StoredDrill(
+                startSeconds: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                drill: drill.name,
+                tracking: drill.tracking,
+                elapsedSeconds: 0),
+            reps: 0,
+            good: (drill.tracking ? 0 : null),
+            accuracy: null,
+            actionReps: Map())
         ..state = PracticeState.paused
         ..action = ''
         ..confirm = 0;
       _log.info('Playing with drill ${progress.drill.encode()}');
+      _log.info('results.drill is ${progress.results.drill}');
+      _log.info('encoded is ${progress.results.drill.encode()}');
       _log.info('Playing with results ${progress.results.encode()}');
       AudioService.playMediaItem(getMediaItemFromProgress(progress));
     } else {
@@ -103,14 +114,14 @@ class PracticeBackground {
       ..drill = DrillData.decode(extras[_drill])
       ..state = state
       ..action = extras[_action]
-      ..results = ResultsInfo.decode(extras[_results])
+      ..results = DrillSummary.decode(extras[_results])
       ..confirm = (extras[_confirm] ?? 0);
   }
 
   /// Get a media item from the specified progress.
   static MediaItem getMediaItemFromProgress(PracticeProgress progress) {
     final timeStr = DurationFormatter.format(
-        Duration(seconds: progress.results.elapsedSeconds));
+        Duration(seconds: progress.results.drill.elapsedSeconds));
     return MediaItem(
         id: progress.drill.name,
         title: 'Time: $timeStr, Reps: ${progress.results.reps}',
@@ -141,7 +152,8 @@ class PracticeProgress {
   DrillData drill;
   PracticeState state = PracticeState.stopped;
   String action;
-  ResultsInfo results;
+  String lastAction;
+  DrillSummary results;
   // The shot count to confirm. Flutter stream-based widget rendering will
   // sometimes redeliver rendering states, so we use this as a sequence number
   // to avoid repeating the same confirmation.
@@ -218,8 +230,7 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStart(Map<String, dynamic> params) async {
-    Future<ResultsDatabase> db =
-        $FloorResultsDatabase.databaseBuilder('results.db').build();
+    Future<ResultsDatabase> db = ResultsDatabase.init();
     Future<void> artLoading = AlbumArt.load();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
@@ -230,6 +241,10 @@ class _BackgroundTask extends BackgroundAudioTask {
   @override
   Future<void> onPlayMediaItem(MediaItem mediaItem) async {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
+    final drillId =
+        await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
+    _progress.results = _progress.results
+        .copyWith(drill: _progress.results.drill.copyWith(id: drillId));
     _randomDelay = RandomDelay(
         min: _setupTime,
         max: Duration(seconds: _progress.drill.possessionSeconds),
@@ -279,7 +294,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _elapsedTimeUpdater?.cancel();
 
     _log.info('Writing results: ${_progress.results.encode()}');
-    await _resultsDatabase.resultsInfoDao.insertDrill(_progress.results);
+    await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
     _log.info('Write complete');
 
     _stopwatch?.reset();
@@ -326,6 +341,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     int actionIndex = _rand.nextInt(_progress.drill.actions.length);
     ActionData actionData = _progress.drill.actions[actionIndex];
     _progress.action = actionData.label;
+    _progress.lastAction = _progress.action;
     if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
       _flashTorch();
     }
@@ -334,7 +350,10 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.drill.tracking) {
       _waitForTracking();
     } else {
-      ++_progress.results.reps;
+      await _resultsDatabase.actionsDao
+          .incrementAction(_progress.results.drill.id, _progress.action, null);
+      _progress.results = await _resultsDatabase.summariesDao
+          .loadDrill(_resultsDatabase, _progress.results.drill.id);
       _updateMediaItem();
       _pause(_resetTime).whenComplete(_waitForSetup);
     }
@@ -364,7 +383,8 @@ class _BackgroundTask extends BackgroundAudioTask {
       onPause();
       return;
     }
-    if (_stopwatch.elapsed.inSeconds == _progress.results.elapsedSeconds) {
+    if (_stopwatch.elapsed.inSeconds ==
+        _progress.results.drill.elapsedSeconds) {
       return;
     }
     _updateMediaItem();
@@ -379,10 +399,12 @@ class _BackgroundTask extends BackgroundAudioTask {
   Future<void> _updateMediaItem() async {
     _log.info(
         'Updating media item: ${_progress.action}, confirm: ${_progress.confirm}');
-    _progress.results.elapsedSeconds = _stopwatch.elapsed.inSeconds;
+    _progress.results = _progress.results.copyWith(
+        drill: _progress.results.drill
+            .copyWith(elapsedSeconds: _stopwatch.elapsed.inSeconds));
     _log.info('Writing result ${_progress.results.encode()}');
     final writeOp =
-        _resultsDatabase.resultsInfoDao.insertDrill(_progress.results);
+        _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
     final MediaItem item =
         PracticeBackground.getMediaItemFromProgress(_progress);
     await AudioServiceBackground.setMediaItem(item);
@@ -424,18 +446,21 @@ class _BackgroundTask extends BackgroundAudioTask {
     return jsonEncode(resp.toJson());
   }
 
-  void _handleSetTracking(String arguments) {
+  void _handleSetTracking(String arguments) async {
     final request = SetTrackingRequest.fromJson(jsonDecode(arguments));
     switch (request.trackingResult) {
       case TrackingResult.GOOD:
-        ++_progress.results.reps;
-        ++_progress.results.good;
+        await _resultsDatabase.actionsDao.incrementAction(
+            _progress.results.drill.id, _progress.lastAction, true);
         break;
       case TrackingResult.MISSED:
-        ++_progress.results.reps;
+        await _resultsDatabase.actionsDao.incrementAction(
+            _progress.results.drill.id, _progress.lastAction, false);
         break;
       case TrackingResult.SKIP:
         break;
     }
+    _progress.results = await _resultsDatabase.summariesDao
+        .loadDrill(_resultsDatabase, _progress.results.drill.id);
   }
 }

@@ -16,7 +16,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Start the album art load asynchronously.
   AlbumArt.load();
-  final db = await $FloorResultsDatabase.databaseBuilder('results.db').build();
+  final db = await ResultsDatabase.init();
   runApp(MainApp(db));
 }
 
@@ -35,7 +35,7 @@ class MainApp extends StatelessWidget {
       title: 'FoosTrainer',
       theme: ThemeData(
         brightness: Brightness.dark,
-        // primarySwatch: Colors.blue,
+        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       navigatorObservers: <NavigatorObserver>[_observer],

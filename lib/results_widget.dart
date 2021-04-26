@@ -14,9 +14,9 @@ class ResultsWidget extends StatelessWidget {
   static final _pctFormatter = NumberFormat.percentPattern()
     ..maximumFractionDigits = 0;
 
-  final ResultsInfo results;
+  final DrillSummary summary;
 
-  ResultsWidget({Key key, this.results});
+  ResultsWidget({Key key, this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class ResultsWidget extends StatelessWidget {
     return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Row(children: [
         Expanded(
-          child: Text(results.drill,
+          child: Text(summary.drill.drill,
               textAlign: TextAlign.center, style: dataStyle),
         ),
       ]),
@@ -45,12 +45,12 @@ class ResultsWidget extends StatelessWidget {
   }
 
   Widget _firstColumn({TextStyle labelStyle, TextStyle dataStyle}) {
-    final successText = results.good > -1 ? results.good : _noData;
+    final successText = summary.good ?? _noData;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Reps', style: labelStyle),
-        _padBelow(Text('${results.reps}', style: dataStyle)),
+        _padBelow(Text('${summary.reps}', style: dataStyle)),
         Text('Success', style: labelStyle),
         Text('$successText', style: dataStyle),
       ],
@@ -58,10 +58,10 @@ class ResultsWidget extends StatelessWidget {
   }
 
   Widget _secondColumn({TextStyle labelStyle, TextStyle dataStyle}) {
-    final durationText =
-        DurationFormatter.format(Duration(seconds: results.elapsedSeconds));
-    final accuracyText = (results.good > -1 && results.reps > 0)
-        ? _pctFormatter.format(results.good / results.reps)
+    final durationText = DurationFormatter.format(
+        Duration(seconds: summary.drill.elapsedSeconds));
+    final accuracyText = (summary.good != null && summary.reps > 0)
+        ? _pctFormatter.format(summary.good / summary.reps)
         : _noData;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
@@ -20,16 +21,23 @@ class StoredDrill {
   final int startSeconds;
   final String drill;
   final bool tracking;
-  int elapsedSeconds;
+  final int elapsedSeconds;
 
   StoredDrill({
     this.id,
     this.startSeconds,
     this.drill,
     this.tracking,
-    int elapsedSeconds,
-  }) {
-    this.elapsedSeconds = elapsedSeconds ?? 0;
+    this.elapsedSeconds,
+  });
+
+  StoredDrill copyWith({int id, int elapsedSeconds}) {
+    return StoredDrill(
+        id: id ?? this.id,
+        startSeconds: startSeconds,
+        drill: drill,
+        tracking: tracking,
+        elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds);
   }
 
   factory StoredDrill.newDrill({String drill, bool tracking}) {
@@ -37,12 +45,15 @@ class StoredDrill {
       startSeconds: (DateTime.now().millisecondsSinceEpoch ~/ 1000),
       drill: drill,
       tracking: tracking,
+      elapsedSeconds: 0,
     );
   }
 
   String encode() {
-    return jsonEncode(_$StoredDrillToJson(this));
+    return jsonEncode(toJson());
   }
+
+  Map<String, dynamic> toJson() => _$StoredDrillToJson(this);
 
   factory StoredDrill.decode(String json) {
     return _$StoredDrillFromJson(jsonDecode(json));
@@ -74,21 +85,36 @@ class StoredAction {
 }
 
 /// Summary of results for a single drill.
+@JsonSerializable()
 class DrillSummary {
-  final String drill;
+  final StoredDrill drill;
   final int reps;
-  final int elapsedSeconds;
   final int good; // nullable
   final double accuracy; // nullable
-  final Map<String, int> actionReps; // sorted
+  final Map<String, int> actionReps;
 
   DrillSummary(
-      {this.drill,
-      this.reps,
-      this.elapsedSeconds,
-      this.good,
-      this.accuracy,
-      this.actionReps});
+      {this.drill, this.reps, this.good, this.accuracy, this.actionReps});
+
+  DrillSummary copyWith({StoredDrill drill, int reps, int good}) {
+    return DrillSummary(
+        drill: drill ?? this.drill,
+        reps: reps ?? this.reps,
+        good: good ?? this.good,
+        accuracy: accuracy,
+        actionReps: actionReps);
+  }
+
+  String encode() {
+    return jsonEncode(_$DrillSummaryToJson(this));
+  }
+
+  factory DrillSummary.decode(String json) {
+    return _$DrillSummaryFromJson(jsonDecode(json));
+  }
+
+  factory DrillSummary.fromJson(Map<String, dynamic> json) =>
+      _$DrillSummaryFromJson(json);
 }
 
 /// Summary of drill results by day.
