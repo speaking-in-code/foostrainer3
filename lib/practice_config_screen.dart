@@ -8,6 +8,7 @@ import 'drill_data.dart';
 import 'keys.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
+import 'my_nav_bar.dart';
 import 'practice_background.dart';
 import 'practice_screen.dart';
 import 'screenshot_data.dart';
@@ -57,6 +58,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
       body: _expansionPanels(),
+      bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).buttonColor,
         onPressed: _startPractice,

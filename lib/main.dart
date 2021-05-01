@@ -11,6 +11,7 @@ import 'practice_config_screen.dart';
 import 'practice_screen.dart';
 import 'results_db.dart';
 import 'results_screen.dart';
+import 'stats_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,7 @@ class MainApp extends StatelessWidget {
         ResultsScreen.routeName: (context) =>
             ResultsScreen(resultsDb: resultsDb),
         DebugScreen.routeName: (context) => DebugScreen(),
+        StatsScreen.routeName: (context) => StatsScreen(resultsDb),
       },
     );
   }

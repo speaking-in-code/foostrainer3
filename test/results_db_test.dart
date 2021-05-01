@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ft3/drill_types_screen.dart';
 import 'package:ft3/results_db.dart';
 import 'package:ft3/results_entities.dart';
 
@@ -13,7 +14,6 @@ class _Actions {
 void main() {
   group('database tests', () {
     const START_SECONDS = 1500000000;
-    const END_SECONDS = 1600000000;
     ResultsDatabase db;
     DrillsDao drills;
     ActionsDao actions;
@@ -50,11 +50,8 @@ void main() {
     Future<List<WeeklyDrillSummary>> _summary(
         {String drill, String action}) async {
       const MAX_WEEKS = 4;
-      return summaries.weeklyDrills(
-          endSeconds: END_SECONDS,
-          numWeeks: MAX_WEEKS,
-          drill: drill,
-          action: action);
+      return summaries.loadWeeklyDrills(
+          numWeeks: MAX_WEEKS, offset: 0, drill: drill, action: action);
     }
 
     test('summarizes empty table', () async {
@@ -116,6 +113,23 @@ void main() {
           ]));
     });
 
+    test('summary no reps', () async {
+      await _addResults(
+          StoredDrill(
+              startSeconds: START_SECONDS,
+              drill: 'Brush Pass',
+              tracking: true,
+              elapsedSeconds: 60),
+          actionList: []);
+      final weeks = await _summary();
+      expect(
+          weeks,
+          equals([
+            WeeklyDrillSummary(
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 0, null),
+          ]));
+    });
+
     test('summary adds reps and accuracy', () async {
       await _addResults(
           StoredDrill(
@@ -133,6 +147,26 @@ void main() {
           equals([
             WeeklyDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 250, 0.48),
+          ]));
+    });
+
+    test('summary no tracking', () async {
+      await _addResults(
+          StoredDrill(
+              startSeconds: START_SECONDS,
+              drill: 'Brush Pass',
+              tracking: false,
+              elapsedSeconds: 60),
+          actionList: [
+            _Actions('Lane', 150, null),
+            _Actions('Wall', 100, null),
+          ]);
+      final weeks = await _summary();
+      expect(
+          weeks,
+          equals([
+            WeeklyDrillSummary(
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 250, null),
           ]));
     });
 
@@ -339,6 +373,40 @@ void main() {
       expect(summary.good, equals(3));
       expect(summary.accuracy, equals(0.75));
       expect(summary.reps, equals(4));
+    });
+
+    Future<void> _insertDrill(DateTime start, int drillCount) async {
+      DateTime drillStart = start.add(Duration(days: drillCount));
+      final drill = StoredDrill(
+          startSeconds: drillStart.millisecondsSinceEpoch ~/ 1000,
+          drill: 'Drill $drillCount',
+          tracking: false);
+      final drillId = await drills.insertDrill(drill);
+      for (int action = 0; action < 50; ++action) {
+        await actions.incrementAction(drillId, 'Lane', false);
+      }
+    }
+
+    test('pagination of summaries', () async {
+      List<Future<void>> drills = [];
+      final start = DateTime.now();
+      for (int i = 0; i < 95; ++i) {
+        drills.add(_insertDrill(start, i));
+      }
+      await Future.wait(drills);
+      List<DrillSummary> pageOne = await summaries.loadRecentDrills(db, 10, 0);
+      expect(pageOne.length, equals(10));
+      for (int i = 94, j = 0; i >= 85; --i, ++j) {
+        expect(pageOne[j].drill.drill, equals('Drill $i'));
+      }
+      List<DrillSummary> lastPage =
+          await summaries.loadRecentDrills(db, 10, 90);
+      expect(lastPage.length, equals(5));
+      for (int i = 4, j = 0; i >= 0; --i, ++j) {
+        expect(lastPage[j].drill.drill, equals('Drill $i'));
+      }
+      List<DrillSummary> offPage = await summaries.loadRecentDrills(db, 10, 95);
+      expect(offPage.length, equals(0));
     });
   });
 }

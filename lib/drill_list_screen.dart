@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'drill_data.dart';
 import 'my_app_bar.dart';
+import 'my_nav_bar.dart';
 import 'practice_config_screen.dart';
 
 // Displays a list of drills.
@@ -22,8 +23,10 @@ class DrillListScreen extends StatelessWidget {
               onTap: () => _startDrill(context, drill))));
     }
     return Scaffold(
-        appBar: MyAppBar(title: type).build(context),
-        body: ListView(key: key, children: children));
+      appBar: MyAppBar(title: type).build(context),
+      body: ListView(key: key, children: children),
+      bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
+    );
   }
 
   void _startDrill(BuildContext context, DrillData drill) {

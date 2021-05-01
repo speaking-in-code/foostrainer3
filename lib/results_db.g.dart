@@ -152,6 +152,12 @@ class _$DrillsDao extends DrillsDao {
   }
 
   @override
+  Future<void> removeDrill(int id) async {
+    await _queryAdapter.queryNoReturn('DELETE * FROM Drills WHERE id = ?',
+        arguments: <dynamic>[id]);
+  }
+
+  @override
   Future<int> insertDrill(StoredDrill results) {
     return _storedDrillInsertionAdapter.insertAndReturnId(
         results, OnConflictStrategy.replace);
@@ -238,15 +244,45 @@ class _$SummariesDao extends SummariesDao {
   final QueryAdapter _queryAdapter;
 
   @override
-  Future<List<_WeeklyDrillTime>> _weeklyDrillTime(
-      int endSeconds, bool matchDrill, String drill, int numWeeks) async {
+  Future<List<StoredDrill>> _loadDrillsByDate(
+      int startSeconds, int endSeconds) async {
     return _queryAdapter.queryList(
-        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, SUM(elapsedSeconds) elapsedSeconds FROM Drills WHERE startSeconds < ? AND (NOT ? OR drill = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ?',
+        'SELECT * FROM Drills WHERE startSeconds >= ? AND startSeconds < ? ORDER BY startSeconds DESC',
+        arguments: <dynamic>[startSeconds, endSeconds],
+        mapper: (Map<String, dynamic> row) => StoredDrill(
+            id: row['id'] as int,
+            startSeconds: row['startSeconds'] as int,
+            drill: row['drill'] as String,
+            tracking:
+                row['tracking'] == null ? null : (row['tracking'] as int) != 0,
+            elapsedSeconds: row['elapsedSeconds'] as int));
+  }
+
+  @override
+  Future<List<StoredDrill>> _loadRecentStoredDrills(
+      int limit, int offset) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Drills ORDER BY startSeconds DESC LIMIT ? OFFSET ?',
+        arguments: <dynamic>[limit, offset],
+        mapper: (Map<String, dynamic> row) => StoredDrill(
+            id: row['id'] as int,
+            startSeconds: row['startSeconds'] as int,
+            drill: row['drill'] as String,
+            tracking:
+                row['tracking'] == null ? null : (row['tracking'] as int) != 0,
+            elapsedSeconds: row['elapsedSeconds'] as int));
+  }
+
+  @override
+  Future<List<_WeeklyDrillTime>> _weeklyDrillTime(
+      bool matchDrill, String drill, int numWeeks, int offset) async {
+    return _queryAdapter.queryList(
+        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, SUM(elapsedSeconds) elapsedSeconds FROM Drills WHERE (NOT ? OR drill = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ? OFFSET ?',
         arguments: <dynamic>[
-          endSeconds,
           matchDrill == null ? null : (matchDrill ? 1 : 0),
           drill,
-          numWeeks
+          numWeeks,
+          offset
         ],
         mapper: (Map<String, dynamic> row) => _WeeklyDrillTime(
             row['startDay'] as String,
@@ -255,22 +291,17 @@ class _$SummariesDao extends SummariesDao {
   }
 
   @override
-  Future<List<_WeeklyDrillReps>> _weeklyDrillReps(
-      int endSeconds,
-      bool matchDrill,
-      String drill,
-      bool matchAction,
-      String action,
-      int numWeeks) async {
+  Future<List<_WeeklyDrillReps>> _weeklyDrillReps(bool matchDrill, String drill,
+      bool matchAction, String action, int numWeeks, int offset) async {
     return _queryAdapter.queryList(
-        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, IFNULL(SUM(reps), 0) reps, CAST(SUM(IIF(Drills.tracking, Actions.good, 0)) AS DOUBLE) / CAST(SUM(IIF(drills.tracking, Actions.reps, 0)) AS DOUBLE) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE startSeconds < ? AND (NOT ? OR drill = ?) AND (NOT ? OR action = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ?',
+        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, IFNULL(SUM(reps), 0) reps, (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE (NOT ? OR drill = ?) AND (NOT ? OR action = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ? OFFSET ?',
         arguments: <dynamic>[
-          endSeconds,
           matchDrill == null ? null : (matchDrill ? 1 : 0),
           drill,
           matchAction == null ? null : (matchAction ? 1 : 0),
           action,
-          numWeeks
+          numWeeks,
+          offset
         ],
         mapper: (Map<String, dynamic> row) => _WeeklyDrillReps(
             row['startDay'] as String,

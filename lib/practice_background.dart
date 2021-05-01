@@ -294,7 +294,11 @@ class _BackgroundTask extends BackgroundAudioTask {
     _elapsedTimeUpdater?.cancel();
 
     _log.info('Writing results: ${_progress.results.encode()}');
-    await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
+    if (_progress.results.reps > 0) {
+      await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
+    } else {
+      await _resultsDatabase.drillsDao.removeDrill(_progress.results.drill.id);
+    }
     _log.info('Write complete');
 
     _stopwatch?.reset();

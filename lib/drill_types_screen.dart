@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ft3/my_nav_bar.dart';
 
 import 'drill_list_screen.dart';
 import 'my_app_bar.dart';
@@ -28,8 +29,10 @@ class DrillTypesScreen extends StatelessWidget {
                     })));
           }
           return Scaffold(
-              appBar: MyAppBar(title: 'Drill Type').build(context),
-              body: ListView(key: key, children: children));
+            appBar: MyAppBar(title: 'Drill Type').build(context),
+            body: ListView(key: key, children: children),
+            bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
+          );
         });
   }
 }

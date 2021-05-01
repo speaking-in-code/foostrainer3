@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'drill_types_screen.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
+import 'my_nav_bar.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'results_widget.dart';
@@ -31,6 +32,7 @@ class ResultsScreen extends StatelessWidget {
           return Scaffold(
             appBar: MyAppBar(title: 'Drill Complete').build(context),
             body: ResultsWidget(summary: results),
+            bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
             floatingActionButton: FloatingActionButton(
               backgroundColor: Theme.of(context).buttonColor,
               onPressed: () => Navigator.pushReplacementNamed(

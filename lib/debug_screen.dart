@@ -8,6 +8,7 @@ import 'package:torch_compat/torch_compat.dart';
 import 'debug_info.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
+import 'my_nav_bar.dart';
 
 // Hidden screen for debug information. Accessed via long-press on the version
 // information.
@@ -23,6 +24,7 @@ class DebugScreen extends StatelessWidget {
     });
     return Scaffold(
         appBar: MyAppBar(title: 'Debug').build(context),
+        bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
         body: ListView(children: [
           FutureBuilder(
               future: pauseInfo,

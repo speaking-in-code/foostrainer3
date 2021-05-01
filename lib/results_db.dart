@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:core';
 
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -15,6 +16,9 @@ abstract class DrillsDao {
 
   @Query('SELECT * FROM Drills WHERE id = :id')
   Future<StoredDrill> loadDrill(int id);
+
+  @Query('DELETE * FROM Drills WHERE id = :id')
+  Future<void> removeDrill(int id);
 }
 
 @dao
@@ -82,6 +86,10 @@ class _WeeklyDrillReps {
   _WeeklyDrillReps(this.startDay, this.endDay, this.reps, this.accuracy);
 }
 
+int _secondsSinceEpoch(DateTime dt) {
+  return dt.millisecondsSinceEpoch ~/ 1000;
+}
+
 // Useful notes on Floor/SQL translation.
 // - if you forget @DatabaseView annotation on the output of a query, you get
 //   get a compilation error: "The getter 'constructor' was called on null."
@@ -105,6 +113,45 @@ abstract class SummariesDao {
     return _buildDrillSummary(await drill, await actions);
   }
 
+  Future<List<DrillSummary>> loadRecentDrills(
+      ResultsDatabase db, int limit, int offset) async {
+    List<StoredDrill> drills = await _loadRecentStoredDrills(limit, offset);
+    return _summarizeDrills(db, drills);
+  }
+
+  Future<List<DrillSummary>> loadDrillsByDate(
+      ResultsDatabase db, DateTime start, DateTime end) async {
+    List<StoredDrill> drills = await _loadDrillsByDate(
+        _secondsSinceEpoch(start), _secondsSinceEpoch(end));
+    return _summarizeDrills(db, drills);
+  }
+
+  Future<List<DrillSummary>> _summarizeDrills(
+      ResultsDatabase db, List<StoredDrill> drills) async {
+    Iterable<Future<DrillSummary>> summaries = drills.map((drill) async {
+      Future<List<StoredAction>> actions = db.actionsDao.loadActions(drill.id);
+      return _buildDrillSummary(drill, await actions);
+    });
+    return Future.wait(summaries);
+  }
+
+  @Query('''
+  SELECT * FROM Drills
+  WHERE
+      startSeconds >= :startSeconds
+      AND startSeconds < :endSeconds
+  ORDER BY startSeconds DESC
+  ''')
+  Future<List<StoredDrill>> _loadDrillsByDate(int startSeconds, int endSeconds);
+
+  @Query('''
+  SELECT * FROM Drills
+  ORDER BY startSeconds DESC
+  LIMIT :limit
+  OFFSET :offset
+  ''')
+  Future<List<StoredDrill>> _loadRecentStoredDrills(int limit, int offset);
+
   static DrillSummary _buildDrillSummary(
       StoredDrill drill, List<StoredAction> actions) {
     final actionReps = SplayTreeMap<String, int>();
@@ -127,19 +174,19 @@ abstract class SummariesDao {
   }
 
   // Return a weekly summary of drill progress, most recent first.
-  Future<List<WeeklyDrillSummary>> weeklyDrills(
-      {int endSeconds, int numWeeks, String drill, String action}) async {
+  Future<List<WeeklyDrillSummary>> loadWeeklyDrills(
+      {String drill, String action, int numWeeks, int offset}) async {
     drill ??= '';
     action ??= '';
     Future<List<_WeeklyDrillTime>> times;
     // Drill time is not defined for specific actions.
     if (action.isEmpty) {
-      times = _weeklyDrillTime(endSeconds, drill.isNotEmpty, drill, numWeeks);
+      times = _weeklyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
     } else {
       times = Future.value([]);
     }
-    Future<List<_WeeklyDrillReps>> reps = _weeklyDrillReps(endSeconds,
-        drill.isNotEmpty, drill, action.isNotEmpty, action, numWeeks);
+    Future<List<_WeeklyDrillReps>> reps = _weeklyDrillReps(
+        drill.isNotEmpty, drill, action.isNotEmpty, action, numWeeks, offset);
     return _mergeWeekly(await times, await reps);
   }
 
@@ -150,39 +197,34 @@ abstract class SummariesDao {
      SUM(elapsedSeconds) elapsedSeconds
    FROM Drills
    WHERE
-     startSeconds < :endSeconds
-     AND (NOT :matchDrill OR drill = :drill) 
+     (NOT :matchDrill OR drill = :drill) 
    GROUP BY startDay
    ORDER BY startDay DESC
    LIMIT :numWeeks
+   OFFSET :offset
   ''')
   Future<List<_WeeklyDrillTime>> _weeklyDrillTime(
-      int endSeconds, bool matchDrill, String drill, int numWeeks);
+      bool matchDrill, String drill, int numWeeks, int offset);
 
   @Query('''
    SELECT
      DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay,
      DATE(startSeconds, "unixepoch", "weekday 0") endDay,
      IFNULL(SUM(reps), 0) reps,
-     CAST(SUM(IIF(Drills.tracking, Actions.good, 0)) AS DOUBLE)
-       / CAST(SUM(IIF(drills.tracking, Actions.reps, 0)) AS DOUBLE) accuracy
+     (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
+      CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
    FROM Drills
    LEFT JOIN Actions ON Drills.id = Actions.drillId
    WHERE
-     startSeconds < :endSeconds
-     AND (NOT :matchDrill OR drill = :drill) 
+     (NOT :matchDrill OR drill = :drill) 
      AND (NOT :matchAction OR action = :action)
    GROUP BY startDay
    ORDER BY startDay DESC
    LIMIT :numWeeks
+   OFFSET :offset
   ''')
-  Future<List<_WeeklyDrillReps>> _weeklyDrillReps(
-      int endSeconds,
-      bool matchDrill,
-      String drill,
-      bool matchAction,
-      String action,
-      int numWeeks);
+  Future<List<_WeeklyDrillReps>> _weeklyDrillReps(bool matchDrill, String drill,
+      bool matchAction, String action, int numWeeks, int offset);
 
   List<WeeklyDrillSummary> _mergeWeekly(
       List<_WeeklyDrillTime> times, List<_WeeklyDrillReps> reps) {
