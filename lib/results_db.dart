@@ -19,10 +19,16 @@ abstract class DrillsDao {
 
   @Query('DELETE * FROM Drills WHERE id = :id')
   Future<void> removeDrill(int id);
+
+  @Query('DELETE FROM Drills')
+  Future<void> delete();
 }
 
 @dao
 abstract class ActionsDao {
+  @Query('DELETE FROM Actions')
+  Future<void> delete();
+
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<int> insertAction(StoredAction results);
 
@@ -259,6 +265,14 @@ abstract class SummariesDao {
   }
 }
 
+class ActionSummary {
+  final String action;
+  final int reps;
+  final int goodCount;
+
+  ActionSummary(this.action, this.reps, this.goodCount);
+}
+
 @Database(
     version: 1,
     entities: [StoredDrill, StoredAction],
@@ -270,5 +284,25 @@ abstract class ResultsDatabase extends FloorDatabase {
 
   static Future<ResultsDatabase> init() {
     return $FloorResultsDatabase.databaseBuilder('results3.db').build();
+  }
+
+  Future<void> addData(StoredDrill results,
+      {List<ActionSummary> actionList}) async {
+    final id = await drillsDao.insertDrill(results);
+    actionList ??= [];
+    await Future.forEach(actionList, (action) async {
+      for (int i = 0; i < action.reps; ++i) {
+        bool isGood;
+        if (results.tracking) {
+          isGood = (i < action.goodCount);
+        }
+        await actionsDao.incrementAction(id, action.action, isGood);
+      }
+    });
+  }
+
+  Future<void> deleteAll() async {
+    await actionsDao.delete();
+    await drillsDao.delete();
   }
 }

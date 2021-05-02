@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
@@ -6,15 +7,25 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:torch_compat/torch_compat.dart';
 
 import 'debug_info.dart';
+import 'drill_data.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
+import 'results_db.dart';
+import 'results_entities.dart';
+import 'static_drills.dart';
 
 // Hidden screen for debug information. Accessed via long-press on the version
 // information.
 class DebugScreen extends StatelessWidget {
-  final _log = Log.get('DebugScreen');
   static const routeName = '/debug';
+  static final _rand = Random.secure();
+  static final _log = Log.get('DebugScreen');
+
+  final ResultsDatabase resultsDb;
+  final StaticDrills drills;
+
+  DebugScreen(this.resultsDb, this.drills);
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +37,16 @@ class DebugScreen extends StatelessWidget {
         appBar: MyAppBar(title: 'Debug').build(context),
         bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
         body: ListView(children: [
+          Card(
+              child: ListTile(
+            title: Text('Clear Database'),
+            onTap: () => resultsDb.deleteAll(),
+          )),
+          Card(
+              child: ListTile(
+            title: Text('Init Database'),
+            onTap: () => _initDatabase(),
+          )),
           FutureBuilder(
               future: pauseInfo,
               initialData: DebugInfoResponse(),
@@ -82,5 +103,40 @@ class DebugScreen extends StatelessWidget {
         subtitle: Text(label),
       ),
     );
+  }
+
+  Future<void> _initDatabase() async {
+    List<Future<void>> creations = [];
+    for (int i = 0; i < 100; ++i) {
+      creations.add(_initRandomPractice());
+    }
+    return Future.wait(creations);
+  }
+
+  Future<void> _initRandomPractice() async {
+    const secondsPerYear = 365 * 24 * 3600;
+    final when = DateTime.now()
+        .subtract(Duration(seconds: _rand.nextInt(secondsPerYear)));
+    final elapsedSeconds = _rand.nextInt(7200);
+    bool tracking = _rand.nextBool();
+    String drillType = _random(drills.types);
+    DrillData drillData = _random(drills.getDrills(drillType));
+    final drill = StoredDrill(
+      startSeconds: when.millisecondsSinceEpoch ~/ 1000,
+      drill: drillData.name,
+      tracking: tracking,
+      elapsedSeconds: elapsedSeconds,
+    );
+    final id = await resultsDb.drillsDao.insertDrill(drill);
+    int reps = _rand.nextInt(150);
+    for (int i = 0; i < reps; ++i) {
+      final action = _random(drillData.actions).label;
+      bool good = _rand.nextBool();
+      await resultsDb.actionsDao.incrementAction(id, action, good);
+    }
+  }
+
+  static T _random<T>(List<T> list) {
+    return list[_rand.nextInt(list.length)];
   }
 }

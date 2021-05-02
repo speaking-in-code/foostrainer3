@@ -158,6 +158,11 @@ class _$DrillsDao extends DrillsDao {
   }
 
   @override
+  Future<void> delete() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Drills');
+  }
+
+  @override
   Future<int> insertDrill(StoredDrill results) {
     return _storedDrillInsertionAdapter.insertAndReturnId(
         results, OnConflictStrategy.replace);
@@ -185,6 +190,11 @@ class _$ActionsDao extends ActionsDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<StoredAction> _storedActionInsertionAdapter;
+
+  @override
+  Future<void> delete() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Actions');
+  }
 
   @override
   Future<StoredAction> loadAction(int drillId, String action) async {

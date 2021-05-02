@@ -1,15 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ft3/drill_types_screen.dart';
 import 'package:ft3/results_db.dart';
 import 'package:ft3/results_entities.dart';
-
-class _Actions {
-  final String action;
-  final int reps;
-  final int goodCount;
-
-  _Actions(this.action, this.reps, this.goodCount);
-}
 
 void main() {
   group('database tests', () {
@@ -30,23 +21,6 @@ void main() {
       await db.close();
     });
 
-    Future<void> _addResults(StoredDrill results,
-        {List<_Actions> actionList}) async {
-      final id = await drills.insertDrill(results);
-      if (actionList == null) {
-        actionList = [];
-      }
-      for (_Actions action in actionList) {
-        for (int i = 0; i < action.reps; ++i) {
-          bool isGood;
-          if (results.tracking) {
-            isGood = (i < action.goodCount);
-          }
-          await actions.incrementAction(id, action.action, isGood);
-        }
-      }
-    }
-
     Future<List<WeeklyDrillSummary>> _summary(
         {String drill, String action}) async {
       const MAX_WEEKS = 4;
@@ -60,7 +34,7 @@ void main() {
     });
 
     test('summarizes drills with no reps', () async {
-      await _addResults(StoredDrill(
+      await db.addData(StoredDrill(
           startSeconds: START_SECONDS,
           drill: 'Lane Pass',
           tracking: true,
@@ -75,7 +49,7 @@ void main() {
     });
 
     test('summary weeks start on Mondays', () async {
-      await _addResults(StoredDrill(
+      await db.addData(StoredDrill(
           startSeconds: START_SECONDS,
           drill: 'Lane Pass',
           tracking: true,
@@ -92,12 +66,12 @@ void main() {
     });
 
     test('summary groups by weeks', () async {
-      await _addResults(StoredDrill(
+      await db.addData(StoredDrill(
           startSeconds: START_SECONDS,
           drill: 'Lane Pass',
           tracking: true,
           elapsedSeconds: 60));
-      await _addResults(StoredDrill(
+      await db.addData(StoredDrill(
           startSeconds: START_SECONDS + 7 * 24 * 3600,
           drill: 'Lane Pass',
           tracking: true,
@@ -114,7 +88,7 @@ void main() {
     });
 
     test('summary no reps', () async {
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Brush Pass',
@@ -131,15 +105,15 @@ void main() {
     });
 
     test('summary adds reps and accuracy', () async {
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Brush Pass',
               tracking: true,
               elapsedSeconds: 60),
           actionList: [
-            _Actions('Lane', 150, 100),
-            _Actions('Wall', 100, 20),
+            ActionSummary('Lane', 150, 100),
+            ActionSummary('Wall', 100, 20),
           ]);
       final weeks = await _summary();
       expect(
@@ -151,15 +125,15 @@ void main() {
     });
 
     test('summary no tracking', () async {
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Brush Pass',
               tracking: false,
               elapsedSeconds: 60),
           actionList: [
-            _Actions('Lane', 150, null),
-            _Actions('Wall', 100, null),
+            ActionSummary('Lane', 150, null),
+            ActionSummary('Wall', 100, null),
           ]);
       final weeks = await _summary();
       expect(
@@ -171,25 +145,25 @@ void main() {
     });
 
     test('summary mixes tracked and untracked', () async {
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Brush Pass',
               tracking: true,
               elapsedSeconds: 1200),
           actionList: [
-            _Actions('Lane', 150, 75),
-            _Actions('Wall', 100, 50),
+            ActionSummary('Lane', 150, 75),
+            ActionSummary('Wall', 100, 50),
           ]);
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Brush Pass',
               tracking: false,
               elapsedSeconds: 600),
           actionList: [
-            _Actions('Lane', 50, null),
-            _Actions('Wall', 50, null),
+            ActionSummary('Lane', 50, null),
+            ActionSummary('Wall', 50, null),
           ]);
       final weeks = await _summary();
       expect(
@@ -203,15 +177,15 @@ void main() {
     test('summary limits weeks displayed', () async {
       const ONE_WEEK = 7 * 24 * 3600;
       for (int i = 0; i < 10; ++i) {
-        await _addResults(
+        await db.addData(
             StoredDrill(
                 startSeconds: START_SECONDS + i * ONE_WEEK,
                 drill: 'Brush Pass',
                 tracking: true,
                 elapsedSeconds: 1200),
             actionList: [
-              _Actions('Lane', 150, 0),
-              _Actions('Wall', 100, 0),
+              ActionSummary('Lane', 150, 0),
+              ActionSummary('Wall', 100, 0),
             ]);
       }
       final weeks = await _summary();
@@ -230,25 +204,25 @@ void main() {
     });
 
     test('summary filters by drill', () async {
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Brush Pass',
               tracking: true,
               elapsedSeconds: 1200),
           actionList: [
-            _Actions('Lane', 50, 30),
-            _Actions('Wall', 50, 30),
+            ActionSummary('Lane', 50, 30),
+            ActionSummary('Wall', 50, 30),
           ]);
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Stick Pass',
               tracking: false,
               elapsedSeconds: 600),
           actionList: [
-            _Actions('Lane', 50, 40),
-            _Actions('Wall', 50, 40),
+            ActionSummary('Lane', 50, 40),
+            ActionSummary('Wall', 50, 40),
           ]);
       var weeks = await _summary(drill: 'Stick Pass');
       expect(
@@ -267,25 +241,25 @@ void main() {
     });
 
     test('summary filters by action', () async {
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Wall & Bounce Pass',
               tracking: true,
               elapsedSeconds: 1200),
           actionList: [
-            _Actions('Bounce', 50, 30),
-            _Actions('Wall', 50, 30),
+            ActionSummary('Bounce', 50, 30),
+            ActionSummary('Wall', 50, 30),
           ]);
-      await _addResults(
+      await db.addData(
           StoredDrill(
               startSeconds: START_SECONDS,
               drill: 'Stick Pass',
               tracking: true,
               elapsedSeconds: 600),
           actionList: [
-            _Actions('Lane', 50, 40),
-            _Actions('Wall', 50, 40),
+            ActionSummary('Lane', 50, 40),
+            ActionSummary('Wall', 50, 40),
           ]);
       var weeks = await _summary(action: 'Lane');
       expect(
@@ -407,6 +381,19 @@ void main() {
       }
       List<DrillSummary> offPage = await summaries.loadRecentDrills(db, 10, 95);
       expect(offPage.length, equals(0));
+    });
+
+    test('delete all works', () async {
+      final drillId = await drills
+          .insertDrill(StoredDrill.newDrill(drill: 'Passing', tracking: true));
+      await actions.incrementAction(drillId, 'Lane', false);
+      final found = await drills.loadDrill(drillId);
+      expect(found, isNotNull);
+      await db.deleteAll();
+      final gone = await drills.loadDrill(drillId);
+      expect(gone, isNull);
+      List<DrillSummary> summary = await summaries.loadRecentDrills(db, 10, 0);
+      expect(summary, isEmpty);
     });
   });
 }

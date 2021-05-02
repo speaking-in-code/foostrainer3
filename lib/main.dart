@@ -11,22 +11,25 @@ import 'practice_config_screen.dart';
 import 'practice_screen.dart';
 import 'results_db.dart';
 import 'results_screen.dart';
+import 'static_drills.dart';
 import 'stats_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Start the album art load asynchronously.
   AlbumArt.load();
-  final db = await ResultsDatabase.init();
-  runApp(MainApp(db));
+  final db = ResultsDatabase.init();
+  final drills = StaticDrills.load();
+  runApp(MainApp(await db, await drills));
 }
 
 class MainApp extends StatelessWidget {
   static final _analytics = FirebaseAnalytics();
   static final _observer = FirebaseAnalyticsObserver(analytics: _analytics);
   final ResultsDatabase resultsDb;
+  final StaticDrills drills;
 
-  const MainApp(this.resultsDb);
+  const MainApp(this.resultsDb, this.drills);
 
   // Audio service wraps the entire application, so all routes can maintain a
   // connection to the service.
@@ -43,13 +46,13 @@ class MainApp extends StatelessWidget {
       initialRoute: DrillTypesScreen.routeName,
       routes: {
         DrillTypesScreen.routeName: (context) =>
-            AudioServiceWidget(child: DrillTypesScreen()),
+            AudioServiceWidget(child: DrillTypesScreen(drills)),
         DrillListScreen.routeName: (context) => DrillListScreen(),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) => PracticeScreen(),
         ResultsScreen.routeName: (context) =>
             ResultsScreen(resultsDb: resultsDb),
-        DebugScreen.routeName: (context) => DebugScreen(),
+        DebugScreen.routeName: (context) => DebugScreen(resultsDb, drills),
         StatsScreen.routeName: (context) => StatsScreen(resultsDb),
       },
     );
