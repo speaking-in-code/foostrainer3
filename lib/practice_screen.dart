@@ -49,26 +49,32 @@ class _PracticeScreenState extends State<PracticeScreen> {
   int _lastRenderedConfirm = 0;
   bool _pauseForDrillComplete = false;
   PracticeState _practiceState = PracticeState.stopped;
+  Stream<PracticeProgress> _progressStream;
+  int _drillId;
 
-  Stream<PracticeProgress> _progressStream() {
+  @override
+  void initState() {
     if (ScreenshotData.progress == null) {
       // Normal flow.
-      return PracticeBackground.progressStream;
+      _progressStream = PracticeBackground.progressStream;
     } else {
       // Override the practice screen for screenshots.
-      return Stream.fromIterable([ScreenshotData.progress]);
+      _progressStream = Stream.fromIterable([ScreenshotData.progress]);
     }
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Stream<PracticeProgress> stream = _progressStream();
     return WillPopScope(
         onWillPop: () => _onBackPressed(context),
         child: StreamBuilder<PracticeProgress>(
-            stream: stream,
+            stream: _progressStream,
             initialData: ScreenshotData.progress,
             builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                _drillId = snapshot.data.results.drill.id;
+              }
               _log.info(
                   'PracticeBackground.running = ${PracticeBackground.running}');
               if (PracticeBackground.running != null &&
@@ -191,7 +197,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _popInProgress = true;
     // Should we have a confirmation dialog when practice is stopped?
     await PracticeBackground.stopPractice();
-    Navigator.pushReplacementNamed(context, ResultsScreen.routeName);
+    Navigator.pushReplacementNamed(context, ResultsScreen.routeName,
+        arguments: _drillId);
   }
 
   // Consider replacing this with a dialog that flexes depending on screen

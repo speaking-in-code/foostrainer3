@@ -395,5 +395,45 @@ void main() {
       List<DrillSummary> summary = await summaries.loadRecentDrills(db, 10, 0);
       expect(summary, isEmpty);
     });
+
+    int _secondsSinceEpoch(DateTime when) =>
+        when != null ? when.millisecondsSinceEpoch ~/ 1000 : null;
+
+    test('date range works', () async {
+      final empty = await drills.dateRange();
+      expect(empty.earliest, isNull);
+      expect(empty.latest, isNull);
+
+      final now = DateTime.now();
+      await drills.insertDrill(StoredDrill(
+          drill: 'Passing',
+          tracking: true,
+          startSeconds: _secondsSinceEpoch(now)));
+      final single = await drills.dateRange();
+      expect(
+          _secondsSinceEpoch(single.earliest), equals(_secondsSinceEpoch(now)));
+      expect(
+          _secondsSinceEpoch(single.latest), equals(_secondsSinceEpoch(now)));
+
+      final lastMonth = now.subtract(Duration(days: 45));
+      await drills.insertDrill(StoredDrill(
+          drill: 'Passing',
+          tracking: true,
+          startSeconds: _secondsSinceEpoch(lastMonth)));
+      final both = await drills.dateRange();
+      expect(_secondsSinceEpoch(both.earliest),
+          equals(_secondsSinceEpoch(lastMonth)));
+      expect(_secondsSinceEpoch(both.latest), equals(_secondsSinceEpoch(now)));
+
+      final manyMonthsAgo = lastMonth.subtract(Duration(days: 90));
+      await drills.insertDrill(StoredDrill(
+          drill: 'Passing',
+          tracking: true,
+          startSeconds: _secondsSinceEpoch(manyMonthsAgo)));
+      final all = await drills.dateRange();
+      expect(_secondsSinceEpoch(all.earliest),
+          equals(_secondsSinceEpoch(manyMonthsAgo)));
+      expect(_secondsSinceEpoch(both.latest), equals(_secondsSinceEpoch(now)));
+    });
   });
 }

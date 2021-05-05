@@ -89,6 +89,8 @@ class _$ResultsDatabase extends ResultsDatabase {
             'CREATE TABLE IF NOT EXISTS `Actions` (`id` INTEGER, `drillId` INTEGER, `action` TEXT, `reps` INTEGER, `good` INTEGER, FOREIGN KEY (`drillId`) REFERENCES `Drills` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`id`))');
 
         await database.execute(
+            '''CREATE VIEW IF NOT EXISTS `AllDrillDateRange` AS SELECT NULL''');
+        await database.execute(
             '''CREATE VIEW IF NOT EXISTS `_WeeklyDrillTime` AS SELECT NULL''');
         await database.execute(
             '''CREATE VIEW IF NOT EXISTS `_WeeklyDrillReps` AS SELECT NULL''');
@@ -160,6 +162,14 @@ class _$DrillsDao extends DrillsDao {
   @override
   Future<void> delete() async {
     await _queryAdapter.queryNoReturn('DELETE FROM Drills');
+  }
+
+  @override
+  Future<AllDrillDateRange> dateRange() async {
+    return _queryAdapter.query(
+        'SELECT MIN(startSeconds) earliestSeconds, MAX(startSeconds) latestSeconds FROM Drills',
+        mapper: (Map<String, dynamic> row) => AllDrillDateRange(
+            row['earliestSeconds'] as int, row['latestSeconds'] as int));
   }
 
   @override
@@ -257,7 +267,7 @@ class _$SummariesDao extends SummariesDao {
   Future<List<StoredDrill>> _loadDrillsByDate(
       int startSeconds, int endSeconds) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Drills WHERE startSeconds >= ? AND startSeconds < ? ORDER BY startSeconds DESC',
+        'SELECT * FROM Drills WHERE startSeconds >= ? AND startSeconds <= ? ORDER BY startSeconds DESC',
         arguments: <dynamic>[startSeconds, endSeconds],
         mapper: (Map<String, dynamic> row) => StoredDrill(
             id: row['id'] as int,

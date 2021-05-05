@@ -23,8 +23,9 @@ class StoredDrill {
   final bool tracking;
   final int elapsedSeconds;
 
-  get startTime => DateTime.fromMillisecondsSinceEpoch(startSeconds * 1000);
-  get elapsed => Duration(seconds: elapsedSeconds);
+  DateTime get startTime =>
+      DateTime.fromMillisecondsSinceEpoch(startSeconds * 1000);
+  Duration get elapsed => Duration(seconds: elapsedSeconds);
 
   StoredDrill({
     this.id,

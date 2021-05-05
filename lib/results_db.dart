@@ -22,6 +22,14 @@ abstract class DrillsDao {
 
   @Query('DELETE FROM Drills')
   Future<void> delete();
+
+  @Query('''
+  SELECT
+    MIN(startSeconds) earliestSeconds,
+    MAX(startSeconds) latestSeconds
+  FROM Drills
+  ''')
+  Future<AllDrillDateRange> dateRange();
 }
 
 @dao
@@ -96,6 +104,22 @@ int _secondsSinceEpoch(DateTime dt) {
   return dt.millisecondsSinceEpoch ~/ 1000;
 }
 
+DateTime _epochSecondsToDateTime(int seconds) {
+  if (seconds == null) return null;
+  return DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+}
+
+@DatabaseView('SELECT NULL')
+class AllDrillDateRange {
+  final int earliestSeconds;
+  final int latestSeconds;
+
+  DateTime get earliest => _epochSecondsToDateTime(earliestSeconds);
+  DateTime get latest => _epochSecondsToDateTime(latestSeconds);
+
+  AllDrillDateRange(this.earliestSeconds, this.latestSeconds);
+}
+
 // Useful notes on Floor/SQL translation.
 // - if you forget @DatabaseView annotation on the output of a query, you get
 //   get a compilation error: "The getter 'constructor' was called on null."
@@ -145,7 +169,7 @@ abstract class SummariesDao {
   SELECT * FROM Drills
   WHERE
       startSeconds >= :startSeconds
-      AND startSeconds < :endSeconds
+      AND startSeconds <= :endSeconds
   ORDER BY startSeconds DESC
   ''')
   Future<List<StoredDrill>> _loadDrillsByDate(int startSeconds, int endSeconds);
@@ -273,10 +297,14 @@ class ActionSummary {
   ActionSummary(this.action, this.reps, this.goodCount);
 }
 
-@Database(
-    version: 1,
-    entities: [StoredDrill, StoredAction],
-    views: [_WeeklyDrillTime, _WeeklyDrillReps])
+@Database(version: 1, entities: [
+  StoredDrill,
+  StoredAction,
+], views: [
+  AllDrillDateRange,
+  _WeeklyDrillTime,
+  _WeeklyDrillReps,
+])
 abstract class ResultsDatabase extends FloorDatabase {
   DrillsDao get drillsDao;
   ActionsDao get actionsDao;

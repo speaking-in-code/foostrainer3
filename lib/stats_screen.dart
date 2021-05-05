@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ft3/recent_drills.dart';
+import 'package:ft3/monthly_drills_widget.dart';
 
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
@@ -30,7 +30,7 @@ class StatsScreen extends StatelessWidget {
           // TODO(brian): Implement child widgets that display results
           // from the results db in various fields.
           children: [
-            RecentDrills(resultsDb),
+            MonthlyDrillsWidget(resultsDb),
             Icon(Icons.directions_transit),
             Icon(Icons.directions_bike),
           ],
