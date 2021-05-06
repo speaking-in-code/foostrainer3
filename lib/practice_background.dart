@@ -55,8 +55,7 @@ class PracticeBackground {
                 elapsedSeconds: 0),
             reps: 0,
             good: (drill.tracking ? 0 : null),
-            accuracy: null,
-            actionReps: Map())
+            actions: {})
         ..state = PracticeState.paused
         ..action = ''
         ..confirm = 0;

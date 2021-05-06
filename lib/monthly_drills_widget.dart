@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:ft3/daily_drills_screen.dart';
 
 import 'log.dart';
 import 'results_db.dart';
@@ -106,8 +107,7 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
   }
 
   void _onDateChanged(DateTime date) {
-    // TODO(brian): navigate to date view for this.
-    // Also add clickers to the drill selection screen to view drill history.
     _log.info('Select is $date');
+    Navigator.pushNamed(context, DailyDrillsScreen.routeName, arguments: date);
   }
 }

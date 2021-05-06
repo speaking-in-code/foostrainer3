@@ -25,6 +25,25 @@ Map<String, dynamic> _$StoredDrillToJson(StoredDrill instance) =>
       'elapsedSeconds': instance.elapsedSeconds,
     };
 
+StoredAction _$StoredActionFromJson(Map<String, dynamic> json) {
+  return StoredAction(
+    id: json['id'] as int,
+    drillId: json['drillId'] as int,
+    action: json['action'] as String,
+    reps: json['reps'] as int,
+    good: json['good'] as int,
+  );
+}
+
+Map<String, dynamic> _$StoredActionToJson(StoredAction instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'drillId': instance.drillId,
+      'action': instance.action,
+      'reps': instance.reps,
+      'good': instance.good,
+    };
+
 DrillSummary _$DrillSummaryFromJson(Map<String, dynamic> json) {
   return DrillSummary(
     drill: json['drill'] == null
@@ -32,9 +51,9 @@ DrillSummary _$DrillSummaryFromJson(Map<String, dynamic> json) {
         : StoredDrill.fromJson(json['drill'] as Map<String, dynamic>),
     reps: json['reps'] as int,
     good: json['good'] as int,
-    accuracy: (json['accuracy'] as num)?.toDouble(),
-    actionReps: (json['actionReps'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(k, e as int),
+    actions: (json['actions'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k,
+          e == null ? null : StoredAction.fromJson(e as Map<String, dynamic>)),
     ),
   );
 }
@@ -44,6 +63,5 @@ Map<String, dynamic> _$DrillSummaryToJson(DrillSummary instance) =>
       'drill': instance.drill,
       'reps': instance.reps,
       'good': instance.good,
-      'accuracy': instance.accuracy,
-      'actionReps': instance.actionReps,
+      'actions': instance.actions,
     };

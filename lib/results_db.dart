@@ -5,9 +5,12 @@ import 'dart:core';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
+import 'log.dart';
 import 'results_entities.dart';
 
 part 'results_db.g.dart';
+
+final _log = Log.get('results_db');
 
 @dao
 abstract class DrillsDao {
@@ -158,6 +161,7 @@ abstract class SummariesDao {
 
   Future<List<DrillSummary>> _summarizeDrills(
       ResultsDatabase db, List<StoredDrill> drills) async {
+    _log.info('Summarizing ${drills.length} drills');
     Iterable<Future<DrillSummary>> summaries = drills.map((drill) async {
       Future<List<StoredAction>> actions = db.actionsDao.loadActions(drill.id);
       return _buildDrillSummary(drill, await actions);
@@ -184,23 +188,18 @@ abstract class SummariesDao {
 
   static DrillSummary _buildDrillSummary(
       StoredDrill drill, List<StoredAction> actions) {
-    final actionReps = SplayTreeMap<String, int>();
+    final actionMap = SplayTreeMap<String, StoredAction>();
     int good = drill.tracking ? 0 : null;
     int reps = 0;
     actions.forEach((action) {
-      actionReps[action.action] = action.reps;
+      actionMap[action.action] = action;
       reps += action.reps;
       if (good != null) {
         good += action.good;
       }
     });
-    final accuracy = (reps > 0 && good != null) ? (good / reps) : null;
     return DrillSummary(
-        drill: drill,
-        reps: reps,
-        good: good,
-        accuracy: accuracy,
-        actionReps: actionReps);
+        drill: drill, reps: reps, good: good, actions: actionMap);
   }
 
   // Return a weekly summary of drill progress, most recent first.

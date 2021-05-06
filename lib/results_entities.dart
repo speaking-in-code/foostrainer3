@@ -67,6 +67,7 @@ class StoredDrill {
       _$StoredDrillFromJson(json);
 }
 
+@JsonSerializable()
 @Entity(tableName: 'Actions', foreignKeys: [
   ForeignKey(
     childColumns: ['drillId'],
@@ -84,8 +85,17 @@ class StoredAction {
   // null means not counted
   final int good;
 
+  double get accuracy => _computeAccuracy(good, reps);
+
   StoredAction({this.id, this.drillId, this.action, int reps, this.good})
       : this.reps = reps ?? 0;
+
+  factory StoredAction.fromJson(Map<String, dynamic> json) =>
+      _$StoredActionFromJson(json);
+}
+
+double _computeAccuracy(int good, int reps) {
+  return (good == null || reps == 0) ? null : good / reps;
 }
 
 /// Summary of results for a single drill.
@@ -94,19 +104,18 @@ class DrillSummary {
   final StoredDrill drill;
   final int reps;
   final int good; // nullable
-  final double accuracy; // nullable
-  final Map<String, int> actionReps;
+  final Map<String, StoredAction> actions;
 
-  DrillSummary(
-      {this.drill, this.reps, this.good, this.accuracy, this.actionReps});
+  DrillSummary({this.drill, this.reps, this.good, this.actions});
+
+  double get accuracy => _computeAccuracy(good, reps);
 
   DrillSummary copyWith({StoredDrill drill, int reps, int good}) {
     return DrillSummary(
         drill: drill ?? this.drill,
         reps: reps ?? this.reps,
         good: good ?? this.good,
-        accuracy: accuracy,
-        actionReps: actionReps);
+        actions: actions);
   }
 
   String encode() {
