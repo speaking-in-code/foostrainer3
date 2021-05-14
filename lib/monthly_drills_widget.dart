@@ -5,6 +5,7 @@ import 'package:ft3/daily_drills_screen.dart';
 
 import 'log.dart';
 import 'results_db.dart';
+import 'spinner.dart';
 
 final _log = Log.get('recent_drills');
 
@@ -82,7 +83,7 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
       return Text('${snapshot.error}');
     }
     if (!snapshot.hasData) {
-      return Center(child: CircularProgressIndicator());
+      return Spinner();
     }
     if (snapshot.data.allTime.latest == null) {
       // TODO(brian): make this a tap target to go the practice screen.

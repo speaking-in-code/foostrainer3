@@ -161,7 +161,6 @@ abstract class SummariesDao {
 
   Future<List<DrillSummary>> _summarizeDrills(
       ResultsDatabase db, List<StoredDrill> drills) async {
-    _log.info('Summarizing ${drills.length} drills');
     Iterable<Future<DrillSummary>> summaries = drills.map((drill) async {
       Future<List<StoredAction>> actions = db.actionsDao.loadActions(drill.id);
       return _buildDrillSummary(drill, await actions);
@@ -221,8 +220,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay,
-     DATE(startSeconds, "unixepoch", "weekday 0") endDay,
+     DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,
+     DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,
      SUM(elapsedSeconds) elapsedSeconds
    FROM Drills
    WHERE
@@ -237,8 +236,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay,
-     DATE(startSeconds, "unixepoch", "weekday 0") endDay,
+     DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,
+     DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,
      IFNULL(SUM(reps), 0) reps,
      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
       CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
@@ -272,7 +271,7 @@ abstract class SummariesDao {
     List<WeeklyDrillSummary> out =
         builders.values.map((b) => b.build()).toList();
     out.sort((WeeklyDrillSummary a, WeeklyDrillSummary b) =>
-        b.startDay.compareTo(a.startDay));
+        a.startDay.compareTo(b.startDay));
     return out;
   }
 
