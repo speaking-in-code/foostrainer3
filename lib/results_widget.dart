@@ -4,15 +4,12 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:ft3/percent_fomatter.dart';
-import 'package:intl/intl.dart';
+import 'package:ft3/percent_formatter.dart';
 
 import 'duration_formatter.dart';
 import 'results_entities.dart';
 
 class ResultsWidget extends StatelessWidget {
-  static const _noData = '--';
-
   final DrillSummary summary;
 
   ResultsWidget({Key key, this.summary});
@@ -44,7 +41,7 @@ class ResultsWidget extends StatelessWidget {
   }
 
   Widget _firstColumn({TextStyle labelStyle, TextStyle dataStyle}) {
-    final successText = summary.good ?? _noData;
+    final successText = summary.good ?? '--';
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -59,9 +56,8 @@ class ResultsWidget extends StatelessWidget {
   Widget _secondColumn({TextStyle labelStyle, TextStyle dataStyle}) {
     final durationText = DurationFormatter.format(
         Duration(seconds: summary.drill.elapsedSeconds));
-    final accuracyText = (summary.good != null && summary.reps > 0)
-        ? PercentFormatter.format(summary.good / summary.reps)
-        : _noData;
+    final accuracyText = PercentFormatter.formatAccuracy(
+        trackedReps: summary.reps, trackedGood: summary.good);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

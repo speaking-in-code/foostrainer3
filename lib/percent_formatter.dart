@@ -7,4 +7,11 @@ class PercentFormatter {
   static String format(double num) {
     return _pctFormatter.format(num);
   }
+
+  static String formatAccuracy({int trackedReps, int trackedGood}) {
+    if (trackedGood == null || trackedReps == null || trackedReps == 0) {
+      return '--';
+    }
+    return format(trackedGood / trackedReps);
+  }
 }

@@ -3,14 +3,12 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/rendering.dart';
-import 'package:ft3/percent_fomatter.dart';
 
-import 'log.dart';
+import 'drill_summary_list_widget.dart';
+import 'percent_formatter.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
-
-final _log = Log.get('weekly_chart_widget');
 
 // Next steps:
 // Add accuracy as a filler bar in the reps column
@@ -87,6 +85,7 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
     return SingleChildScrollView(
         child: Column(children: [
       _buildChart(context, snapshot.data),
+      const Divider(),
       _WeekSummary(resultsDb: widget.resultsDb, selected: _selected),
     ]));
   }
@@ -165,9 +164,13 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
 
 class _WeekSummary extends StatefulWidget {
   final ResultsDatabase resultsDb;
+  // TODO(brian): sort out more navigation stuff. Current exploration:
+  // - convert drill list to expansion panel, as in daily drills screen
+  final String drill;
+  final String action;
   final ValueNotifier<WeeklyDrillSummary> selected;
 
-  _WeekSummary({this.resultsDb, this.selected});
+  _WeekSummary({this.resultsDb, this.drill, this.action, this.selected});
 
   @override
   State<StatefulWidget> createState() => _WeekSummaryState();
@@ -205,7 +208,7 @@ class _DrillAccuracyTable {
 
 class _WeekSummaryState extends State<_WeekSummary> {
   WeeklyDrillSummary _week;
-  Future<_DrillAccuracyTable> _table;
+  Future<List<DrillSummary>> _table;
 
   @override
   void initState() {
@@ -227,10 +230,10 @@ class _WeekSummaryState extends State<_WeekSummary> {
     });
   }
 
-  Future<_DrillAccuracyTable> _loadWeeks() async {
-    final table = _DrillAccuracyTable();
+  Future<List<DrillSummary>> _loadWeeks() async {
+    // final table = _DrillAccuracyTable();
     if (_week == null) {
-      return Future.value(table);
+      return Future.value([]);
     }
     // TODO(brian): add test case for day of week alignment.
     // UTC 1620001414 is a good edge case, it's Monday May 3 UTC, but
@@ -240,16 +243,7 @@ class _WeekSummaryState extends State<_WeekSummary> {
     final end = _week.endDay;
     List<DrillSummary> drills = await widget.resultsDb.summariesDao
         .loadDrillsByDate(widget.resultsDb, start, end);
-    drills.forEach((DrillSummary drill) {
-      _DrillAccuracy accuracy = table.drills.putIfAbsent(
-          drill.drill.drill, () => _DrillAccuracy(drill.drill.drill));
-      accuracy.totalReps += drill.reps;
-      if (drill.good != null) {
-        accuracy.trackedReps += drill.reps;
-        accuracy.goodTrackedReps += drill.good;
-      }
-    });
-    return table;
+    return drills;
   }
 
   @override
@@ -258,13 +252,15 @@ class _WeekSummaryState extends State<_WeekSummary> {
   }
 
   Widget _buildTable(
-      BuildContext context, AsyncSnapshot<_DrillAccuracyTable> snapshot) {
+      BuildContext context, AsyncSnapshot<List<DrillSummary>> snapshot) {
     if (snapshot.hasError) {
       return Text('Oh snap: ${snapshot.error}');
     }
     if (!snapshot.hasData) {
       return Spinner();
     }
+    return DrillSummaryListWidget(drills: snapshot.data);
+    /*
     final rows = <Widget>[];
     snapshot.data.drills.values.forEach((_DrillAccuracy drill) {
       rows.add(const Divider());
@@ -285,5 +281,7 @@ class _WeekSummaryState extends State<_WeekSummary> {
       ));
     });
     return Column(children: rows);
+
+     */
   }
 }

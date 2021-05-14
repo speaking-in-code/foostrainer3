@@ -90,6 +90,8 @@ class StoredAction {
   StoredAction({this.id, this.drillId, this.action, int reps, this.good})
       : this.reps = reps ?? 0;
 
+  Map<String, dynamic> toJson() => _$StoredActionToJson(this);
+
   factory StoredAction.fromJson(Map<String, dynamic> json) =>
       _$StoredActionFromJson(json);
 }

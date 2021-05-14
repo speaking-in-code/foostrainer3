@@ -131,7 +131,7 @@ class DebugScreen extends StatelessWidget {
     int reps = _rand.nextInt(150);
     for (int i = 0; i < reps; ++i) {
       final action = _random(drillData.actions).label;
-      bool good = _rand.nextBool();
+      bool good = tracking ? _rand.nextBool() : null;
       await resultsDb.actionsDao.incrementAction(id, action, good);
     }
   }
