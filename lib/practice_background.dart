@@ -50,7 +50,7 @@ class PracticeBackground {
         ..results = DrillSummary(
             drill: StoredDrill(
                 startSeconds: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                drill: drill.name,
+                drill: drill.fullName,
                 tracking: drill.tracking,
                 elapsedSeconds: 0),
             reps: 0,
@@ -222,7 +222,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   void _logEvent(String name) {
     _analytics.logEvent(name: name, parameters: {
       _drillType: _progress?.drill?.type ?? '',
-      _drillName: _progress?.drill?.name ?? '',
+      _drillName: _progress?.drill?.fullName ?? '',
       _elapsedSeconds: _stopwatch.elapsed.inSeconds,
     });
   }

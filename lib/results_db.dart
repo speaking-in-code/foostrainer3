@@ -103,6 +103,19 @@ class _WeeklyDrillReps {
   _WeeklyDrillReps(this.startDay, this.endDay, this.reps, this.accuracy);
 }
 
+// Weekly action reps summary. Used as DB view via SummariesDao, not directly.
+@DatabaseView('SELECT NULL')
+class _WeeklyActionReps {
+  final String startDay;
+  final String endDay;
+  final String action;
+  final int reps;
+  final double accuracy;
+
+  _WeeklyActionReps(
+      this.startDay, this.endDay, this.action, this.reps, this.accuracy);
+}
+
 int _secondsSinceEpoch(DateTime dt) {
   return dt.millisecondsSinceEpoch ~/ 1000;
 }
@@ -153,9 +166,14 @@ abstract class SummariesDao {
   }
 
   Future<List<DrillSummary>> loadDrillsByDate(
-      ResultsDatabase db, DateTime start, DateTime end) async {
+      ResultsDatabase db, DateTime start, DateTime end,
+      {String fullName}) async {
+    _log.info('load by date $start - $end, name $fullName');
     List<StoredDrill> drills = await _loadDrillsByDate(
-        _secondsSinceEpoch(start), _secondsSinceEpoch(end));
+        _secondsSinceEpoch(start),
+        _secondsSinceEpoch(end),
+        fullName != null,
+        fullName ?? '');
     return _summarizeDrills(db, drills);
   }
 
@@ -173,9 +191,11 @@ abstract class SummariesDao {
   WHERE
       startSeconds >= :startSeconds
       AND startSeconds <= :endSeconds
+      AND (NOT :matchName OR drill = :fullName)
   ORDER BY startSeconds DESC
   ''')
-  Future<List<StoredDrill>> _loadDrillsByDate(int startSeconds, int endSeconds);
+  Future<List<StoredDrill>> _loadDrillsByDate(
+      int startSeconds, int endSeconds, bool matchName, String fullName);
 
   @Query('''
   SELECT * FROM Drills

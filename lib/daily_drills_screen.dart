@@ -7,30 +7,35 @@ import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
+import 'static_drills.dart';
 
 class DailyDrillsScreen extends StatelessWidget {
   static const routeName = '/daily';
-
+  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
 
-  DailyDrillsScreen(this.resultsDb);
+  DailyDrillsScreen({this.staticDrills, this.resultsDb})
+      : assert(staticDrills != null),
+        assert(resultsDb != null);
 
   @override
   Widget build(BuildContext context) {
     DateTime day = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: MyAppBar(title: '${DateFormatter.format(day)}').build(context),
-      body: _DailyDrillList(resultsDb, day),
+      body: _DailyDrillList(
+          staticDrills: staticDrills, resultsDb: resultsDb, day: day),
       bottomNavigationBar: MyNavBar(MyNavBarLocation.STATS),
     );
   }
 }
 
 class _DailyDrillList extends StatefulWidget {
+  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
   final DateTime day;
 
-  _DailyDrillList(this.resultsDb, this.day);
+  _DailyDrillList({this.staticDrills, this.resultsDb, this.day});
 
   @override
   State<StatefulWidget> createState() => _DailyDrillListState();
@@ -69,6 +74,8 @@ class _DailyDrillListState extends State<_DailyDrillList> {
       return Center(child: Text('No drills, go practice!'));
     }
     return SingleChildScrollView(
-        child: Container(child: DrillSummaryListWidget(drills: snapshot.data)));
+        child: Container(
+            child: DrillSummaryListWidget(
+                staticDrills: widget.staticDrills, drills: snapshot.data)));
   }
 }

@@ -265,10 +265,15 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<StoredDrill>> _loadDrillsByDate(
-      int startSeconds, int endSeconds) async {
+      int startSeconds, int endSeconds, bool matchName, String fullName) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Drills WHERE startSeconds >= ? AND startSeconds <= ? ORDER BY startSeconds DESC',
-        arguments: <dynamic>[startSeconds, endSeconds],
+        'SELECT * FROM Drills WHERE startSeconds >= ? AND startSeconds <= ? AND (NOT ? OR drill = ?) ORDER BY startSeconds DESC',
+        arguments: <dynamic>[
+          startSeconds,
+          endSeconds,
+          matchName == null ? null : (matchName ? 1 : 0),
+          fullName
+        ],
         mapper: (Map<String, dynamic> row) => StoredDrill(
             id: row['id'] as int,
             startSeconds: row['startSeconds'] as int,
@@ -297,7 +302,7 @@ class _$SummariesDao extends SummariesDao {
   Future<List<_WeeklyDrillTime>> _weeklyDrillTime(
       bool matchDrill, String drill, int numWeeks, int offset) async {
     return _queryAdapter.queryList(
-        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, SUM(elapsedSeconds) elapsedSeconds FROM Drills WHERE (NOT ? OR drill = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ? OFFSET ?',
+        'SELECT DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay, SUM(elapsedSeconds) elapsedSeconds FROM Drills WHERE (NOT ? OR drill = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ? OFFSET ?',
         arguments: <dynamic>[
           matchDrill == null ? null : (matchDrill ? 1 : 0),
           drill,
@@ -314,7 +319,7 @@ class _$SummariesDao extends SummariesDao {
   Future<List<_WeeklyDrillReps>> _weeklyDrillReps(bool matchDrill, String drill,
       bool matchAction, String action, int numWeeks, int offset) async {
     return _queryAdapter.queryList(
-        'SELECT DATE(startSeconds, "unixepoch", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "weekday 0") endDay, IFNULL(SUM(reps), 0) reps, (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE (NOT ? OR drill = ?) AND (NOT ? OR action = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ? OFFSET ?',
+        'SELECT DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay, IFNULL(SUM(reps), 0) reps, (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE (NOT ? OR drill = ?) AND (NOT ? OR action = ?) GROUP BY startDay ORDER BY startDay DESC LIMIT ? OFFSET ?',
         arguments: <dynamic>[
           matchDrill == null ? null : (matchDrill ? 1 : 0),
           drill,

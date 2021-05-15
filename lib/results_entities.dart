@@ -33,7 +33,7 @@ class StoredDrill {
     this.drill,
     this.tracking,
     this.elapsedSeconds,
-  });
+  }) : assert(drill.contains(':'), 'Stored drills must have format type:name');
 
   StoredDrill copyWith({int id, int elapsedSeconds}) {
     return StoredDrill(

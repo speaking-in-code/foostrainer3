@@ -2,6 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ft3/results_db.dart';
 import 'package:ft3/results_entities.dart';
 
+// TODO: add tests for alignment between summarization functions (e.g. summarize
+// drill stats for a week) and retrieve drills by date function (e.g. get all
+// drills that happened in a week.) Super easy to have timezone bugs.
 void main() {
   group('database tests', () {
     const START_SECONDS = 1500000000;

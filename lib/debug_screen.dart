@@ -123,7 +123,7 @@ class DebugScreen extends StatelessWidget {
     DrillData drillData = _random(drills.getDrills(drillType));
     final drill = StoredDrill(
       startSeconds: when.millisecondsSinceEpoch ~/ 1000,
-      drill: drillData.name,
+      drill: drillData.fullName,
       tracking: tracking,
       elapsedSeconds: elapsedSeconds,
     );

@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 
 import 'aggregated_drill_summary.dart';
+import 'drill_data.dart';
+import 'practice_config_screen.dart';
 import 'results_entities.dart';
 import 'percent_formatter.dart';
+import 'static_drills.dart';
+import 'stats_screen.dart';
 
 /// Displays a list of drills in expandable cards. The expanded view shows
 /// per-action statistics.
 class DrillSummaryListWidget extends StatefulWidget {
+  final StaticDrills staticDrills;
   final List<_PanelData> _panelData;
 
-  DrillSummaryListWidget({List<DrillSummary> drills})
-      : _panelData = _toPanelData(drills);
+  DrillSummaryListWidget({this.staticDrills, List<DrillSummary> drills})
+      : assert(staticDrills != null),
+        _panelData = _toPanelData(drills);
 
   static List<_PanelData> _toPanelData(List<DrillSummary> drills) {
     final aggregated = AggregatedDrillSummary.aggregate(drills);
@@ -49,7 +55,11 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
         canTapOnHeader: true,
         headerBuilder: (BuildContext context, bool expanded) =>
             _buildHeader(context, panelData.drill),
-        body: _DrillDetails(drill: panelData.drill),
+        body: Column(children: [
+          _DrillDetails(drill: panelData.drill),
+          _ActionButtons(
+              staticDrills: widget.staticDrills, drill: panelData.drill),
+        ]),
         isExpanded: panelData.isExpanded);
   }
 
@@ -60,11 +70,13 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
   }
 
   Widget _title(AggregatedDrillSummary drill) {
+    final drillData = widget.staticDrills.getDrill(drill.drill);
+    final displayName = '${drillData.type}: ${drillData.name}';
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Expanded(
           flex: 3,
           child: Padding(
-              padding: EdgeInsets.only(right: 5.0), child: Text(drill.drill))),
+              padding: EdgeInsets.only(right: 5.0), child: Text(displayName))),
       Expanded(flex: 1, child: Text('${drill.reps}')),
     ]);
   }
@@ -105,5 +117,24 @@ class _DrillDetails extends StatelessWidget {
         trackedReps: action.trackedReps, trackedGood: action.trackedGood);
     cells.add(DataCell(Text('$accuracy')));
     return DataRow(cells: cells);
+  }
+}
+
+class _ActionButtons extends StatelessWidget {
+  final StaticDrills staticDrills;
+  final AggregatedDrillSummary drill;
+
+  _ActionButtons({this.staticDrills, this.drill});
+
+  Widget build(BuildContext context) {
+    final DrillData drillData = staticDrills.getDrill(drill.drill);
+    return ButtonBar(children: [
+      OutlinedButton(
+          child: Text('History'),
+          onPressed: () => StatsScreen.navigate(context, drillData)),
+      ElevatedButton(
+          child: Text('Practice'),
+          onPressed: () => PracticeConfigScreen.navigate(context, drillData)),
+    ]);
   }
 }

@@ -9,6 +9,10 @@ import 'practice_config_screen.dart';
 class DrillListScreen extends StatelessWidget {
   static const routeName = '/drillList';
 
+  static void navigate(BuildContext context, List<DrillData> drills) {
+    Navigator.pushNamed(context, routeName, arguments: drills);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Extract the arguments from the current ModalRoute settings and cast
@@ -20,17 +24,12 @@ class DrillListScreen extends StatelessWidget {
       children.add(Card(
           child: ListTile(
               title: Text(drill.name),
-              onTap: () => _startDrill(context, drill))));
+              onTap: () => PracticeConfigScreen.navigate(context, drill))));
     }
     return Scaffold(
       appBar: MyAppBar(title: type).build(context),
       body: ListView(key: key, children: children),
       bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
     );
-  }
-
-  void _startDrill(BuildContext context, DrillData drill) {
-    Navigator.pushNamed(context, PracticeConfigScreen.routeName,
-        arguments: drill);
   }
 }

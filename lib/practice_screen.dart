@@ -92,7 +92,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ..drill = ModalRoute.of(context).settings.arguments;
                 progress.results = DrillSummary(
                     drill: StoredDrill.newDrill(
-                        drill: progress.drill.name,
+                        drill: progress.drill.fullName,
                         tracking: progress.drill.tracking));
               }
               _log.info('Rendering screen with ${progress.results.encode()}');

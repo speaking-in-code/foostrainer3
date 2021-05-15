@@ -16,7 +16,8 @@ class StaticDrills {
     return _allDrills;
   }
 
-  Map<String, List<DrillData>> _type2drills = Map();
+  Map<String, DrillData> _name2drills = {};
+  Map<String, List<DrillData>> _type2drills = {};
 
   /// List of types of drills supported.
   List<String> types;
@@ -26,6 +27,9 @@ class StaticDrills {
     for (DrillData drill in drillListData.drills) {
       var list = _type2drills.putIfAbsent(drill.type, () => []);
       list.add(drill);
+      assert(!_name2drills.containsKey(drill.fullName),
+          'Duplicate name ${drill.fullName}');
+      _name2drills[drill.fullName] = drill;
     }
     types = List.of(_type2drills.keys);
   }
@@ -33,5 +37,10 @@ class StaticDrills {
   /// Get a list of all drills of a specific type.
   List<DrillData> getDrills(String type) {
     return _type2drills[type] ?? [];
+  }
+
+  /// Get the drill with the specified name.
+  DrillData getDrill(String fullName) {
+    return _name2drills[fullName];
   }
 }

@@ -46,7 +46,8 @@ class MainApp extends StatelessWidget {
       navigatorObservers: <NavigatorObserver>[_observer],
       initialRoute: DrillTypesScreen.routeName,
       routes: {
-        DailyDrillsScreen.routeName: (context) => DailyDrillsScreen(resultsDb),
+        DailyDrillsScreen.routeName: (context) =>
+            DailyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
         DrillTypesScreen.routeName: (context) =>
             AudioServiceWidget(child: DrillTypesScreen(drills)),
         DrillListScreen.routeName: (context) => DrillListScreen(),
@@ -54,7 +55,8 @@ class MainApp extends StatelessWidget {
         PracticeScreen.routeName: (context) => PracticeScreen(),
         ResultsScreen.routeName: (context) => ResultsScreen(resultsDb),
         DebugScreen.routeName: (context) => DebugScreen(resultsDb, drills),
-        StatsScreen.routeName: (context) => StatsScreen(resultsDb),
+        StatsScreen.routeName: (context) =>
+            StatsScreen(staticDrills: drills, resultsDb: resultsDb),
       },
     );
   }

@@ -3,26 +3,27 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/rendering.dart';
+import 'package:ft3/drill_data.dart';
+import 'package:ft3/log.dart';
 
 import 'drill_summary_list_widget.dart';
-import 'percent_formatter.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
+import 'static_drills.dart';
+
+final _log = Log.get('weekly_chart_widget');
 
 // Next steps:
-// Add accuracy as a filler bar in the reps column
-// Display table below for selected week
-// onClick:
-// - loadDrillsbyDate
-// - display grid with drills
-// - make grid clickable for drill down into specific drills.
+// - add zoom out option, for sparser practice sessions. Either pinch to
+//   zoom, or a slider.
+// - display per-action accuracy... somehow. Multiple columns?
 class WeeklyChartWidget extends StatefulWidget {
+  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
-  final String drill;
-  final String action;
+  final DrillData drillData;
 
-  WeeklyChartWidget({this.resultsDb, this.drill, this.action});
+  WeeklyChartWidget({this.staticDrills, this.resultsDb, this.drillData});
 
   @override
   State<StatefulWidget> createState() => _WeeklyChartWidgetState();
@@ -31,7 +32,7 @@ class WeeklyChartWidget extends StatefulWidget {
 class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
   // About two years worth of data.
   static const _maxWeeks = 52 * 2;
-  static const _displayedTime = Duration(days: 28);
+  static const _maxWeeksDisplayed = 4;
 
   static final _axisLabelStyle = charts.TextStyleSpec(
     fontSize: 10,
@@ -57,12 +58,11 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
 
   @override
   void initState() {
+    String drill = widget.drillData?.fullName;
+    _log.info('Loading weekly summary for $drill');
     super.initState();
-    _weeks = widget.resultsDb.summariesDao.loadWeeklyDrills(
-        numWeeks: _maxWeeks,
-        offset: 0,
-        drill: widget.drill,
-        action: widget.action);
+    _weeks = widget.resultsDb.summariesDao
+        .loadWeeklyDrills(numWeeks: _maxWeeks, offset: 0, drill: drill);
   }
 
   @override
@@ -81,12 +81,15 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
     if (snapshot.data.isEmpty) {
       return Text('No data, go practice.');
     }
-    ;
     return SingleChildScrollView(
         child: Column(children: [
       _buildChart(context, snapshot.data),
       const Divider(),
-      _WeekSummary(resultsDb: widget.resultsDb, selected: _selected),
+      _WeekSummary(
+          staticDrills: widget.staticDrills,
+          resultsDb: widget.resultsDb,
+          drill: widget.drillData,
+          selected: _selected),
     ]));
   }
 
@@ -101,7 +104,11 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
 
   Widget _buildChart(BuildContext context, List<WeeklyDrillSummary> data) {
     final endTime = data.last.startDay;
-    final startTime = endTime.subtract(_displayedTime);
+    DateTime startTime = data.first.startDay;
+    if (data.length > _maxWeeksDisplayed) {
+      startTime = data[data.length - _maxWeeksDisplayed].startDay;
+    }
+    // final startTime = endTime.subtract(_displayedTime);
     final good = charts.Series<WeeklyDrillSummary, DateTime>(
       id: 'Good',
       seriesColor: charts.MaterialPalette.blue.shadeDefault.lighter,
@@ -163,47 +170,15 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
 }
 
 class _WeekSummary extends StatefulWidget {
+  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
-  // TODO(brian): sort out more navigation stuff. Current exploration:
-  // - convert drill list to expansion panel, as in daily drills screen
-  final String drill;
-  final String action;
+  final DrillData drill;
   final ValueNotifier<WeeklyDrillSummary> selected;
 
-  _WeekSummary({this.resultsDb, this.drill, this.action, this.selected});
+  _WeekSummary({this.staticDrills, this.resultsDb, this.drill, this.selected});
 
   @override
   State<StatefulWidget> createState() => _WeekSummaryState();
-}
-
-class _DrillAccuracy {
-  String name;
-  int totalReps = 0;
-  int trackedReps = 0;
-  int goodTrackedReps = 0;
-
-  _DrillAccuracy(this.name);
-
-  String get goodEstimate {
-    if (accuracy == null) {
-      return '--';
-    }
-    return (accuracy * totalReps).round().toString();
-  }
-
-  double get accuracy =>
-      (trackedReps > 0 ? goodTrackedReps / trackedReps : null);
-
-  String get stringAccuracy {
-    if (accuracy == null) {
-      return '--';
-    }
-    return PercentFormatter.format(accuracy);
-  }
-}
-
-class _DrillAccuracyTable {
-  SplayTreeMap<String, _DrillAccuracy> drills = SplayTreeMap();
 }
 
 class _WeekSummaryState extends State<_WeekSummary> {
@@ -231,7 +206,6 @@ class _WeekSummaryState extends State<_WeekSummary> {
   }
 
   Future<List<DrillSummary>> _loadWeeks() async {
-    // final table = _DrillAccuracyTable();
     if (_week == null) {
       return Future.value([]);
     }
@@ -242,7 +216,8 @@ class _WeekSummaryState extends State<_WeekSummary> {
     final start = _week.startDay.subtract(Duration(days: 1));
     final end = _week.endDay;
     List<DrillSummary> drills = await widget.resultsDb.summariesDao
-        .loadDrillsByDate(widget.resultsDb, start, end);
+        .loadDrillsByDate(widget.resultsDb, start, end,
+            fullName: widget.drill?.fullName);
     return drills;
   }
 
@@ -259,29 +234,7 @@ class _WeekSummaryState extends State<_WeekSummary> {
     if (!snapshot.hasData) {
       return Spinner();
     }
-    return DrillSummaryListWidget(drills: snapshot.data);
-    /*
-    final rows = <Widget>[];
-    snapshot.data.drills.values.forEach((_DrillAccuracy drill) {
-      rows.add(const Divider());
-      String repsText;
-      if (drill.accuracy == null) {
-        repsText = 'Reps: ${drill.totalReps}';
-      } else {
-        repsText =
-            'Reps: ${drill.totalReps}   Accuracy: ${drill.stringAccuracy}';
-      }
-      rows.add(Card(
-        child: ListTile(
-          title: Text(drill.name),
-          subtitle: Text(repsText),
-          trailing: Icon(Icons.timeline),
-          dense: true,
-        ),
-      ));
-    });
-    return Column(children: rows);
-
-     */
+    return DrillSummaryListWidget(
+        staticDrills: widget.staticDrills, drills: snapshot.data);
   }
 }

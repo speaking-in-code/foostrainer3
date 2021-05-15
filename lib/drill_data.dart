@@ -55,6 +55,8 @@ class DrillData {
   bool tracking;
   List<ActionData> actions;
 
+  String get fullName => '$type:$name';
+
   factory DrillData.decode(String json) =>
       _$DrillDataFromJson(jsonDecode(json));
   factory DrillData.fromJson(Map<String, dynamic> json) =>

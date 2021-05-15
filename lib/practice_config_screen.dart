@@ -31,6 +31,10 @@ class PracticeConfigScreen extends StatefulWidget {
   static const trackingAccuracyOnKey = Key(Keys.trackingAccuracyOnKey);
   static const trackingAccuracyOffKey = Key(Keys.trackingAccuracyOffKey);
 
+  static void navigate(BuildContext context, DrillData drill) {
+    Navigator.pushNamed(context, routeName, arguments: drill);
+  }
+
   PracticeConfigScreen({Key key}) : super(key: key);
 
   @override
