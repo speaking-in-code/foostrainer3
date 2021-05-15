@@ -140,8 +140,9 @@ class WeeklyDrillSummary extends Equatable {
   final int reps;
   final double accuracy;
 
-  WeeklyDrillSummary(this.startDay, this.endDay, this.elapsedSeconds, this.reps,
-      this.accuracy);
+  WeeklyDrillSummary(this.startDay, DateTime endDay, this.elapsedSeconds,
+      this.reps, this.accuracy)
+      : endDay = endDay.add(Duration(days: 1));
 
   @override
   List<Object> get props => [startDay, endDay, elapsedSeconds, reps, accuracy];

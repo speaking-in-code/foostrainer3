@@ -209,14 +209,8 @@ class _WeekSummaryState extends State<_WeekSummary> {
     if (_week == null) {
       return Future.value([]);
     }
-    // TODO(brian): add test case for day of week alignment.
-    // UTC 1620001414 is a good edge case, it's Monday May 3 UTC, but
-    // Sunday May 2 PDT. The logic here needs line up with the
-    // "weekday 0", "-6 days" logic in the per-week summary SQL query.
-    final start = _week.startDay.subtract(Duration(days: 1));
-    final end = _week.endDay;
     List<DrillSummary> drills = await widget.resultsDb.summariesDao
-        .loadDrillsByDate(widget.resultsDb, start, end,
+        .loadDrillsByDate(widget.resultsDb, _week.startDay, _week.endDay,
             fullName: widget.drill?.fullName);
     return drills;
   }
