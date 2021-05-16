@@ -55,9 +55,12 @@ class MainApp extends StatelessWidget {
         DrillStatsScreen.routeName: (context) =>
             DrillStatsScreen(staticDrills: drills, resultsDb: resultsDb),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
-        PracticeScreen.routeName: (context) => PracticeScreen(),
-        ResultsScreen.routeName: (context) => ResultsScreen(resultsDb),
-        DebugScreen.routeName: (context) => DebugScreen(resultsDb, drills),
+        PracticeScreen.routeName: (context) =>
+            PracticeScreen(staticDrills: drills),
+        ResultsScreen.routeName: (context) =>
+            ResultsScreen(staticDrills: drills, resultsDb: resultsDb),
+        DebugScreen.routeName: (context) =>
+            DebugScreen(staticDrills: drills, resultsDb: resultsDb),
         StatsScreen.routeName: (context) =>
             StatsScreen(staticDrills: drills, resultsDb: resultsDb),
       },

@@ -22,10 +22,10 @@ class DebugScreen extends StatelessWidget {
   static final _rand = Random.secure();
   static final _log = Log.get('DebugScreen');
 
+  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
-  final StaticDrills drills;
 
-  DebugScreen(this.resultsDb, this.drills);
+  DebugScreen({this.staticDrills, this.resultsDb});
 
   @override
   Widget build(BuildContext context) {
@@ -143,8 +143,8 @@ class DebugScreen extends StatelessWidget {
         .subtract(Duration(seconds: _rand.nextInt(secondsPerYear)));
     final elapsedSeconds = _rand.nextInt(7200);
     bool tracking = _rand.nextBool();
-    String drillType = _random(drills.types);
-    DrillData drillData = _random(drills.getDrills(drillType));
+    String drillType = _random(staticDrills.types);
+    DrillData drillData = _random(staticDrills.getDrills(drillType));
     final drill = StoredDrill(
       startSeconds: when.millisecondsSinceEpoch ~/ 1000,
       drill: drillData.fullName,

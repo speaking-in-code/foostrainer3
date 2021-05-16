@@ -4,18 +4,21 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:ft3/percent_formatter.dart';
 
 import 'duration_formatter.dart';
+import 'percent_formatter.dart';
 import 'results_entities.dart';
+import 'static_drills.dart';
 
 class ResultsWidget extends StatelessWidget {
+  final StaticDrills staticDrills;
   final DrillSummary summary;
 
-  ResultsWidget({Key key, this.summary});
+  ResultsWidget({Key key, @required this.staticDrills, @required this.summary});
 
   @override
   Widget build(BuildContext context) {
+    final drillData = staticDrills.getDrill(summary.drill.drill);
     TextStyle labelStyle = Theme.of(context).textTheme.headline5;
     labelStyle = labelStyle.copyWith(color: labelStyle.color.withOpacity(0.75));
     TextStyle dataStyle = Theme.of(context).textTheme.headline4;
@@ -25,8 +28,11 @@ class ResultsWidget extends StatelessWidget {
     return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Row(children: [
         Expanded(
-          child: Text(summary.drill.drill,
-              textAlign: TextAlign.center, style: dataStyle),
+          child: Text(
+            drillData.name,
+            textAlign: TextAlign.center,
+            style: dataStyle,
+          ),
         ),
       ]),
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [

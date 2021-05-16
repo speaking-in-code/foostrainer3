@@ -14,6 +14,7 @@ import 'results_entities.dart';
 import 'results_screen.dart';
 import 'results_widget.dart';
 import 'screenshot_data.dart';
+import 'static_drills.dart';
 import 'tracking_info.dart';
 
 final _log = Log.get('PracticeScreen');
@@ -23,7 +24,9 @@ class PracticeScreen extends StatefulWidget {
   static const elapsedKey = Key(Keys.elapsedKey);
   static const routeName = '/practice';
 
-  PracticeScreen({Key key}) : super(key: key);
+  final StaticDrills staticDrills;
+
+  PracticeScreen({Key key, @required this.staticDrills}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -112,7 +115,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
               }
               return Scaffold(
                   appBar: MyAppBar(title: progress.drill.name).build(context),
-                  body: ResultsWidget(summary: progress.results),
+                  body: ResultsWidget(
+                      staticDrills: widget.staticDrills,
+                      summary: progress.results),
                   bottomNavigationBar: _controlButtons(context, progress));
             }));
   }
@@ -197,8 +202,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _popInProgress = true;
     // Should we have a confirmation dialog when practice is stopped?
     await PracticeBackground.stopPractice();
-    Navigator.pushReplacementNamed(context, ResultsScreen.routeName,
-        arguments: _drillId);
+    ResultsScreen.navigate(context, _drillId);
   }
 
   // Consider replacing this with a dialog that flexes depending on screen

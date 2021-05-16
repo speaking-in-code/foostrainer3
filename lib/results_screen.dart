@@ -7,28 +7,46 @@ import 'my_nav_bar.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'results_widget.dart';
+import 'spinner.dart';
+import 'static_drills.dart';
 
 final _log = Log.get('results_screen');
 
 class ResultsScreen extends StatelessWidget {
   static const routeName = '/results';
 
+  static void navigate(BuildContext context, int drillId) {
+    Navigator.pushReplacementNamed(context, routeName, arguments: drillId);
+  }
+
+  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
 
-  ResultsScreen(this.resultsDb);
+  ResultsScreen({@required this.staticDrills, @required this.resultsDb});
 
   @override
   Widget build(BuildContext context) {
     final drillId = ModalRoute.of(context).settings.arguments;
-    return _LoadedResultsScreen(resultsDb, drillId);
+    return Scaffold(
+      appBar: MyAppBar(title: 'Results').build(context),
+      body: _LoadedResultsScreen(staticDrills, resultsDb, drillId),
+      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.PRACTICE),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).buttonColor,
+        onPressed: () =>
+            Navigator.pushReplacementNamed(context, DrillTypesScreen.routeName),
+        child: Icon(Icons.done),
+      ),
+    );
   }
 }
 
 class _LoadedResultsScreen extends StatefulWidget {
+  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
   final int drillId;
 
-  _LoadedResultsScreen(this.resultsDb, this.drillId);
+  _LoadedResultsScreen(this.staticDrills, this.resultsDb, this.drillId);
 
   @override
   State<StatefulWidget> createState() => _LoadedResultsScreenState();
@@ -40,10 +58,8 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
   @override
   void initState() {
     super.initState();
-    _summary = Future.delayed(
-        Duration(seconds: 5),
-        () => widget.resultsDb.summariesDao
-            .loadDrill(widget.resultsDb, widget.drillId));
+    _summary = widget.resultsDb.summariesDao
+        .loadDrill(widget.resultsDb, widget.drillId);
   }
 
   @override
@@ -52,29 +68,14 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
         future: _summary,
         builder: (BuildContext context, AsyncSnapshot<DrillSummary> snapshot) {
           _log.info('Results error: ${snapshot.error}');
-          String title;
-          Widget body;
           if (snapshot.hasData) {
-            body = ResultsWidget(summary: snapshot.data);
-            title = snapshot.data.drill.drill;
+            return ResultsWidget(
+                staticDrills: widget.staticDrills, summary: snapshot.data);
           } else if (snapshot.hasError) {
-            body = Text('${snapshot.error}');
-            title = 'Error';
+            return Text('${snapshot.error}');
           } else {
-            body = CircularProgressIndicator(semanticsLabel: 'Loading Drill');
-            title = 'Loading';
+            return Spinner();
           }
-          return Scaffold(
-            appBar: MyAppBar(title: title).build(context),
-            body: body,
-            bottomNavigationBar: MyNavBar(location: MyNavBarLocation.PRACTICE),
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Theme.of(context).buttonColor,
-              onPressed: () => Navigator.pushReplacementNamed(
-                  context, DrillTypesScreen.routeName),
-              child: Icon(Icons.done),
-            ),
-          );
         });
   }
 }
