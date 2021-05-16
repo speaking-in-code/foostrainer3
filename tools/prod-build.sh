@@ -13,8 +13,10 @@ bundletool build-apks \
     --bundle "${BUNDLE}" \
     --connected-device \
     --overwrite \
-    --output "${APKS}"
+    --output "${APKS}" \
+    $* 
 
 echo Installing to device.
 bundletool install-apks \
-  --apks "${APKS}"
+    --apks "${APKS}" \
+    $* 
