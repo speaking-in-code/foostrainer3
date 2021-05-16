@@ -40,12 +40,12 @@ class DebugScreen extends StatelessWidget {
           Card(
               child: ListTile(
             title: Text('Clear Database'),
-            onTap: () => resultsDb.deleteAll(),
+            onTap: () => _clearDatabase(context),
           )),
           Card(
               child: ListTile(
             title: Text('Init Database'),
-            onTap: () => _initDatabase(),
+            onTap: () => _initDatabase(context),
           )),
           FutureBuilder(
               future: pauseInfo,
@@ -105,15 +105,39 @@ class DebugScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _initDatabase() async {
+  static const numDrills = 500;
+  Future<void> _initDatabase(BuildContext context) async {
+    final progress = ValueNotifier<int>(0);
     List<Future<void>> creations = [];
-    for (int i = 0; i < 100; ++i) {
-      creations.add(_initRandomPractice());
+    for (int i = 0; i < numDrills; ++i) {
+      creations.add(_initRandomPractice(progress));
     }
-    return Future.wait(creations);
+    bool dismissed = false;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Initializing Database'),
+            content: _CreationProgress(progress: progress, target: numDrills),
+            actions: [
+              TextButton(
+                  child: Text('Background'),
+                  onPressed: () {
+                    dismissed = true;
+                    Navigator.of(context).pop();
+                  }),
+            ],
+          );
+        });
+    await Future.wait(creations);
+    if (!dismissed) {
+      dismissed = true;
+      Navigator.of(context).pop();
+    }
+    _showSnackBar(context, 'Database Initialized');
   }
 
-  Future<void> _initRandomPractice() async {
+  Future<void> _initRandomPractice(ValueNotifier<int> progress) async {
     const secondsPerYear = 365 * 24 * 3600;
     final when = DateTime.now()
         .subtract(Duration(seconds: _rand.nextInt(secondsPerYear)));
@@ -127,16 +151,68 @@ class DebugScreen extends StatelessWidget {
       tracking: tracking,
       elapsedSeconds: elapsedSeconds,
     );
-    final id = await resultsDb.drillsDao.insertDrill(drill);
-    int reps = _rand.nextInt(150);
-    for (int i = 0; i < reps; ++i) {
-      final action = _random(drillData.actions).label;
-      bool good = tracking ? _rand.nextBool() : null;
-      await resultsDb.actionsDao.incrementAction(id, action, good);
+    final drillId = await resultsDb.drillsDao.insertDrill(drill);
+    // Create the actions in batches.
+    for (final action in drillData.actions) {
+      final reps = _rand.nextInt(50);
+      if (reps == 0) {
+        continue;
+      }
+      int good = tracking ? _rand.nextInt(reps) : null;
+      await resultsDb.actionsDao.insertAction(StoredAction(
+          drillId: drillId, action: action.label, reps: reps, good: good));
     }
+    ++progress.value;
   }
 
   static T _random<T>(List<T> list) {
     return list[_rand.nextInt(list.length)];
+  }
+
+  Future<void> _clearDatabase(BuildContext context) async {
+    await resultsDb.deleteAll();
+    _showSnackBar(context, 'Database Cleared');
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+            label: 'OK',
+            onPressed: () =>
+                ScaffoldMessenger.of(context).removeCurrentSnackBar()));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+}
+
+class _CreationProgress extends StatefulWidget {
+  final ValueNotifier<int> progress;
+  final int target;
+
+  _CreationProgress({this.progress, this.target});
+
+  @override
+  State<StatefulWidget> createState() => _CreationProgressState();
+}
+
+class _CreationProgressState extends State<_CreationProgress> {
+  @override
+  void initState() {
+    super.initState();
+    widget.progress.addListener(_onProgressChange);
+  }
+
+  void _onProgressChange() => setState(() {});
+
+  @override
+  void dispose() {
+    widget.progress.removeListener(_onProgressChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LinearProgressIndicator(
+        value: widget.progress.value / widget.target);
   }
 }
