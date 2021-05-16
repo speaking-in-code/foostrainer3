@@ -4,7 +4,7 @@ class PercentFormatter {
   static final _pctFormatter = NumberFormat.percentPattern()
     ..maximumFractionDigits = 0;
 
-  static String format(double num) {
+  static String format(num num) {
     return _pctFormatter.format(num);
   }
 

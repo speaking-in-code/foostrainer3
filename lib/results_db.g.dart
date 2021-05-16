@@ -341,11 +341,11 @@ class _$SummariesDao extends SummariesDao {
   Future<List<WeeklyActionReps>> loadWeeklyActionReps(
       String drill, int numWeeks, int offset) async {
     return _queryAdapter.queryList(
-        'SELECT DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay, DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay, Actions.action action, IFNULL(SUM(reps), 0) reps, (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE drill = ? GROUP BY startDay, action ORDER BY startDay DESC, action LIMIT ? OFFSET ?',
+        'SELECT DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDayStr, DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDayStr, Actions.action action, IFNULL(SUM(reps), 0) reps, (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE drill = ? GROUP BY startDayStr, action ORDER BY startDayStr DESC, action LIMIT ? OFFSET ?',
         arguments: <dynamic>[drill, numWeeks, offset],
         mapper: (Map<String, dynamic> row) => WeeklyActionReps(
-            row['startDay'] as String,
-            row['endDay'] as String,
+            row['startDayStr'] as String,
+            row['endDayStr'] as String,
             row['action'] as String,
             row['reps'] as int,
             row['accuracy'] as double));

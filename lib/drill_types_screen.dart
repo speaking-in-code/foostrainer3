@@ -28,7 +28,7 @@ class DrillTypesScreen extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(title: 'Drill Type').build(context),
       body: ListView(key: key, children: children),
-      bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
+      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.PRACTICE),
     );
   }
 }

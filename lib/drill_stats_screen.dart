@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'drill_charts_widget.dart';
 import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'results_db.dart';
 import 'static_drills.dart';
+import 'weekly_chart_widget.dart';
 
 class DrillStatsScreen extends StatelessWidget {
   static const routeName = '/drillStats';
@@ -24,11 +26,26 @@ class DrillStatsScreen extends StatelessWidget {
     final title = 'Stats: ${drillData.name}';
     return Scaffold(
       appBar: MyAppBar(title: title).build(context),
-      body: DrillChartsWidget(
+      body: _buildBody(context, drillData),
+      bottomNavigationBar:
+          MyNavBar(location: MyNavBarLocation.STATS, drillData: drillData),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, DrillData drillData) {
+    return SingleChildScrollView(
+      child: Column(children: [
+        DrillChartsWidget(
+            staticDrills: staticDrills,
+            resultsDb: resultsDb,
+            drillData: drillData),
+        const Divider(),
+        WeeklyChartWidget(
           staticDrills: staticDrills,
           resultsDb: resultsDb,
-          drillData: drillData),
-      bottomNavigationBar: MyNavBar(MyNavBarLocation.STATS),
+          drillData: drillData,
+        ),
+      ]),
     );
   }
 }

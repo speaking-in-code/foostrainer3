@@ -67,7 +67,7 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
           return Scaffold(
             appBar: MyAppBar(title: title).build(context),
             body: body,
-            bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
+            bottomNavigationBar: MyNavBar(location: MyNavBarLocation.PRACTICE),
             floatingActionButton: FloatingActionButton(
               backgroundColor: Theme.of(context).buttonColor,
               onPressed: () => Navigator.pushReplacementNamed(

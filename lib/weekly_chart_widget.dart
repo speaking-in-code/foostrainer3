@@ -1,11 +1,10 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/rendering.dart';
 import 'package:ft3/drill_data.dart';
 import 'package:ft3/log.dart';
 
+import 'chart_utils.dart' as chart_utils;
 import 'drill_summary_list_widget.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
@@ -30,29 +29,6 @@ class WeeklyChartWidget extends StatefulWidget {
 }
 
 class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
-  // About two years worth of data.
-  static const _maxWeeks = 52 * 2;
-  static const _maxWeeksDisplayed = 4;
-
-  static final _axisLabelStyle = charts.TextStyleSpec(
-    fontSize: 10,
-    color: charts.MaterialPalette.white,
-  );
-
-  static final _axisLineStyle = charts.LineStyleSpec(
-      thickness: 0, color: charts.MaterialPalette.gray.shadeDefault);
-
-  static final _repsAxis = charts.NumericAxisSpec(
-    renderSpec: charts.GridlineRendererSpec(
-      labelStyle: _axisLabelStyle,
-      lineStyle: _axisLineStyle,
-    ),
-  );
-
-  static final _dateRenderSpec = charts.SmallTickRendererSpec<DateTime>(
-    labelStyle: _axisLabelStyle,
-  );
-
   Future<List<WeeklyDrillSummary>> _weeks;
   final ValueNotifier<WeeklyDrillSummary> _selected = ValueNotifier(null);
 
@@ -61,8 +37,8 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
     String drill = widget.drillData?.fullName;
     _log.info('Loading weekly summary for $drill');
     super.initState();
-    _weeks = widget.resultsDb.summariesDao
-        .loadWeeklyDrills(numWeeks: _maxWeeks, offset: 0, drill: drill);
+    _weeks = widget.resultsDb.summariesDao.loadWeeklyDrills(
+        numWeeks: chart_utils.maxWeeks, offset: 0, drill: drill);
   }
 
   @override
@@ -81,8 +57,7 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
     if (snapshot.data.isEmpty) {
       return Text('No data, go practice.');
     }
-    return SingleChildScrollView(
-        child: Column(children: [
+    return Column(children: [
       _buildChart(context, snapshot.data),
       const Divider(),
       _WeekSummary(
@@ -90,7 +65,7 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
           resultsDb: widget.resultsDb,
           drill: widget.drillData,
           selected: _selected),
-    ]));
+    ]);
   }
 
   int _estGood(WeeklyDrillSummary summary) {
@@ -105,8 +80,8 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
   Widget _buildChart(BuildContext context, List<WeeklyDrillSummary> data) {
     final endTime = data.last.startDay;
     DateTime startTime = data.first.startDay;
-    if (data.length > _maxWeeksDisplayed) {
-      startTime = data[data.length - _maxWeeksDisplayed].startDay;
+    if (data.length > chart_utils.maxWeeksDisplayed) {
+      startTime = data[data.length - chart_utils.maxWeeksDisplayed].startDay;
     }
     // final startTime = endTime.subtract(_displayedTime);
     final good = charts.Series<WeeklyDrillSummary, DateTime>(
@@ -130,6 +105,8 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
         ),
         defaultInteractions: false,
         behaviors: [
+          charts.ChartTitle('Weekly Reps',
+              titleStyleSpec: chart_utils.titleStyle),
           charts.SlidingViewport(),
           charts.PanAndZoomBehavior(),
           charts.DomainHighlighter(),
@@ -147,16 +124,9 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
             changedListener: _onSelectionChanged,
           )
         ],
-        primaryMeasureAxis: _repsAxis,
-        domainAxis: charts.DateTimeAxisSpec(
-            renderSpec: _dateRenderSpec,
-            viewport: charts.DateTimeExtents(start: startTime, end: endTime)));
-    return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: Column(children: [
-        SizedBox(height: 250.0, child: chart),
-      ]),
-    );
+        primaryMeasureAxis: chart_utils.numericAxisSpec,
+        domainAxis: chart_utils.dateTimeAxis(startTime, endTime));
+    return chart_utils.paddedChart(chart);
   }
 
   void _onSelectionChanged(charts.SelectionModel<DateTime> selected) {

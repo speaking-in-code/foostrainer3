@@ -62,7 +62,8 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
       body: _expansionPanels(),
-      bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
+      bottomNavigationBar:
+          MyNavBar(location: MyNavBarLocation.PRACTICE, drillData: _drill),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).buttonColor,
         onPressed: _startPractice,

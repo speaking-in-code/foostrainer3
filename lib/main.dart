@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:ft3/daily_drills_screen.dart';
+import 'package:ft3/drill_stats_screen.dart';
 
 import 'album_art.dart';
 import 'debug_screen.dart';
@@ -51,6 +52,8 @@ class MainApp extends StatelessWidget {
         DrillTypesScreen.routeName: (context) =>
             AudioServiceWidget(child: DrillTypesScreen(drills)),
         DrillListScreen.routeName: (context) => DrillListScreen(),
+        DrillStatsScreen.routeName: (context) =>
+            DrillStatsScreen(staticDrills: drills, resultsDb: resultsDb),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) => PracticeScreen(),
         ResultsScreen.routeName: (context) => ResultsScreen(resultsDb),

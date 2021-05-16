@@ -29,7 +29,7 @@ class DrillListScreen extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(title: type).build(context),
       body: ListView(key: key, children: children),
-      bottomNavigationBar: MyNavBar(MyNavBarLocation.PRACTICE),
+      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.PRACTICE),
     );
   }
 }

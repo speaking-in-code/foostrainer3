@@ -107,14 +107,18 @@ class _WeeklyDrillReps {
 // Weekly action reps summary. Used as DB view via SummariesDao, not directly.
 @DatabaseView('SELECT NULL')
 class WeeklyActionReps extends Equatable {
+  final String startDayStr;
+  @ignore
   final DateTime startDay;
+  final String endDayStr;
+  @ignore
   final DateTime endDay;
   final String action;
   final int reps;
   final double accuracy;
 
-  WeeklyActionReps(String startDayStr, String endDayStr, this.action, this.reps,
-      this.accuracy)
+  WeeklyActionReps(
+      this.startDayStr, this.endDayStr, this.action, this.reps, this.accuracy)
       : startDay = DateTime.parse(startDayStr),
         endDay = DateTime.parse(endDayStr);
 
@@ -312,10 +316,12 @@ abstract class SummariesDao {
           ..endDay = DateTime.parse(endDay));
   }
 
+  // TODO(brian): this limit statement here is incorrect, it's not limiting by
+  // num weeks, it's limiting by number of rows.
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,
+     DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDayStr,
+     DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDayStr,
      Actions.action action,
      IFNULL(SUM(reps), 0) reps,
      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
@@ -324,8 +330,8 @@ abstract class SummariesDao {
    LEFT JOIN Actions ON Drills.id = Actions.drillId
    WHERE
      drill = :drill 
-   GROUP BY startDay, action
-   ORDER BY startDay DESC, action
+   GROUP BY startDayStr, action
+   ORDER BY startDayStr DESC, action
    LIMIT :numWeeks
    OFFSET :offset
   ''')

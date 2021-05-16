@@ -10,8 +10,8 @@ import 'weekly_chart_widget.dart';
 class StatsScreen extends StatelessWidget {
   static const routeName = '/stats';
 
-  static void navigate(BuildContext context, DrillData drillData) {
-    Navigator.pushNamed(context, routeName, arguments: drillData);
+  static void navigate(BuildContext context) {
+    Navigator.pushNamed(context, routeName);
   }
 
   final StaticDrills staticDrills;
@@ -21,16 +21,20 @@ class StatsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DrillData drillData = ModalRoute.of(context).settings.arguments;
-    String title =
-        (drillData?.name != null ? 'Stats: ${drillData.name}' : 'Stats');
+    String title = 'Stats';
     return Scaffold(
       appBar: MyAppBar(title: title).build(context),
-      body: WeeklyChartWidget(
-          staticDrills: staticDrills,
-          resultsDb: resultsDb,
-          drillData: drillData),
-      bottomNavigationBar: MyNavBar(MyNavBarLocation.STATS),
+      body: _buildBody(context),
+      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.STATS),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return SingleChildScrollView(
+      child: WeeklyChartWidget(
+        staticDrills: staticDrills,
+        resultsDb: resultsDb,
+      ),
     );
   }
 }

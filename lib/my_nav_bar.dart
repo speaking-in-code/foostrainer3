@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ft3/practice_config_screen.dart';
+import 'package:meta/meta.dart' show required;
 
+import 'drill_data.dart';
+import 'drill_stats_screen.dart';
 import 'drill_types_screen.dart';
 import 'stats_screen.dart';
 
@@ -9,9 +13,10 @@ enum MyNavBarLocation {
 }
 
 class MyNavBar extends StatelessWidget {
-  final MyNavBarLocation _current;
+  final MyNavBarLocation location;
+  final DrillData drillData;
 
-  MyNavBar(this._current);
+  MyNavBar({@required this.location, this.drillData});
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +28,11 @@ class MyNavBar extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.timeline),
-            label: 'Stats',
+            label: (drillData != null ? 'Drill Stats' : 'Stats'),
           ),
         ],
-        currentIndex: _getIndex(_current),
-        onTap: (int location) => _onTap(context, location));
+        currentIndex: _getIndex(location),
+        onTap: (int itemIndex) => _onTap(context, itemIndex));
   }
 
   int _getIndex(MyNavBarLocation location) {
@@ -41,19 +46,27 @@ class MyNavBar extends StatelessWidget {
     }
   }
 
-  void _onTap(BuildContext context, int index) {
-    if (index == _getIndex(_current)) {
+  void _onTap(BuildContext context, int itemIndex) {
+    if (itemIndex == _getIndex(location)) {
       return;
     }
-    switch (index) {
+    switch (itemIndex) {
       case 0:
-        Navigator.pushNamed(context, DrillTypesScreen.routeName);
+        if (drillData == null) {
+          Navigator.pushNamed(context, DrillTypesScreen.routeName);
+        } else {
+          PracticeConfigScreen.navigate(context, drillData);
+        }
         break;
       case 1:
-        Navigator.pushNamed(context, StatsScreen.routeName);
+        if (drillData == null) {
+          Navigator.pushNamed(context, StatsScreen.routeName);
+        } else {
+          DrillStatsScreen.navigate(context, drillData);
+        }
         break;
       default:
-        throw Exception('Unknown tap location $index');
+        throw Exception('Unknown tap location $itemIndex');
     }
   }
 }

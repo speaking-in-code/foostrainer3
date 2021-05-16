@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'aggregated_drill_summary.dart';
 import 'drill_data.dart';
+import 'drill_stats_screen.dart';
 import 'practice_config_screen.dart';
 import 'results_entities.dart';
 import 'percent_formatter.dart';
@@ -131,7 +132,7 @@ class _ActionButtons extends StatelessWidget {
     return ButtonBar(children: [
       OutlinedButton(
           child: Text('History'),
-          onPressed: () => StatsScreen.navigate(context, drillData)),
+          onPressed: () => DrillStatsScreen.navigate(context, drillData)),
       ElevatedButton(
           child: Text('Practice'),
           onPressed: () => PracticeConfigScreen.navigate(context, drillData)),
