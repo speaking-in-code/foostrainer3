@@ -293,10 +293,15 @@ class _BackgroundTask extends BackgroundAudioTask {
     _elapsedTimeUpdater?.cancel();
 
     _log.info('Writing results: ${_progress.results.drill.encode()}');
-    if (_progress.results.reps > 0) {
-      await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
-    } else {
-      await _resultsDatabase.drillsDao.removeDrill(_progress.results.drill.id);
+    try {
+      if (_progress.results.reps > 0) {
+        await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
+      } else {
+        await _resultsDatabase.drillsDao
+            .removeDrill(_progress.results.drill.id);
+      }
+    } catch (e) {
+      _log.info('Database write error: $e');
     }
     _log.info('Write complete');
 

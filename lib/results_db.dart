@@ -21,8 +21,18 @@ abstract class DrillsDao {
   @Query('SELECT * FROM Drills WHERE id = :id')
   Future<StoredDrill> loadDrill(int id);
 
-  @Query('DELETE * FROM Drills WHERE id = :id')
-  Future<void> removeDrill(int id);
+  // Remove the drill with specified id.
+  @transaction
+  Future<void> removeDrill(int id) async {
+    await _removeActions(id);
+    return _internalRemovalDrill(id);
+  }
+
+  @Query('DELETE FROM Actions WHERE drillId = :id')
+  Future<void> _removeActions(int id);
+
+  @Query('DELETE FROM Drills WHERE id = :id')
+  Future<void> _internalRemovalDrill(int id);
 
   @Query('DELETE FROM Drills')
   Future<void> delete();

@@ -156,8 +156,14 @@ class _$DrillsDao extends DrillsDao {
   }
 
   @override
-  Future<void> removeDrill(int id) async {
-    await _queryAdapter.queryNoReturn('DELETE * FROM Drills WHERE id = ?',
+  Future<void> _removeActions(int id) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Actions WHERE drillId = ?',
+        arguments: <dynamic>[id]);
+  }
+
+  @override
+  Future<void> _internalRemovalDrill(int id) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Drills WHERE id = ?',
         arguments: <dynamic>[id]);
   }
 
@@ -178,6 +184,20 @@ class _$DrillsDao extends DrillsDao {
   Future<int> insertDrill(StoredDrill results) {
     return _storedDrillInsertionAdapter.insertAndReturnId(
         results, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> removeDrill(int id) async {
+    if (database is sqflite.Transaction) {
+      await super.removeDrill(id);
+    } else {
+      await (database as sqflite.Database)
+          .transaction<void>((transaction) async {
+        final transactionDatabase = _$ResultsDatabase(changeListener)
+          ..database = transaction;
+        await transactionDatabase.drillsDao.removeDrill(id);
+      });
+    }
   }
 }
 

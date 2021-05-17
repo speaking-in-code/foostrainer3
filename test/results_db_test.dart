@@ -181,6 +181,53 @@ void main() {
       expect(repeated, equals(drillId));
     });
 
+    test('removes drill', () async {
+      final drillId = await db.addData(
+          StoredDrill(
+              startSeconds: START_SECONDS,
+              drill: 'Pass:Brush Pass',
+              tracking: true,
+              elapsedSeconds: 60),
+          actionList: [
+            ActionSummary('Lane', 5, 3),
+          ]);
+      StoredDrill found = await db.drillsDao.loadDrill(drillId);
+      expect(found.drill, equals('Pass:Brush Pass'));
+      await db.drillsDao.removeDrill(drillId);
+      found = await db.drillsDao.loadDrill(drillId);
+      expect(found, isNull);
+    });
+
+    test('removes drill with no actions', () async {
+      final drillId = await db.addData(
+        StoredDrill(
+            startSeconds: START_SECONDS,
+            drill: 'Pass:Brush Pass',
+            tracking: true,
+            elapsedSeconds: 60),
+      );
+      StoredDrill found = await db.drillsDao.loadDrill(drillId);
+      expect(found.drill, equals('Pass:Brush Pass'));
+      await db.drillsDao.removeDrill(drillId);
+      found = await db.drillsDao.loadDrill(drillId);
+      expect(found, isNull);
+    });
+
+    test('Handles removing non-existent drill', () async {
+      final drillId = await db.addData(
+        StoredDrill(
+            startSeconds: START_SECONDS,
+            drill: 'Pass:Brush Pass',
+            tracking: true,
+            elapsedSeconds: 60),
+      );
+      StoredDrill found = await db.drillsDao.loadDrill(drillId);
+      expect(found.drill, equals('Pass:Brush Pass'));
+      await db.drillsDao.removeDrill(drillId + 1);
+      found = await db.drillsDao.loadDrill(drillId);
+      expect(found.drill, equals('Pass:Brush Pass'));
+    });
+
     test('summary no tracking', () async {
       await db.addData(
           StoredDrill(
