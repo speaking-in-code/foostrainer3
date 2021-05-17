@@ -268,7 +268,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     });
   }
 
-  Future<void> _startPractice() {
+  Future<void> _startPractice() async {
     // Workaround for https://github.com/flutter/flutter/issues/35521: don't
     // actually run the background process. Triggering native UI like music
     // players tends to trigger that bug.
@@ -279,8 +279,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       _log.info('Starting practice');
       PracticeBackground.startPractice(_drill);
     }
-    Navigator.pushNamed(context, PracticeScreen.routeName, arguments: _drill);
-    return Future.value();
+    PracticeScreen.pushNamed(context, _drill);
   }
 
   String _formatDuration() {

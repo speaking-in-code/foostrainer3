@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'drill_data.dart';
 import 'drill_types_screen.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
@@ -12,11 +13,20 @@ import 'static_drills.dart';
 
 final _log = Log.get('results_screen');
 
+class _Args {
+  final int drillId;
+  final DrillData drillData;
+
+  _Args(this.drillId, this.drillData);
+}
+
 class ResultsScreen extends StatelessWidget {
   static const routeName = '/results';
 
-  static void navigate(BuildContext context, int drillId) {
-    Navigator.pushReplacementNamed(context, routeName, arguments: drillId);
+  static void pushReplacement(
+      BuildContext context, int drillId, DrillData drillData) {
+    Navigator.pushReplacementNamed(context, routeName,
+        arguments: _Args(drillId, drillData));
   }
 
   final StaticDrills staticDrills;
@@ -26,11 +36,12 @@ class ResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final drillId = ModalRoute.of(context).settings.arguments;
+    final _Args args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: MyAppBar(title: 'Results').build(context),
-      body: _LoadedResultsScreen(staticDrills, resultsDb, drillId),
-      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.PRACTICE),
+      body: _LoadedResultsScreen(staticDrills, resultsDb, args.drillId),
+      bottomNavigationBar: MyNavBar(
+          location: MyNavBarLocation.PRACTICE, drillData: args.drillData),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).buttonColor,
         onPressed: () =>

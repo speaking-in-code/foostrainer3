@@ -6,6 +6,7 @@ import 'package:audio_service/audio_service.dart';
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
 
+import 'drill_data.dart';
 import 'keys.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
@@ -23,6 +24,10 @@ class PracticeScreen extends StatefulWidget {
   static const repsKey = Key(Keys.repsKey);
   static const elapsedKey = Key(Keys.elapsedKey);
   static const routeName = '/practice';
+
+  static void pushNamed(BuildContext context, DrillData drill) {
+    Navigator.pushNamed(context, PracticeScreen.routeName, arguments: drill);
+  }
 
   final StaticDrills staticDrills;
 
@@ -69,6 +74,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final DrillData drillData = ModalRoute.of(context).settings.arguments;
     return WillPopScope(
         onWillPop: () => _onBackPressed(context),
         child: StreamBuilder<PracticeProgress>(
@@ -84,15 +90,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   !PracticeBackground.running &&
                   ScreenshotData.progress == null) {
                 // Drill was stopped via notification media controls.
-                WidgetsBinding.instance.addPostFrameCallback((_) => _onStop());
+                WidgetsBinding.instance
+                    .addPostFrameCallback((_) => _onStop(drillData));
                 return Scaffold();
               }
               var progress = snapshot?.data;
               if (progress == null) {
                 // Stream still being initialized, use the passed in drill to
                 // speed up rendering.
-                progress = PracticeProgress()
-                  ..drill = ModalRoute.of(context).settings.arguments;
+                progress = PracticeProgress()..drill = drillData;
                 progress.results = DrillSummary(
                     drill: StoredDrill.newDrill(
                         drill: progress.drill.fullName,
@@ -126,7 +132,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       BuildContext context, PracticeProgress progress) {
     final stopButton = ElevatedButton(
       child: Icon(Icons.stop),
-      onPressed: _onStop,
+      onPressed: () => _onStop(progress.drill),
     );
     final actionButton = _actionButton(progress);
     return BottomAppBar(
@@ -193,7 +199,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     return allowBack;
   }
 
-  void _onStop() async {
+  void _onStop(DrillData drill) async {
     if (_popInProgress) {
       _log.info('_onStop reentry');
       return;
@@ -202,7 +208,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _popInProgress = true;
     // Should we have a confirmation dialog when practice is stopped?
     await PracticeBackground.stopPractice();
-    ResultsScreen.navigate(context, _drillId);
+    ResultsScreen.pushReplacement(context, _drillId, drill);
   }
 
   // Consider replacing this with a dialog that flexes depending on screen
