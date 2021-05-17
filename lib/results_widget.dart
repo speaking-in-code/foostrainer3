@@ -14,7 +14,8 @@ class ResultsWidget extends StatelessWidget {
   final StaticDrills staticDrills;
   final DrillSummary summary;
 
-  ResultsWidget({Key key, @required this.staticDrills, @required this.summary});
+  ResultsWidget({Key key, @required this.staticDrills, @required this.summary})
+      : assert(summary != null);
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +48,20 @@ class ResultsWidget extends StatelessWidget {
   }
 
   Widget _firstColumn({TextStyle labelStyle, TextStyle dataStyle}) {
-    final successText = summary.good ?? '--';
+    String successText = '--';
+    if (summary.drill.tracking) {
+      if (summary.good != null) {
+        successText = '${summary.good}';
+      } else {
+        successText = '0';
+      }
+    }
+    int reps = summary.reps ?? 0;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Reps', style: labelStyle),
-        _padBelow(Text('${summary.reps}', style: dataStyle)),
+        _padBelow(Text('$reps', style: dataStyle)),
         Text('Success', style: labelStyle),
         Text('$successText', style: dataStyle),
       ],

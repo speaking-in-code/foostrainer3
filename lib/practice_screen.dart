@@ -208,7 +208,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _popInProgress = true;
     // Should we have a confirmation dialog when practice is stopped?
     await PracticeBackground.stopPractice();
-    ResultsScreen.pushReplacement(context, _drillId, drill);
+    _log.info('Stopped practice');
+    if (_drillId != null) {
+      ResultsScreen.pushReplacement(context, _drillId, drill);
+    } else {
+      // Early stop to drill, before drill id is set. Go back to config screen.
+      Navigator.pop(context);
+    }
   }
 
   // Consider replacing this with a dialog that flexes depending on screen

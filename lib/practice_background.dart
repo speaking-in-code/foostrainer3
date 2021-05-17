@@ -217,7 +217,9 @@ class _BackgroundTask extends BackgroundAudioTask {
     return _BackgroundTask._(player, pauseTimer);
   }
 
-  _BackgroundTask._(this._player, this._pauseTimer);
+  _BackgroundTask._(this._player, this._pauseTimer) {
+    _log.info('Finished creating player');
+  }
 
   void _logEvent(String name) {
     _analytics.logEvent(name: name, parameters: {
@@ -229,12 +231,14 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStart(Map<String, dynamic> params) async {
+    _log.info('onStart called');
     Future<ResultsDatabase> db = ResultsDatabase.init();
     Future<void> artLoading = AlbumArt.load();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
     await artLoading;
     _resultsDatabase = await db;
+    _log.info('Finished onStart');
   }
 
   @override
@@ -256,6 +260,7 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onPlay() async {
+    _log.info('onPlay starts');
     _logEvent(_playEvent);
     _progress.state = PracticeState.playing;
     await AudioServiceBackground.setState(
@@ -268,6 +273,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     _pause(_resetTime).whenComplete(_waitForSetup);
     _elapsedTimeUpdater =
         Timer.periodic(Duration(milliseconds: 200), _updateElapsed);
+    _log.info('onPlay done');
   }
 
   @override
@@ -313,6 +319,7 @@ class _BackgroundTask extends BackgroundAudioTask {
         playing: false,
         processingState: AudioProcessingState.none);
     await super.onStop();
+    _log.info('Finished stopping player');
   }
 
   // Plays audio until complete.
