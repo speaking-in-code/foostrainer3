@@ -165,6 +165,22 @@ void main() {
           ]));
     });
 
+    test('repeat entry for same drill', () async {
+      final drillId = await db.addData(
+          StoredDrill(
+              startSeconds: START_SECONDS,
+              drill: 'Pass:Brush Pass',
+              tracking: true,
+              elapsedSeconds: 60),
+          actionList: [
+            ActionSummary('Lane', 5, 3),
+            ActionSummary('Wall', 2, 2),
+          ]);
+      StoredDrill same = await db.drillsDao.loadDrill(drillId);
+      final repeated = await db.drillsDao.insertDrill(same);
+      expect(repeated, equals(drillId));
+    });
+
     test('summary no tracking', () async {
       await db.addData(
           StoredDrill(

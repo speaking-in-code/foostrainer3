@@ -67,7 +67,6 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
     return FutureBuilder<DrillSummary>(
         future: _summary,
         builder: (BuildContext context, AsyncSnapshot<DrillSummary> snapshot) {
-          _log.info('Results error: ${snapshot.error}');
           if (snapshot.hasData) {
             return ResultsWidget(
                 staticDrills: widget.staticDrills, summary: snapshot.data);

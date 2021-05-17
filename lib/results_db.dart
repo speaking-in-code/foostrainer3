@@ -365,7 +365,7 @@ abstract class ResultsDatabase extends FloorDatabase {
     return $FloorResultsDatabase.databaseBuilder('results3.db').build();
   }
 
-  Future<void> addData(StoredDrill results,
+  Future<int> addData(StoredDrill results,
       {List<ActionSummary> actionList}) async {
     final id = await drillsDao.insertDrill(results);
     actionList ??= [];
@@ -378,6 +378,7 @@ abstract class ResultsDatabase extends FloorDatabase {
         await actionsDao.incrementAction(id, action.action, isGood);
       }
     });
+    return id;
   }
 
   Future<void> deleteAll() async {
