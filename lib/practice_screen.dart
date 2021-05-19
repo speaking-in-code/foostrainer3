@@ -193,6 +193,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       // Clicked outside alert/did not respond. Keep going.
       PracticeBackground.play();
     }
+    if (allowBack) {
+      _popInProgress = true;
+    }
     return allowBack;
   }
 
