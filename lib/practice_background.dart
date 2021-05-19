@@ -1,7 +1,6 @@
 // Start a background isolate for executing drills.
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -10,7 +9,6 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -33,12 +31,14 @@ class PracticeBackground {
   static const _results = 'results';
   static const _drill = 'drill';
   static const _confirm = 'confirm';
+  static const _practiceState = 'practiceState';
 
   /// Start practicing the provided drill.
   static Future<void> startPractice(DrillData drill) async {
     if (drill.signal == Signal.AUDIO_AND_FLASH) {
       Wakelock.enable();
     }
+    _log.info('Starting audio service');
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
@@ -56,7 +56,7 @@ class PracticeBackground {
             reps: 0,
             good: (drill.tracking ? 0 : null),
             actions: {})
-        ..state = PracticeState.paused
+        ..practiceState = PracticeState.paused
         ..action = ''
         ..confirm = 0;
       _log.info('Playing with drill ${progress.drill.encode()}');
@@ -84,11 +84,8 @@ class PracticeBackground {
 
   /// Get a stream of progress updates.
   static Stream<PracticeProgress> get progressStream =>
-      Rx.combineLatest2<MediaItem, PlaybackState, PracticeProgress>(
-          AudioService.currentMediaItemStream,
-          AudioService.playbackStateStream,
-          (mediaItem, playbackState) =>
-              _transformBackgroundUpdate(mediaItem, playbackState));
+      AudioService.currentMediaItemStream
+          .map((mediaItem) => _transformBackgroundUpdate(mediaItem));
 
   /// Stop practice.
   static Future<void> stopPractice() async {
@@ -98,20 +95,23 @@ class PracticeBackground {
   }
 
   /// Get a progress report from a MediaItem update.
-  static PracticeProgress _transformBackgroundUpdate(
-      MediaItem mediaItem, PlaybackState playbackState) {
-    var extras = mediaItem?.extras ?? {};
+  static PracticeProgress _transformBackgroundUpdate(MediaItem mediaItem) {
+    if (mediaItem == null) {
+      if (AudioService.running) {
+        // Still starting the audio service, haven't gotten the media to play yet.
+        return PracticeProgress()..practiceState = PracticeState.paused;
+      }
+      // Audio service was stopped, which means drill was stopped. Pass that up to UI.
+      return PracticeProgress()..practiceState = PracticeState.stopped;
+    }
+    var extras = mediaItem.extras ?? {};
     String drillDataJson = extras[_drill];
     if (drillDataJson == null) {
-      throw StateError('MediaItem missing drill: ${mediaItem?.id}');
-    }
-    PracticeState state = PracticeState.paused;
-    if (playbackState?.playing ?? false) {
-      state = PracticeState.playing;
+      throw StateError('MediaItem missing drill: ${mediaItem.id}');
     }
     return PracticeProgress()
       ..drill = DrillData.decode(extras[_drill])
-      ..state = state
+      ..practiceState = PracticeState.values[extras[_practiceState]]
       ..action = extras[_action]
       ..results = DrillSummary.decode(extras[_results])
       ..confirm = (extras[_confirm] ?? 0);
@@ -132,6 +132,7 @@ class PracticeBackground {
           _results: progress.results.encode(),
           _drill: progress.drill.encode(),
           _confirm: progress.confirm,
+          _practiceState: progress.practiceState.index,
         });
   }
 }
@@ -149,7 +150,7 @@ enum PracticeState {
 /// Current state of practice.
 class PracticeProgress {
   DrillData drill;
-  PracticeState state = PracticeState.stopped;
+  PracticeState practiceState = PracticeState.stopped;
   String action;
   String lastAction;
   DrillSummary results;
@@ -157,6 +158,9 @@ class PracticeProgress {
   // sometimes redeliver rendering states, so we use this as a sequence number
   // to avoid repeating the same confirmation.
   int confirm = 0;
+
+  String toString() =>
+      'practiceState: $practiceState drill: $drill results: $results';
 }
 
 const MediaControl _pauseControl = MediaControl(
@@ -243,7 +247,7 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   @override
   Future<void> onPlayMediaItem(MediaItem mediaItem) async {
-    _progress = PracticeBackground._transformBackgroundUpdate(mediaItem, null);
+    _progress = PracticeBackground._transformBackgroundUpdate(mediaItem);
     final drillId =
         await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
     _progress.results = _progress.results
@@ -262,7 +266,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   Future<void> onPlay() async {
     _log.info('onPlay starts');
     _logEvent(_playEvent);
-    _progress.state = PracticeState.playing;
+    _progress.practiceState = PracticeState.playing;
     await AudioServiceBackground.setState(
         controls: [_pauseControl, _stopControl],
         playing: true,
@@ -279,7 +283,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   @override
   Future<void> onPause() async {
     _logEvent(_pauseEvent);
-    _progress.state = PracticeState.paused;
+    _progress.practiceState = PracticeState.paused;
     _stopwatch.stop();
     _elapsedTimeUpdater.cancel();
     _progress.action = 'Paused';
@@ -294,7 +298,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   Future<void> onStop() async {
     _log.info('Stopping player');
     _logEvent(_stopEvent);
-    _progress.state = PracticeState.stopped;
+    _progress.practiceState = PracticeState.stopped;
     _stopwatch?.stop();
     _elapsedTimeUpdater?.cancel();
 
@@ -330,7 +334,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   void _waitForSetup() async {
-    if (_progress.state != PracticeState.playing) {
+    if (_progress.practiceState != PracticeState.playing) {
       return;
     }
     _progress.action = 'Setup';
@@ -341,7 +345,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   void _waitForAction() async {
-    if (_progress.state != PracticeState.playing) {
+    if (_progress.practiceState != PracticeState.playing) {
       return;
     }
     _progress.action = 'Wait';
@@ -350,7 +354,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   void _playAction() async {
-    if (_progress.state != PracticeState.playing) {
+    if (_progress.practiceState != PracticeState.playing) {
       return;
     }
     int actionIndex = _rand.nextInt(_progress.drill.actions.length);
@@ -388,7 +392,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   // Calling this too frequently makes the notifications UI unresponsive, so
   // throttle to only cases where there is a visible change.
   void _updateElapsed(Timer timer) async {
-    if (_progress.state != PracticeState.playing) {
+    if (_progress.practiceState != PracticeState.playing) {
       return;
     }
     // If practice time has completed, give a moment, then play the "finished"
@@ -412,12 +416,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   Future<void> _updateMediaItem() async {
-    _log.info(
-        'Updating media item: ${_progress.action}, confirm: ${_progress.confirm}');
     _progress.results = _progress.results.copyWith(
         drill: _progress.results.drill
             .copyWith(elapsedSeconds: _stopwatch.elapsed.inSeconds));
-    _log.info('Writing result ${_progress.results.encode()}');
     final writeOp =
         _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
     final MediaItem item =
@@ -434,7 +435,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   // imagine that we're playing the Final Jeopardy Theme, this seems cool. If
   // you realize that we're playing *nothing*, it's more of a hack.
   Future<void> _pause(Duration length) async {
-    if (_progress.state != PracticeState.playing) {
+    if (_progress.practiceState != PracticeState.playing) {
       return;
     }
     return _pauseTimer.pause(length);

@@ -15,6 +15,7 @@ import 'results_entities.dart';
 import 'results_screen.dart';
 import 'results_widget.dart';
 import 'screenshot_data.dart';
+import 'spinner.dart';
 import 'static_drills.dart';
 import 'tracking_info.dart';
 
@@ -25,8 +26,8 @@ class PracticeScreen extends StatefulWidget {
   static const elapsedKey = Key(Keys.elapsedKey);
   static const routeName = '/practice';
 
-  static void pushNamed(BuildContext context, DrillData drill) {
-    Navigator.pushNamed(context, PracticeScreen.routeName, arguments: drill);
+  static void pushNamed(BuildContext context) {
+    Navigator.pushNamed(context, PracticeScreen.routeName);
   }
 
   final StaticDrills staticDrills;
@@ -58,7 +59,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   bool _pauseForDrillComplete = false;
   PracticeState _practiceState = PracticeState.stopped;
   Stream<PracticeProgress> _progressStream;
-  int _drillId;
+  PracticeProgress _progress;
 
   @override
   void initState() {
@@ -74,65 +75,61 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final DrillData drillData = ModalRoute.of(context).settings.arguments;
     return WillPopScope(
         onWillPop: () => _onBackPressed(context),
         child: StreamBuilder<PracticeProgress>(
-            stream: _progressStream,
-            initialData: ScreenshotData.progress,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                _drillId = snapshot.data.results.drill.id;
-              }
-              _log.info(
-                  'PracticeBackground.running = ${PracticeBackground.running}');
-              if (PracticeBackground.running != null &&
-                  !PracticeBackground.running &&
-                  ScreenshotData.progress == null) {
-                // Drill was stopped via notification media controls.
-                WidgetsBinding.instance
-                    .addPostFrameCallback((_) => _onStop(drillData));
-                return Scaffold();
-              }
-              var progress = snapshot?.data;
-              if (progress == null) {
-                // Stream still being initialized, use the passed in drill to
-                // speed up rendering.
-                progress = PracticeProgress()..drill = drillData;
-                progress.results = DrillSummary(
-                    drill: StoredDrill.newDrill(
-                        drill: progress.drill.fullName,
-                        tracking: progress.drill.tracking));
-              }
-              _log.info('Rendering screen with ${progress.results.encode()}');
-              // Sometimes we stop after the drill has reached time. For that
-              // case, wait for an explicit 'play' action from the user instead
-              // of automatically resuming.
-              _pauseForDrillComplete =
-                  Duration(minutes: progress.drill.practiceMinutes).inSeconds ==
-                      progress.results?.drill?.elapsedSeconds;
-              _practiceState = progress.state;
-              // StreamBuilder will redeliver progress messages, but we only
-              // want to show the dialog once per shot.
-              if (progress.confirm > this._lastRenderedConfirm) {
-                this._lastRenderedConfirm = progress.confirm;
-                Future.delayed(
-                    Duration.zero, () => _showTrackingDialog(context));
-              }
-              return Scaffold(
-                  appBar: MyAppBar(title: progress.drill.name).build(context),
-                  body: ResultsWidget(
-                      staticDrills: widget.staticDrills,
-                      summary: progress.results),
-                  bottomNavigationBar: _controlButtons(context, progress));
-            }));
+            stream: _progressStream, builder: _buildSnapshot));
+  }
+
+  Widget _loadingWidget(BuildContext context) {
+    return Scaffold(
+        appBar: MyAppBar(title: 'Practice').build(context), body: Spinner());
+  }
+
+  Widget _buildSnapshot(
+      BuildContext context, AsyncSnapshot<PracticeProgress> snapshot) {
+    if (snapshot.hasError) {
+      return Scaffold(
+          appBar: MyAppBar(title: 'Practice').build(context),
+          body: Text('Error: ${snapshot.error}'));
+    }
+    if (!snapshot.hasData) {
+      return _loadingWidget(context);
+    }
+    _progress = snapshot.data;
+    if (_progress.practiceState == PracticeState.stopped) {
+      // Drill was stopped via notification media controls.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _onStop());
+      return Scaffold();
+    }
+    if (_progress.drill == null) {
+      return _loadingWidget(context);
+    }
+    // Sometimes we stop after the drill has reached time. For that
+    // case, wait for an explicit 'play' action from the user instead
+    // of automatically resuming.
+    _pauseForDrillComplete =
+        Duration(minutes: _progress.drill.practiceMinutes).inSeconds ==
+            _progress.results?.drill?.elapsedSeconds;
+    _practiceState = _progress.practiceState;
+    // StreamBuilder will redeliver progress messages, but we only
+    // want to show the dialog once per shot.
+    if (_progress.confirm > this._lastRenderedConfirm) {
+      this._lastRenderedConfirm = _progress.confirm;
+      Future.delayed(Duration.zero, () => _showTrackingDialog(context));
+    }
+    return Scaffold(
+        appBar: MyAppBar(title: _progress.drill.name).build(context),
+        body: ResultsWidget(
+            staticDrills: widget.staticDrills, summary: _progress.results),
+        bottomNavigationBar: _controlButtons(context, _progress));
   }
 
   BottomAppBar _controlButtons(
       BuildContext context, PracticeProgress progress) {
     final stopButton = ElevatedButton(
       child: Icon(Icons.stop),
-      onPressed: () => _onStop(progress.drill),
+      onPressed: _onStop,
     );
     final actionButton = _actionButton(progress);
     return BottomAppBar(
@@ -143,7 +140,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   ButtonStyleButton _actionButton(PracticeProgress progress) {
-    if (progress.state == PracticeState.playing) {
+    if (progress.practiceState == PracticeState.playing) {
       return ElevatedButton(
           key: pauseKey,
           child: Icon(Icons.pause),
@@ -199,7 +196,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     return allowBack;
   }
 
-  void _onStop(DrillData drill) async {
+  void _onStop() async {
     if (_popInProgress) {
       _log.info('_onStop reentry');
       return;
@@ -209,8 +206,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
     // Should we have a confirmation dialog when practice is stopped?
     await PracticeBackground.stopPractice();
     _log.info('Stopped practice');
-    if (_drillId != null) {
-      ResultsScreen.pushReplacement(context, _drillId, drill);
+    int reps = _progress?.results?.reps ?? 0;
+    if (reps > 0) {
+      ResultsScreen.pushReplacement(
+          context, _progress.results.drill.id, _progress.drill);
     } else {
       // Early stop to drill, before drill id is set. Go back to config screen.
       Navigator.pop(context);

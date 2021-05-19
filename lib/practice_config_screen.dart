@@ -277,9 +277,9 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     if (ScreenshotData.progress == null) {
       // Normal flow.
       _log.info('Starting practice');
-      PracticeBackground.startPractice(_drill);
+      await PracticeBackground.startPractice(_drill);
     }
-    PracticeScreen.pushNamed(context, _drill);
+    PracticeScreen.pushNamed(context);
   }
 
   String _formatDuration() {
