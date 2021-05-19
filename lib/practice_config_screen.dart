@@ -12,6 +12,7 @@ import 'my_nav_bar.dart';
 import 'practice_background.dart';
 import 'practice_screen.dart';
 import 'screenshot_data.dart';
+import 'spinner.dart';
 
 final _log = Log.get('PracticeConfigScreen');
 
@@ -49,6 +50,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   static const kTrackingId = 3;
 
   static const kDefaultMinutes = 10;
+  bool _transitioning = false;
   DrillData _drill;
   double _practiceMinutes;
 
@@ -59,14 +61,20 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill.signal ??= Signal.AUDIO;
     _drill.tracking ??= true; // TODO(brian): switch default to false
     _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
+    Color fabColor = Theme.of(context).buttonColor;
+    Function fabClicked = _startPractice;
+    if (_transitioning) {
+      fabColor = Theme.of(context).disabledColor;
+      fabClicked = null;
+    }
     return Scaffold(
       appBar: MyAppBar(title: _drill.name).build(context),
       body: _expansionPanels(),
       bottomNavigationBar:
           MyNavBar(location: MyNavBarLocation.PRACTICE, drillData: _drill),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).buttonColor,
-        onPressed: _startPractice,
+        backgroundColor: fabColor,
+        onPressed: fabClicked,
         child: Icon(Icons.play_arrow, key: PracticeConfigScreen.playKey),
       ),
     );
@@ -269,8 +277,19 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   }
 
   Future<void> _startPractice() async {
+    setState(() {
+      _transitioning = true;
+    });
     final snackBar = SnackBar(
-        behavior: SnackBarBehavior.floating, content: Text('Starting...'));
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: Theme.of(context).canvasColor,
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+          ],
+        ));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
     // Workaround for https://github.com/flutter/flutter/issues/35521: don't
     // actually run the background process. Triggering native UI like music
@@ -283,6 +302,9 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     PracticeScreen.pushNamed(context);
+    setState(() {
+      _transitioning = false;
+    });
   }
 
   String _formatDuration() {
