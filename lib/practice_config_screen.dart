@@ -269,16 +269,19 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   }
 
   Future<void> _startPractice() async {
+    final snackBar = SnackBar(
+        behavior: SnackBarBehavior.floating, content: Text('Starting...'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
     // Workaround for https://github.com/flutter/flutter/issues/35521: don't
     // actually run the background process. Triggering native UI like music
     // players tends to trigger that bug.
-    _log.info('Starting drill ${_drill.name}');
     _drill.practiceMinutes = _practiceMinutes.round();
     if (ScreenshotData.progress == null) {
       // Normal flow.
-      _log.info('Starting practice');
+      _log.info('Starting practice ${_drill.name}');
       await PracticeBackground.startPractice(_drill);
     }
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     PracticeScreen.pushNamed(context);
   }
 
