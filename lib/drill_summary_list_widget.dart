@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'aggregated_drill_summary.dart';
 import 'drill_data.dart';
+import 'drill_details_widget.dart';
 import 'drill_stats_screen.dart';
 import 'practice_config_screen.dart';
 import 'results_entities.dart';
-import 'percent_formatter.dart';
 import 'static_drills.dart';
-import 'stats_screen.dart';
 
 /// Displays a list of drills in expandable cards. The expanded view shows
 /// per-action statistics.
@@ -57,7 +56,7 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
         headerBuilder: (BuildContext context, bool expanded) =>
             _buildHeader(context, panelData.drill),
         body: Column(children: [
-          _DrillDetails(drill: panelData.drill),
+          DrillDetailsWidget(drill: panelData.drill),
           _ActionButtons(
               staticDrills: widget.staticDrills, drill: panelData.drill),
         ]),
@@ -80,44 +79,6 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
               padding: EdgeInsets.only(right: 5.0), child: Text(displayName))),
       Expanded(flex: 1, child: Text('${drill.reps}')),
     ]);
-  }
-}
-
-// TODO: add tap targets to lead to per-drill and per-action stats over time.
-class _DrillDetails extends StatelessWidget {
-  final AggregatedDrillSummary drill;
-
-  _DrillDetails({this.drill});
-
-  Widget build(BuildContext context) {
-    final List<DataColumn> columns = [
-      DataColumn(label: Text('Action')),
-      DataColumn(label: Text('Reps')),
-      DataColumn(label: Text('Accuracy')),
-    ];
-    final List<DataRow> rows = [];
-    rows.add(_buildRow(AggregatedAction(
-        action: 'Total',
-        reps: drill.reps,
-        trackedReps: drill.trackedReps,
-        trackedGood: drill.trackedGood)));
-    rows.addAll(drill.actions.values.map((action) => _buildRow(action)));
-    return DataTable(columns: columns, rows: rows);
-  }
-
-  DataRow _buildRow(AggregatedAction action) {
-    final List<DataCell> cells = [];
-    cells.add(DataCell(Text(action.action)));
-    int estimatedGood = action.estimatedGood;
-    if (estimatedGood != null) {
-      cells.add(DataCell(Text('$estimatedGood/${action.reps}')));
-    } else {
-      cells.add(DataCell(Text('${action.reps}')));
-    }
-    final accuracy = PercentFormatter.formatAccuracy(
-        trackedReps: action.trackedReps, trackedGood: action.trackedGood);
-    cells.add(DataCell(Text('$accuracy')));
-    return DataRow(cells: cells);
   }
 }
 

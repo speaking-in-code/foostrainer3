@@ -14,6 +14,9 @@ class AggregatedAction {
   int get estimatedGood => _estimatedGood(
       reps: reps, trackedReps: trackedReps, trackedGood: trackedGood);
 
+  double get accuracy =>
+      trackedGood != null ? estimatedGood / trackedReps : null;
+
   AggregatedAction(
       {this.action, this.reps, this.trackedReps, this.trackedGood});
 }
@@ -56,6 +59,12 @@ class AggregatedDrillSummary {
       this.trackedReps,
       this.trackedGood,
       this.actions});
+
+  factory AggregatedDrillSummary.fromSummary(DrillSummary drill) {
+    final builder = _AggregatedDrillSummaryBuilder(drill.drill.drill);
+    builder.merge(drill);
+    return builder.build();
+  }
 
   int get estimatedGood => _estimatedGood(
       reps: reps, trackedReps: trackedReps, trackedGood: trackedGood);
