@@ -25,7 +25,7 @@ class _MonthlyDrillsScreenState extends State<MonthlyDrillsScreen> {
     return Scaffold(
       appBar: MyAppBar(title: 'History').build(context),
       body: MonthlyDrillsWidget(widget.resultsDb),
-      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.STATS),
+      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.monthly),
     );
   }
 }

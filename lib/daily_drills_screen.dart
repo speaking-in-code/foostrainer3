@@ -29,7 +29,7 @@ class DailyDrillsScreen extends StatelessWidget {
       appBar: MyAppBar(title: '${DateFormatter.format(day)}').build(context),
       body: _DailyDrillList(
           staticDrills: staticDrills, resultsDb: resultsDb, day: day),
-      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.STATS),
+      //bottomNavigationBar: MyNavBar(location: MyNavBarLocation.monthly),
     );
   }
 }

@@ -27,8 +27,7 @@ class DrillStatsScreen extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(title: title).build(context),
       body: _buildBody(context, drillData),
-      bottomNavigationBar:
-          MyNavBar(location: MyNavBarLocation.STATS, drillData: drillData),
+      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.stats),
     );
   }
 

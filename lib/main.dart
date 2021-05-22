@@ -10,12 +10,15 @@ import 'album_art.dart';
 import 'debug_screen.dart';
 import 'drill_list_screen.dart';
 import 'drill_types_screen.dart';
+import 'log.dart';
 import 'practice_config_screen.dart';
 import 'practice_screen.dart';
 import 'results_db.dart';
 import 'results_screen.dart';
 import 'static_drills.dart';
 import 'stats_screen.dart';
+
+final _log = Log.get('main');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,13 +41,16 @@ class MainApp extends StatelessWidget {
   // connection to the service.
   @override
   Widget build(BuildContext context) {
+    final appBarBackground = Colors.black87;
+    final darkTheme = ThemeData.dark().copyWith(
+      appBarTheme: AppBarTheme(backgroundColor: appBarBackground),
+      bottomNavigationBarTheme:
+          BottomNavigationBarThemeData(backgroundColor: appBarBackground),
+      bottomAppBarTheme: BottomAppBarTheme(color: appBarBackground),
+    );
     return MaterialApp(
       title: 'FoosTrainer',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: darkTheme,
       navigatorObservers: <NavigatorObserver>[_observer],
       initialRoute: DrillTypesScreen.routeName,
       routes: {

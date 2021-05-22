@@ -2,73 +2,71 @@ import 'package:flutter/material.dart';
 
 import 'package:meta/meta.dart' show required;
 
-import 'drill_data.dart';
 import 'drill_stats_screen.dart';
 import 'drill_types_screen.dart';
-import 'stats_screen.dart';
 import 'monthly_drills_screen.dart';
-import 'practice_config_screen.dart';
 
-enum MyNavBarLocation {
-  PRACTICE,
-  STATS,
+class MyNavBarLocation {
+  final BottomNavigationBarItem item;
+  final String route;
+
+  const MyNavBarLocation._create({@required this.item, @required this.route})
+      : assert(item != null),
+        assert(route != null);
+
+  static const MyNavBarLocation practice = MyNavBarLocation._create(
+      item: BottomNavigationBarItem(
+        icon: Icon(Icons.directions_run),
+        label: 'Practice',
+      ),
+      route: DrillTypesScreen.routeName);
+
+  static const MyNavBarLocation monthly = MyNavBarLocation._create(
+      item: BottomNavigationBarItem(
+        icon: Icon(Icons.calendar_today),
+        label: 'History',
+      ),
+      route: MonthlyDrillsScreen.routeName);
+
+  // TODO: this navigation won't work, make the drill stats screen show
+  // some overall charts with drill down options.
+  static const MyNavBarLocation stats = MyNavBarLocation._create(
+      item: BottomNavigationBarItem(
+        icon: Icon(Icons.show_chart),
+        label: 'Stats',
+      ),
+      route: DrillStatsScreen.routeName);
 }
 
 class MyNavBar extends StatelessWidget {
-  final MyNavBarLocation location;
-  final DrillData drillData;
+  static final _locations = [
+    MyNavBarLocation.practice,
+    MyNavBarLocation.monthly,
+    MyNavBarLocation.stats,
+  ];
+  static final _indexToLocation = _locations.asMap();
+  static final _locationToIndex =
+      _indexToLocation.map((key, value) => MapEntry(value, key));
+  static final _items = _locations.map((location) => location.item).toList();
 
-  MyNavBar({@required this.location, this.drillData});
+  final MyNavBarLocation location;
+  final int currentIndex;
+
+  MyNavBar({@required this.location})
+      : currentIndex = _locationToIndex[location];
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = Colors.black;
     return BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_run),
-            label: 'Practice',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: (drillData != null ? 'Drill Stats' : 'Stats'),
-          ),
-        ],
-        currentIndex: _getIndex(location),
+        items: _items,
+        currentIndex: currentIndex,
         onTap: (int itemIndex) => _onTap(context, itemIndex));
   }
 
-  int _getIndex(MyNavBarLocation location) {
-    switch (location) {
-      case MyNavBarLocation.PRACTICE:
-        return 0;
-      case MyNavBarLocation.STATS:
-        return 1;
-      default:
-        throw Exception('Unknown location $location');
-    }
-  }
-
   void _onTap(BuildContext context, int itemIndex) {
-    if (itemIndex == _getIndex(location)) {
-      return;
-    }
-    switch (itemIndex) {
-      case 0:
-        if (drillData == null) {
-          Navigator.pushNamed(context, DrillTypesScreen.routeName);
-        } else {
-          PracticeConfigScreen.navigate(context, drillData);
-        }
-        break;
-      case 1:
-        if (drillData == null) {
-          MonthlyDrillsScreen.navigate(context);
-        } else {
-          DrillStatsScreen.navigate(context, drillData);
-        }
-        break;
-      default:
-        throw Exception('Unknown tap location $itemIndex');
+    if (itemIndex != currentIndex) {
+      Navigator.pushReplacementNamed(context, _locations[itemIndex].route);
     }
   }
 }

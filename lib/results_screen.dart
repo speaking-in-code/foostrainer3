@@ -53,8 +53,6 @@ class ResultsScreen extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(title: 'Results').build(context),
       body: _LoadedResultsScreen(staticDrills, resultsDb, args.drillId),
-      bottomNavigationBar:
-          MyNavBar(location: MyNavBarLocation.STATS, drillData: args.drillData),
     );
   }
 }
