@@ -26,19 +26,9 @@ class _Args {
   _Args(this.drillId, this.drillData);
 }
 
-// TODO: brian
-// - make it possible to navigate this screen again, right now it is unreachable
-// except by practicing.
-// - use the button row from the per-drill stats screen (History/Practice) instead
-// of the FAB.
-// - make the accuracy bar chart have labels
-//
-// For navigation, I think what we want is:
-// practice takes you to the all-drill practice screen.
-// stats takes you to the per-drill stats screen.
-// ... wtf does History and Practice do...?   I dunno. I just don't like the
-// FAB, it doesn't make sense here. Or maybe it should be a circle arrow, to
-// indicate it's repeating the drill...?
+// Make the bottom nav bar here smarter. Should be a choice between details, history
+// and practice, I think, with practice probably on bottom right. Highlight
+// whichever one we're on.
 class ResultsScreen extends StatelessWidget {
   static const routeName = '/results';
 
@@ -108,7 +98,7 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
             _summaryCard(summary, drillData),
           ];
           if (summary.drill.tracking) {
-            children.add(_drillDetails(perAction));
+            children.add(_accuracyChart(perAction));
           }
           return ListView(children: children);
         });
@@ -116,40 +106,31 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
 
   Widget _summaryCard(DrillSummary summary, DrillData drillData) {
     return TitledCard(
-        title: SizedBox(
-            width: double.infinity,
-            child: Text(drillData.name,
-                style: Theme.of(context).textTheme.headline5)),
+        title: drillData.name,
         child: StatsGridWidget(summary: summary, drillData: drillData));
   }
 
-  Widget _drillDetails(AggregatedDrillSummary perAction) {
+  // Reorder entries here by order in StaticDrills, not alphabetical order.
+  Widget _accuracyChart(AggregatedDrillSummary perAction) {
     List<AggregatedAction> data = perAction.actions.values.toList();
-    data.forEach((element) {
-      _log.info('Accuracy: ${element.action} => ${element.accuracy}');
-    });
     final accuracy = charts.Series<AggregatedAction, String>(
       id: 'accuracy',
       domainFn: (AggregatedAction action, _) => action.action,
       measureFn: (AggregatedAction action, _) => action.accuracy,
       data: data,
+      labelAccessorFn: (AggregatedAction action, _) =>
+          PercentFormatter.format(action.accuracy),
     );
-    int desiredLegendRows = 2;
-    if (MediaQuery.of(context).orientation == Orientation.landscape) {
-      desiredLegendRows = 1;
-    }
     final chart = charts.BarChart(
       [accuracy],
       animate: true,
-      //behaviors: [
-      // charts.ChartTitle('ewrwe', titleStyleSpec: chart_utils.titleStyle),
-      //],
-      primaryMeasureAxis: new charts.PercentAxisSpec(
-          renderSpec: charts.GridlineRendererSpec(
-        labelStyle: chart_utils.axisLabelStyle,
-        lineStyle: chart_utils.axisLineStyle,
-      )),
+      barRendererDecorator: charts.BarLabelDecorator<String>(),
+      domainAxis: charts.OrdinalAxisSpec(
+        renderSpec: charts.SmallTickRendererSpec(
+          labelStyle: chart_utils.axisLabelStyle,
+        ),
+      ),
     );
-    return Card(child: chart_utils.paddedChart(chart));
+    return TitledCard(title: 'Accuracy', child: chart_utils.paddedChart(chart));
   }
 }

@@ -34,8 +34,9 @@ charts.DateTimeAxisSpec dateTimeAxis(DateTime start, DateTime end) {
 }
 
 Widget paddedChart(Widget chart) {
-  return Padding(
-    padding: EdgeInsets.all(8.0),
+  return Container(
+    padding: EdgeInsets.all(10.0),
+    // margin: EdgeInsets.only(bottom: 50),
     child: Column(children: [
       SizedBox(height: 250.0, child: chart),
     ]),

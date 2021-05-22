@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class TitledCard extends StatelessWidget {
   static const _padding = 16.0;
-  final Widget title;
+  final String title;
   final Widget child;
 
   TitledCard({@required this.title, @required this.child})
@@ -14,10 +14,18 @@ class TitledCard extends StatelessWidget {
     return Card(
         child: Column(
       children: [
-        Padding(padding: EdgeInsets.all(_padding), child: title),
+        _titleWidget(context),
         Divider(indent: _padding, endIndent: _padding),
         child,
       ],
     ));
+  }
+
+  Widget _titleWidget(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.all(_padding),
+        child: SizedBox(
+            width: double.infinity,
+            child: Text(title, style: Theme.of(context).textTheme.headline5)));
   }
 }

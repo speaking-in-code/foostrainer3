@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'date_formatter.dart';
 import 'drill_data.dart';
 import 'duration_formatter.dart';
 import 'percent_formatter.dart';
@@ -23,18 +22,19 @@ class StatsGridWidget extends StatelessWidget {
       mainAxisSpacing: 0,
       crossAxisSpacing: 0,
       children: [
-        _time(context),
-        _duration(context),
+        //_time(context),
         _type(context),
+        _duration(context),
         _reps(context),
-        _success(context),
+        //_success(context),
         _accuracy(context),
       ],
     );
   }
 
   Widget _type(BuildContext context) {
-    return _labeledData(context, label: 'Type', data: drillData.type);
+    final label = drillData.possessionSeconds == 15 ? 'Shot' : 'Pass';
+    return _labeledData(context, label: label, data: drillData.type);
   }
 
   Widget _time(BuildContext context) {
@@ -49,7 +49,11 @@ class StatsGridWidget extends StatelessWidget {
   }
 
   Widget _reps(BuildContext context) {
-    return _labeledData(context, label: 'Reps', data: '${summary.reps}');
+    String repsString = '${summary.reps}';
+    if (summary.good != null) {
+      repsString = '${summary.good}/${summary.reps}';
+    }
+    return _labeledData(context, label: 'Reps', data: repsString);
   }
 
   Widget _success(BuildContext context) {
