@@ -14,6 +14,8 @@ import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
 import 'static_drills.dart';
+import 'stats_grid_widget.dart';
+import 'titled_card.dart';
 
 final _log = Log.get('results_screen');
 
@@ -40,6 +42,10 @@ class _Args {
 class ResultsScreen extends StatelessWidget {
   static const routeName = '/results';
 
+  static void push(BuildContext context, int drillId, DrillData drillData) =>
+      Navigator.pushNamed(context, routeName,
+          arguments: _Args(drillId, drillData));
+
   static void pushReplacement(
       BuildContext context, int drillId, DrillData drillData) {
     Navigator.pushReplacementNamed(context, routeName,
@@ -57,8 +63,8 @@ class ResultsScreen extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(title: 'Results').build(context),
       body: _LoadedResultsScreen(staticDrills, resultsDb, args.drillId),
-      bottomNavigationBar: MyNavBar(
-          location: MyNavBarLocation.PRACTICE, drillData: args.drillData),
+      bottomNavigationBar:
+          MyNavBar(location: MyNavBarLocation.STATS, drillData: args.drillData),
     );
   }
 }
@@ -109,63 +115,12 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
   }
 
   Widget _summaryCard(DrillSummary summary, DrillData drillData) {
-    return Card(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(
-          padding: const EdgeInsets.all(8),
-          child: Text(drillData.name,
-              style: Theme.of(context).textTheme.headline6)),
-      Center(
-          child: GridView.count(
-        childAspectRatio: 2,
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        children: [
-          _reps(summary),
-          _duration(summary),
-          _success(summary),
-          _accuracy(summary),
-        ],
-      )),
-    ]));
-  }
-
-  TextStyle get _labelStyle => Theme.of(context).textTheme.subtitle1;
-  TextStyle get _dataStyle => Theme.of(context).textTheme.headline5;
-
-  Widget _duration(DrillSummary summary) {
-    return _labeledData(
-        label: 'Duration',
-        data: DurationFormatter.format(summary.drill.elapsed));
-  }
-
-  Widget _reps(DrillSummary summary) {
-    return _labeledData(label: 'Reps', data: '${summary.reps}');
-  }
-
-  Widget _success(DrillSummary summary) {
-    return _labeledData(
-        label: 'Success',
-        data: summary.good != null ? '${summary.good}' : '--');
-  }
-
-  Widget _accuracy(DrillSummary summary) {
-    return _labeledData(
-        label: 'Accuracy',
-        data: PercentFormatter.formatAccuracy(
-            trackedReps: summary.reps, trackedGood: summary.good));
-  }
-
-  Widget _labeledData({String label, String data}) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text('$label', style: _labelStyle),
-        Text('$data', style: _dataStyle),
-      ],
-    );
+    return TitledCard(
+        title: SizedBox(
+            width: double.infinity,
+            child: Text(drillData.name,
+                style: Theme.of(context).textTheme.headline5)),
+        child: StatsGridWidget(summary: summary, drillData: drillData));
   }
 
   Widget _drillDetails(AggregatedDrillSummary perAction) {

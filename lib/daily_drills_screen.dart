@@ -11,6 +11,10 @@ import 'static_drills.dart';
 
 class DailyDrillsScreen extends StatelessWidget {
   static const routeName = '/daily';
+
+  static void push(BuildContext context, DateTime date) =>
+      Navigator.pushNamed(context, routeName, arguments: date);
+
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
 

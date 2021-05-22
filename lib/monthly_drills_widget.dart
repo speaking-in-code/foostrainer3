@@ -108,7 +108,6 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
   }
 
   void _onDateChanged(DateTime date) {
-    _log.info('Select is $date');
-    Navigator.pushNamed(context, DailyDrillsScreen.routeName, arguments: date);
+    DailyDrillsScreen.push(context, date);
   }
 }

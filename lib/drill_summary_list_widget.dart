@@ -6,7 +6,9 @@ import 'drill_details_widget.dart';
 import 'drill_stats_screen.dart';
 import 'practice_config_screen.dart';
 import 'results_entities.dart';
+import 'results_screen.dart';
 import 'static_drills.dart';
+import 'stats_grid_widget.dart';
 
 /// Displays a list of drills in expandable cards. The expanded view shows
 /// per-action statistics.
@@ -19,8 +21,9 @@ class DrillSummaryListWidget extends StatefulWidget {
         _panelData = _toPanelData(drills);
 
   static List<_PanelData> _toPanelData(List<DrillSummary> drills) {
-    final aggregated = AggregatedDrillSummary.aggregate(drills);
-    return aggregated.map((summary) => _PanelData(summary)).toList();
+    return drills.map((drill) => _PanelData(drill)).toList();
+    //final aggregated = AggregatedDrillSummary.aggregate(drills);
+    //return aggregated.map((summary) => _PanelData(summary)).toList();
   }
 
   @override
@@ -28,7 +31,7 @@ class DrillSummaryListWidget extends StatefulWidget {
 }
 
 class _PanelData {
-  final AggregatedDrillSummary drill;
+  final DrillSummary drill;
   bool isExpanded = false;
 
   _PanelData(this.drill);
@@ -51,46 +54,50 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
   }
 
   ExpansionPanel _buildPanel(_PanelData panelData) {
+    final drillData = widget.staticDrills.getDrill(panelData.drill.drill.drill);
+
     return ExpansionPanel(
         canTapOnHeader: true,
         headerBuilder: (BuildContext context, bool expanded) =>
-            _buildHeader(context, panelData.drill),
+            _buildHeader(context, panelData.drill, drillData),
         body: Column(children: [
-          DrillDetailsWidget(drill: panelData.drill),
-          _ActionButtons(
-              staticDrills: widget.staticDrills, drill: panelData.drill),
+          StatsGridWidget(summary: panelData.drill, drillData: drillData),
+          _ActionButtons(drill: panelData.drill, drillData: drillData),
         ]),
         isExpanded: panelData.isExpanded);
   }
 
-  Widget _buildHeader(BuildContext context, AggregatedDrillSummary drill) {
+  Widget _buildHeader(
+      BuildContext context, DrillSummary drill, DrillData drillData) {
     return ListTile(
-        subtitle: _title(drill),
+        subtitle: _title(drill, drillData),
         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16));
   }
 
-  Widget _title(AggregatedDrillSummary drill) {
-    final drillData = widget.staticDrills.getDrill(drill.drill);
-    final displayName = '${drillData.type}: ${drillData.name}';
+  Widget _title(DrillSummary drill, DrillData drillData) {
+    final displayName = '${drillData.name}';
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Expanded(
           flex: 3,
           child: Padding(
               padding: EdgeInsets.only(right: 5.0), child: Text(displayName))),
-      Expanded(flex: 1, child: Text('${drill.reps}')),
+      // Expanded(flex: 1, child: Text('${drill.reps}')),
     ]);
   }
 }
 
 class _ActionButtons extends StatelessWidget {
-  final StaticDrills staticDrills;
-  final AggregatedDrillSummary drill;
+  final DrillSummary drill;
+  final DrillData drillData;
 
-  _ActionButtons({this.staticDrills, this.drill});
+  _ActionButtons({this.drill, this.drillData});
 
   Widget build(BuildContext context) {
-    final DrillData drillData = staticDrills.getDrill(drill.drill);
     return ButtonBar(children: [
+      OutlinedButton(
+          child: Text('Details'),
+          onPressed: () =>
+              ResultsScreen.push(context, drill.drill.id, drillData)),
       OutlinedButton(
           child: Text('History'),
           onPressed: () => DrillStatsScreen.navigate(context, drillData)),

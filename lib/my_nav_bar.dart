@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:ft3/practice_config_screen.dart';
+
 import 'package:meta/meta.dart' show required;
 
 import 'drill_data.dart';
 import 'drill_stats_screen.dart';
 import 'drill_types_screen.dart';
 import 'stats_screen.dart';
+import 'monthly_drills_screen.dart';
+import 'practice_config_screen.dart';
 
 enum MyNavBarLocation {
   PRACTICE,
@@ -27,7 +29,7 @@ class MyNavBar extends StatelessWidget {
             label: 'Practice',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.timeline),
+            icon: Icon(Icons.calendar_today),
             label: (drillData != null ? 'Drill Stats' : 'Stats'),
           ),
         ],
@@ -60,7 +62,7 @@ class MyNavBar extends StatelessWidget {
         break;
       case 1:
         if (drillData == null) {
-          Navigator.pushNamed(context, StatsScreen.routeName);
+          MonthlyDrillsScreen.navigate(context);
         } else {
           DrillStatsScreen.navigate(context, drillData);
         }
