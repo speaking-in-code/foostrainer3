@@ -19,8 +19,9 @@ class StatsGridWidget extends StatelessWidget {
       childAspectRatio: 2,
       crossAxisCount: 2,
       shrinkWrap: true,
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
+      primary: false, // disables scroll effects
+      mainAxisSpacing: 0,
+      crossAxisSpacing: 0,
       children: [
         _time(context),
         _duration(context),
@@ -68,9 +69,16 @@ class StatsGridWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('$label', style: Theme.of(context).textTheme.subtitle1),
+        Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text('$label', style: _headerStyle(context))),
         Text('$data', style: Theme.of(context).textTheme.headline5),
       ],
     );
+  }
+
+  TextStyle _headerStyle(BuildContext context) {
+    TextStyle headerStyle = Theme.of(context).textTheme.subtitle1;
+    return headerStyle.apply(color: headerStyle.color.withOpacity(.8));
   }
 }
