@@ -32,6 +32,13 @@ void main() async {
 class MainApp extends StatelessWidget {
   static final _analytics = FirebaseAnalytics();
   static final _observer = FirebaseAnalyticsObserver(analytics: _analytics);
+  static final _barBackground = Colors.black87;
+  static final _darkTheme = ThemeData.dark().copyWith(
+    appBarTheme: AppBarTheme(backgroundColor: _barBackground),
+    bottomNavigationBarTheme:
+        BottomNavigationBarThemeData(backgroundColor: _barBackground),
+    bottomAppBarTheme: BottomAppBarTheme(color: _barBackground),
+  );
   final ResultsDatabase resultsDb;
   final StaticDrills drills;
 
@@ -41,16 +48,9 @@ class MainApp extends StatelessWidget {
   // connection to the service.
   @override
   Widget build(BuildContext context) {
-    final appBarBackground = Colors.black87;
-    final darkTheme = ThemeData.dark().copyWith(
-      appBarTheme: AppBarTheme(backgroundColor: appBarBackground),
-      bottomNavigationBarTheme:
-          BottomNavigationBarThemeData(backgroundColor: appBarBackground),
-      bottomAppBarTheme: BottomAppBarTheme(color: appBarBackground),
-    );
     return MaterialApp(
       title: 'FoosTrainer',
-      theme: darkTheme,
+      theme: _darkTheme,
       navigatorObservers: <NavigatorObserver>[_observer],
       initialRoute: DrillTypesScreen.routeName,
       routes: {
