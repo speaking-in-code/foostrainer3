@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:ft3/titled_card.dart';
 
+import 'chart_utils.dart' as chart_utils;
 import 'drill_chooser_screen.dart';
 import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
+import 'reps_over_time_chart.dart';
 import 'results_db.dart';
+import 'results_entities.dart';
 import 'static_drills.dart';
+import 'titled_card.dart';
 import 'log.dart';
 
 final _log = Log.get('progress_screen');
 
-class ProgressScreen extends StatelessWidget {
+class ProgressScreen extends StatefulWidget {
   static const routeName = '/progress';
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
@@ -20,6 +23,29 @@ class ProgressScreen extends StatelessWidget {
   ProgressScreen({@required this.staticDrills, @required this.resultsDb})
       : assert(staticDrills != null),
         assert(resultsDb != null);
+
+  @override
+  State<StatefulWidget> createState() => ProgressScreenState();
+}
+
+class ProgressScreenState extends State<ProgressScreen> {
+  Future<List<AggregatedDrillSummary>> drillHistory;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture();
+    widget._drillValue.addListener(_initFuture);
+  }
+
+  void _initFuture() {
+    String drill = widget._drillValue.value?.fullName;
+    _log.info('Reloading data, drill=$drill');
+    setState(() {
+      drillHistory = widget.resultsDb.summariesDao.loadWeeklyDrills(
+          drill: drill, numWeeks: chart_utils.maxWeeks, offset: 0);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,22 +57,29 @@ class ProgressScreen extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context) {
+    return SingleChildScrollView(
+        child: Column(children: [
+      _configWidget(),
+      RepsOverTimeChart(drillHistory: drillHistory),
+    ]));
+  }
+
+  Widget _configWidget() {
     final buttons = ButtonBar(alignment: MainAxisAlignment.end, children: [
       _TimeWindowSelector(),
       _buildDrillSelector(),
     ]);
-    return SingleChildScrollView(
-        child: Column(children: [
-      Card(
-          child: Column(children: [
-        _SelectedDrill(drillValue: _drillValue),
+    return Card(
+      child: Column(children: [
+        _SelectedDrill(drillValue: widget._drillValue),
         buttons,
-      ])),
-    ]));
+      ]),
+    );
   }
 
   Widget _buildDrillSelector() {
-    return _DrillSelector(staticDrills: staticDrills, drillValue: _drillValue);
+    return _DrillSelector(
+        staticDrills: widget.staticDrills, drillValue: widget._drillValue);
   }
 }
 
