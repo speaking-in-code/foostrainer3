@@ -25,7 +25,7 @@ class StatsScreen extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(title: title).build(context),
       body: _buildBody(context),
-      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.stats),
+      // bottomNavigationBar: MyNavBar(location: MyNavBarLocation.stats),
     );
   }
 

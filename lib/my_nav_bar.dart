@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:meta/meta.dart' show required;
 
-import 'drill_stats_screen.dart';
 import 'drill_types_screen.dart';
 import 'monthly_drills_screen.dart';
+import 'progress_screen.dart';
 
 class MyNavBarLocation {
   final BottomNavigationBarItem item;
@@ -30,19 +30,19 @@ class MyNavBarLocation {
 
   // TODO: this navigation won't work, make the drill stats screen show
   // some overall charts with drill down options.
-  static const MyNavBarLocation stats = MyNavBarLocation._create(
+  static const MyNavBarLocation progress = MyNavBarLocation._create(
       item: BottomNavigationBarItem(
         icon: Icon(Icons.show_chart),
-        label: 'Stats',
+        label: 'Progress',
       ),
-      route: DrillStatsScreen.routeName);
+      route: ProgressScreen.routeName);
 }
 
 class MyNavBar extends StatelessWidget {
   static final _locations = [
     MyNavBarLocation.practice,
     MyNavBarLocation.monthly,
-    MyNavBarLocation.stats,
+    MyNavBarLocation.progress,
   ];
   static final _indexToLocation = _locations.asMap();
   static final _locationToIndex =
@@ -57,7 +57,6 @@ class MyNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = Colors.black;
     return BottomNavigationBar(
         items: _items,
         currentIndex: currentIndex,

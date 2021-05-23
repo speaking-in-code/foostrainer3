@@ -13,6 +13,7 @@ import 'drill_types_screen.dart';
 import 'log.dart';
 import 'practice_config_screen.dart';
 import 'practice_screen.dart';
+import 'progress_screen.dart';
 import 'results_db.dart';
 import 'results_screen.dart';
 import 'static_drills.dart';
@@ -66,6 +67,8 @@ class MainApp extends StatelessWidget {
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) =>
             PracticeScreen(staticDrills: drills),
+        ProgressScreen.routeName: (context) =>
+            ProgressScreen(staticDrills: drills, resultsDb: resultsDb),
         ResultsScreen.routeName: (context) =>
             ResultsScreen(staticDrills: drills, resultsDb: resultsDb),
         DebugScreen.routeName: (context) =>

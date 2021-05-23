@@ -26,6 +26,6 @@ class TitledCard extends StatelessWidget {
         padding: EdgeInsets.all(_padding),
         child: SizedBox(
             width: double.infinity,
-            child: Text(title, style: Theme.of(context).textTheme.headline5)));
+            child: Text(title, style: Theme.of(context).textTheme.headline6)));
   }
 }
