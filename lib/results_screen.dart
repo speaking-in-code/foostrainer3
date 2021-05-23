@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-import 'aggregated_drill_summary.dart';
 import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
-import 'drill_details_widget.dart';
-import 'duration_formatter.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
-import 'my_nav_bar.dart';
 import 'percent_formatter.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
@@ -91,12 +87,11 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
           }
           final summary = snapshot.data;
           final drillData = widget.staticDrills.getDrill(summary.drill.drill);
-          final perAction = AggregatedDrillSummary.fromSummary(summary);
           final children = [
             _summaryCard(summary, drillData),
           ];
           if (summary.drill.tracking) {
-            children.add(_accuracyChart(perAction));
+            children.add(_accuracyChart(summary, drillData));
           }
           return ListView(children: children);
         });
@@ -108,15 +103,24 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
         child: StatsGridWidget(summary: summary, drillData: drillData));
   }
 
+  List<_PerActionAccuracy> _perActionAccuracy(
+      DrillSummary summary, DrillData drillData) {
+    final perAction = drillData.actions.map((ActionData action) {
+      double accuracy = summary.actions[action.label]?.accuracy;
+      return _PerActionAccuracy(action.label, accuracy);
+    });
+    return perAction.toList();
+  }
+
   // Reorder entries here by order in StaticDrills, not alphabetical order.
-  Widget _accuracyChart(AggregatedDrillSummary perAction) {
-    List<AggregatedAction> data = perAction.actions.values.toList();
-    final accuracy = charts.Series<AggregatedAction, String>(
+  Widget _accuracyChart(DrillSummary summary, DrillData drillData) {
+    List<_PerActionAccuracy> data = _perActionAccuracy(summary, drillData);
+    final accuracy = charts.Series<_PerActionAccuracy, String>(
       id: 'accuracy',
-      domainFn: (AggregatedAction action, _) => action.action,
-      measureFn: (AggregatedAction action, _) => action.accuracy,
+      domainFn: (_PerActionAccuracy action, _) => action.action,
+      measureFn: (_PerActionAccuracy action, _) => action.accuracy,
       data: data,
-      labelAccessorFn: (AggregatedAction action, _) =>
+      labelAccessorFn: (_PerActionAccuracy action, _) =>
           PercentFormatter.format(action.accuracy),
     );
     final chart = charts.BarChart(
@@ -131,4 +135,11 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
     );
     return TitledCard(title: 'Accuracy', child: chart_utils.paddedChart(chart));
   }
+}
+
+class _PerActionAccuracy {
+  final String action;
+  final double accuracy;
+
+  _PerActionAccuracy(this.action, this.accuracy);
 }

@@ -137,6 +137,23 @@ class AggregatedActionReps extends Equatable {
   List<Object> get props => [startDay, endDay, action, reps, accuracy];
 }
 
+class AggregatedActionRepsBuilder {
+  String startDayStr;
+  String endDayStr;
+  String action;
+  int reps = 0;
+  int trackedReps = 0;
+  int trackedGood = 0;
+
+  AggregatedActionReps build() {
+    double accuracy;
+    if (trackedReps > 0) {
+      accuracy = trackedGood / trackedReps;
+    }
+    return AggregatedActionReps(startDayStr, endDayStr, action, reps, accuracy);
+  }
+}
+
 int _secondsSinceEpoch(DateTime dt) {
   return dt.millisecondsSinceEpoch ~/ 1000;
 }
