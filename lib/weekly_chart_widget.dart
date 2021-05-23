@@ -29,8 +29,8 @@ class WeeklyChartWidget extends StatefulWidget {
 }
 
 class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
-  Future<List<WeeklyDrillSummary>> _weeks;
-  final ValueNotifier<WeeklyDrillSummary> _selected = ValueNotifier(null);
+  Future<List<AggregatedDrillSummary>> _weeks;
+  final ValueNotifier<AggregatedDrillSummary> _selected = ValueNotifier(null);
 
   @override
   void initState() {
@@ -46,8 +46,8 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
     return FutureBuilder(future: _weeks, builder: _buildSummaries);
   }
 
-  Widget _buildSummaries(
-      BuildContext context, AsyncSnapshot<List<WeeklyDrillSummary>> snapshot) {
+  Widget _buildSummaries(BuildContext context,
+      AsyncSnapshot<List<AggregatedDrillSummary>> snapshot) {
     if (snapshot.hasError) {
       return Text('Oh snap: ${snapshot.error}');
     }
@@ -68,34 +68,34 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
     ]);
   }
 
-  int _estGood(WeeklyDrillSummary summary) {
+  int _estGood(AggregatedDrillSummary summary) {
     double multiplier = summary.accuracy ?? 0.0;
     return (summary.reps * multiplier).round();
   }
 
-  int _estMissed(WeeklyDrillSummary summary) {
+  int _estMissed(AggregatedDrillSummary summary) {
     return summary.reps - _estGood(summary);
   }
 
-  Widget _buildChart(BuildContext context, List<WeeklyDrillSummary> data) {
+  Widget _buildChart(BuildContext context, List<AggregatedDrillSummary> data) {
     final endTime = data.last.startDay;
     DateTime startTime = data.first.startDay;
     if (data.length > chart_utils.maxWeeksDisplayed) {
       startTime = data[data.length - chart_utils.maxWeeksDisplayed].startDay;
     }
     // final startTime = endTime.subtract(_displayedTime);
-    final good = charts.Series<WeeklyDrillSummary, DateTime>(
+    final good = charts.Series<AggregatedDrillSummary, DateTime>(
       id: 'Good',
       seriesColor: charts.MaterialPalette.blue.shadeDefault.lighter,
-      domainFn: (WeeklyDrillSummary summary, _) => summary.startDay,
-      measureFn: (WeeklyDrillSummary summary, _) => _estGood(summary),
+      domainFn: (AggregatedDrillSummary summary, _) => summary.startDay,
+      measureFn: (AggregatedDrillSummary summary, _) => _estGood(summary),
       data: data,
     );
-    final missed = charts.Series<WeeklyDrillSummary, DateTime>(
+    final missed = charts.Series<AggregatedDrillSummary, DateTime>(
       id: 'Missed',
       seriesColor: charts.MaterialPalette.blue.shadeDefault,
-      domainFn: (WeeklyDrillSummary summary, _) => summary.startDay,
-      measureFn: (WeeklyDrillSummary summary, _) => _estMissed(summary),
+      domainFn: (AggregatedDrillSummary summary, _) => summary.startDay,
+      measureFn: (AggregatedDrillSummary summary, _) => _estMissed(summary),
       data: data,
     );
     final chart = charts.TimeSeriesChart([good, missed],
@@ -131,7 +131,7 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
 
   void _onSelectionChanged(charts.SelectionModel<DateTime> selected) {
     if (selected.selectedDatum != null && selected.selectedDatum.isNotEmpty) {
-      WeeklyDrillSummary week = selected.selectedDatum[0].datum;
+      AggregatedDrillSummary week = selected.selectedDatum[0].datum;
       _selected.value = week;
     } else {
       _selected.value = null;
@@ -143,7 +143,7 @@ class _WeekSummary extends StatefulWidget {
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
   final DrillData drill;
-  final ValueNotifier<WeeklyDrillSummary> selected;
+  final ValueNotifier<AggregatedDrillSummary> selected;
 
   _WeekSummary({this.staticDrills, this.resultsDb, this.drill, this.selected});
 
@@ -152,7 +152,7 @@ class _WeekSummary extends StatefulWidget {
 }
 
 class _WeekSummaryState extends State<_WeekSummary> {
-  WeeklyDrillSummary _week;
+  AggregatedDrillSummary _week;
   Future<List<DrillSummary>> _table;
 
   @override

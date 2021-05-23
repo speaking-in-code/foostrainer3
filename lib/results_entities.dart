@@ -133,14 +133,14 @@ class DrillSummary {
 }
 
 /// Summary of drill results by day.
-class WeeklyDrillSummary extends Equatable {
+class AggregatedDrillSummary extends Equatable {
   final DateTime startDay;
   final DateTime endDay;
   final int elapsedSeconds;
   final int reps;
   final double accuracy;
 
-  WeeklyDrillSummary(this.startDay, DateTime endDay, this.elapsedSeconds,
+  AggregatedDrillSummary(this.startDay, DateTime endDay, this.elapsedSeconds,
       this.reps, this.accuracy)
       : endDay = endDay.add(Duration(days: 1));
 

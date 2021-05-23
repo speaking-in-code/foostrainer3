@@ -23,7 +23,7 @@ void main() {
       await db.close();
     });
 
-    Future<List<WeeklyDrillSummary>> _summary(
+    Future<List<AggregatedDrillSummary>> _summary(
         {String drill, String action}) async {
       const MAX_WEEKS = 4;
       return summaries.loadWeeklyDrills(
@@ -45,7 +45,7 @@ void main() {
       expect(
           oneDrill,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 0, null)
           ]));
     });
@@ -60,7 +60,7 @@ void main() {
       expect(
           summary,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 0, null)
           ]));
       expect(summary[0].startDay.weekday, equals(DateTime.monday));
@@ -83,9 +83,9 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 0, null),
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 17), DateTime(2017, 7, 23), 300, 0, null),
           ]));
     });
@@ -102,10 +102,10 @@ void main() {
           elapsedSeconds: 60));
       await actions.incrementAction(drillId, 'Lane', false);
 
-      List<WeeklyDrillSummary> summaryList =
+      List<AggregatedDrillSummary> summaryList =
           await summaries.loadWeeklyDrills(numWeeks: 10, offset: 0);
       expect(summaryList.length, equals(1));
-      WeeklyDrillSummary weekly = summaryList.first;
+      AggregatedDrillSummary weekly = summaryList.first;
       List<DrillSummary> found =
           await summaries.loadDrillsByDate(db, weekly.startDay, weekly.endDay);
       expect(found.length, equals(1),
@@ -140,7 +140,7 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 0, null),
           ]));
     });
@@ -160,7 +160,7 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 250, 0.48),
           ]));
     });
@@ -243,7 +243,7 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 60, 250, null),
           ]));
     });
@@ -273,7 +273,7 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 1800, 350, 0.5),
           ]));
     });
@@ -296,13 +296,13 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 8, 21), DateTime(2017, 8, 27), 1200, 250, 0.0),
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 8, 28), DateTime(2017, 9, 3), 1200, 250, 0.0),
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 9, 4), DateTime(2017, 9, 10), 1200, 250, 0.0),
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 9, 11), DateTime(2017, 9, 17), 1200, 250, 0.0),
           ]));
     });
@@ -332,14 +332,14 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 600, 100, null),
           ]));
       weeks = await _summary(drill: 'Pass:Brush Pass');
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 1200, 100, 0.6),
           ]));
     });
@@ -369,14 +369,14 @@ void main() {
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), null, 50, 0.8),
           ]));
       weeks = await _summary(action: 'Wall');
       expect(
           weeks,
           equals([
-            WeeklyDrillSummary(
+            AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), null, 100, 0.7),
           ]));
     });

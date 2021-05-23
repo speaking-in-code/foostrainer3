@@ -88,8 +88,9 @@ class _WeeklyDrillSummaryBuilder {
   int reps;
   double accuracy;
 
-  WeeklyDrillSummary build() {
-    return WeeklyDrillSummary(startDay, endDay, elapsedSeconds, reps, accuracy);
+  AggregatedDrillSummary build() {
+    return AggregatedDrillSummary(
+        startDay, endDay, elapsedSeconds, reps, accuracy);
   }
 }
 
@@ -242,7 +243,7 @@ abstract class SummariesDao {
   }
 
   // Return a weekly summary of drill progress, most recent first.
-  Future<List<WeeklyDrillSummary>> loadWeeklyDrills(
+  Future<List<AggregatedDrillSummary>> loadWeeklyDrills(
       {String drill, String action, int numWeeks, int offset}) async {
     drill ??= '';
     action ??= '';
@@ -294,7 +295,7 @@ abstract class SummariesDao {
   Future<List<_WeeklyDrillReps>> _weeklyDrillReps(bool matchDrill, String drill,
       bool matchAction, String action, int numWeeks, int offset);
 
-  List<WeeklyDrillSummary> _mergeWeekly(
+  List<AggregatedDrillSummary> _mergeWeekly(
       List<_WeeklyDrillTime> times, List<_WeeklyDrillReps> reps) {
     final builders = Map<String, _WeeklyDrillSummaryBuilder>();
     times.forEach((time) {
@@ -308,9 +309,9 @@ abstract class SummariesDao {
       b.reps = rep.reps;
       b.accuracy = rep.accuracy;
     });
-    List<WeeklyDrillSummary> out =
+    List<AggregatedDrillSummary> out =
         builders.values.map((b) => b.build()).toList();
-    out.sort((WeeklyDrillSummary a, WeeklyDrillSummary b) =>
+    out.sort((AggregatedDrillSummary a, AggregatedDrillSummary b) =>
         a.startDay.compareTo(b.startDay));
     return out;
   }
