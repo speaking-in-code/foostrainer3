@@ -16,7 +16,7 @@ class MyNavBarLocation {
 
   static const MyNavBarLocation practice = MyNavBarLocation._create(
       item: BottomNavigationBarItem(
-        icon: Icon(Icons.directions_run),
+        icon: Icon(Icons.play_arrow),
         label: 'Practice',
       ),
       route: DrillTypesScreen.routeName);

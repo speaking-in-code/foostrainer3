@@ -12,6 +12,22 @@ final _log = Log.get('drill_chooser_screen');
 /// This is intended to be shown with showDialog(), which returns the se
 /// selected node as Future<DrillData>.
 class DrillChooserScreen extends StatefulWidget {
+  static Future<DrillData> startDialog(BuildContext context,
+      {@required StaticDrills staticDrills,
+      DrillData selected,
+      bool allowAll = false}) async {
+    DrillData chosen = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (context) => DrillChooserScreen(
+                  staticDrills: staticDrills,
+                  selected: selected,
+                  allowAll: allowAll,
+                )));
+    return chosen;
+  }
+
   final StaticDrills staticDrills;
   final DrillData selected;
   final bool allowAll;

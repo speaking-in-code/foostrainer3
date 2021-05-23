@@ -8,7 +8,6 @@ import 'package:ft3/monthly_drills_screen.dart';
 
 import 'album_art.dart';
 import 'debug_screen.dart';
-import 'drill_list_screen.dart';
 import 'drill_types_screen.dart';
 import 'log.dart';
 import 'practice_config_screen.dart';
@@ -58,8 +57,7 @@ class MainApp extends StatelessWidget {
         DailyDrillsScreen.routeName: (context) =>
             DailyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
         DrillTypesScreen.routeName: (context) =>
-            AudioServiceWidget(child: DrillTypesScreen(drills)),
-        DrillListScreen.routeName: (context) => DrillListScreen(),
+            AudioServiceWidget(child: DrillTypesScreen(staticDrills: drills)),
         DrillStatsScreen.routeName: (context) =>
             DrillStatsScreen(staticDrills: drills, resultsDb: resultsDb),
         MonthlyDrillsScreen.routeName: (context) =>

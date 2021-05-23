@@ -69,11 +69,11 @@ class _SelectedDrillState extends State<_SelectedDrill> {
 
   @override
   Widget build(BuildContext context) {
-    String title = 'Type: All';
+    String title = 'Drill: All';
     Text subtitle;
     DrillData drillData = widget.drillValue.value;
     if (drillData != null) {
-      title = 'Type: ${drillData.type}';
+      title = 'Drill: ${drillData.type}';
       subtitle = Text(widget.drillValue.value.name);
     }
     return ListTile(title: Text(title), subtitle: subtitle);
@@ -150,14 +150,8 @@ class _DrillSelectorState extends State<_DrillSelector> {
   }
 
   void _onDrillSelectorPressed() async {
-    DrillData chosen = await Navigator.push(
-        context,
-        MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (context) => DrillChooserScreen(
-                staticDrills: widget.staticDrills,
-                selected: selected,
-                allowAll: true)));
+    DrillData chosen = await DrillChooserScreen.startDialog(context,
+        staticDrills: widget.staticDrills, selected: selected, allowAll: true);
     _log.info('Setting new value of ${chosen?.fullName}');
     widget.drillValue.value = chosen;
     setState(() {
