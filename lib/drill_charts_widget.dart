@@ -25,7 +25,7 @@ class DrillChartsWidget extends StatefulWidget {
 }
 
 class DrillChartsWidgetState extends State<DrillChartsWidget> {
-  Future<List<WeeklyActionReps>> _actions;
+  Future<List<AggregatedActionReps>> _actions;
 
   @override
   void initState() {
@@ -39,8 +39,8 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
     return FutureBuilder(future: _actions, builder: _handleSnapshot);
   }
 
-  Widget _handleSnapshot(
-      BuildContext context, AsyncSnapshot<List<WeeklyActionReps>> snapshot) {
+  Widget _handleSnapshot(BuildContext context,
+      AsyncSnapshot<List<AggregatedActionReps>> snapshot) {
     if (snapshot.hasError) {
       return Text('Oh snap: ${snapshot.error}');
     }
@@ -57,9 +57,9 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
   }
 
   Widget _buildAccuracyChart(
-      BuildContext context, List<WeeklyActionReps> data) {
+      BuildContext context, List<AggregatedActionReps> data) {
     final split = _splitByAction(data);
-    final series = <charts.Series<WeeklyActionReps, DateTime>>[];
+    final series = <charts.Series<AggregatedActionReps, DateTime>>[];
     split.forEach((action, week) {
       series.add(_makeAccuracySeries(action, week));
     });
@@ -93,27 +93,27 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
     return chart_utils.paddedChart(chart);
   }
 
-  Map<String, List<WeeklyActionReps>> _splitByAction(
-      List<WeeklyActionReps> data) {
-    final actionTable = SplayTreeMap<String, List<WeeklyActionReps>>();
-    data.forEach((WeeklyActionReps item) {
+  Map<String, List<AggregatedActionReps>> _splitByAction(
+      List<AggregatedActionReps> data) {
+    final actionTable = SplayTreeMap<String, List<AggregatedActionReps>>();
+    data.forEach((AggregatedActionReps item) {
       if (item.accuracy == null) return;
       final list = actionTable.putIfAbsent(item.action, () => []);
       list.add(item);
     });
-    actionTable.values.forEach((List<WeeklyActionReps> items) {
-      items.sort((WeeklyActionReps a, WeeklyActionReps b) =>
+    actionTable.values.forEach((List<AggregatedActionReps> items) {
+      items.sort((AggregatedActionReps a, AggregatedActionReps b) =>
           a.startDay.compareTo(b.startDay));
     });
     return actionTable;
   }
 
-  charts.Series<WeeklyActionReps, DateTime> _makeAccuracySeries(
-      String action, List<WeeklyActionReps> weeks) {
-    return charts.Series<WeeklyActionReps, DateTime>(
+  charts.Series<AggregatedActionReps, DateTime> _makeAccuracySeries(
+      String action, List<AggregatedActionReps> weeks) {
+    return charts.Series<AggregatedActionReps, DateTime>(
         id: action,
-        domainFn: (WeeklyActionReps reps, _) => reps.startDay,
-        measureFn: (WeeklyActionReps reps, _) => reps.accuracy,
+        domainFn: (AggregatedActionReps reps, _) => reps.startDay,
+        measureFn: (AggregatedActionReps reps, _) => reps.accuracy,
         data: weeks);
   }
 }

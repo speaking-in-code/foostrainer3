@@ -95,7 +95,7 @@ class _$ResultsDatabase extends ResultsDatabase {
         await database.execute(
             '''CREATE VIEW IF NOT EXISTS `_WeeklyDrillReps` AS SELECT NULL''');
         await database.execute(
-            '''CREATE VIEW IF NOT EXISTS `WeeklyActionReps` AS SELECT NULL''');
+            '''CREATE VIEW IF NOT EXISTS `AggregatedActionReps` AS SELECT NULL''');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -358,12 +358,12 @@ class _$SummariesDao extends SummariesDao {
   }
 
   @override
-  Future<List<WeeklyActionReps>> loadWeeklyActionReps(
+  Future<List<AggregatedActionReps>> loadWeeklyActionReps(
       String drill, int numWeeks, int offset) async {
     return _queryAdapter.queryList(
         'SELECT DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDayStr, DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDayStr, Actions.action action, IFNULL(SUM(reps), 0) reps, (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy FROM Drills LEFT JOIN Actions ON Drills.id = Actions.drillId WHERE drill = ? GROUP BY startDayStr, action ORDER BY startDayStr DESC, action LIMIT ? OFFSET ?',
         arguments: <dynamic>[drill, numWeeks, offset],
-        mapper: (Map<String, dynamic> row) => WeeklyActionReps(
+        mapper: (Map<String, dynamic> row) => AggregatedActionReps(
             row['startDayStr'] as String,
             row['endDayStr'] as String,
             row['action'] as String,

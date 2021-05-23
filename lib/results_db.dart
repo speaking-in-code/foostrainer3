@@ -114,9 +114,9 @@ class _WeeklyDrillReps {
   _WeeklyDrillReps(this.startDay, this.endDay, this.reps, this.accuracy);
 }
 
-// Weekly action reps summary. Used as DB view via SummariesDao, not directly.
+// Aggregated action reps summary. Used as DB view via SummariesDao, not directly.
 @DatabaseView('SELECT NULL')
-class WeeklyActionReps extends Equatable {
+class AggregatedActionReps extends Equatable {
   final String startDayStr;
   @ignore
   final DateTime startDay;
@@ -127,7 +127,7 @@ class WeeklyActionReps extends Equatable {
   final int reps;
   final double accuracy;
 
-  WeeklyActionReps(
+  AggregatedActionReps(
       this.startDayStr, this.endDayStr, this.action, this.reps, this.accuracy)
       : startDay = DateTime.parse(startDayStr),
         endDay = DateTime.parse(endDayStr);
@@ -345,7 +345,7 @@ abstract class SummariesDao {
    LIMIT :numWeeks
    OFFSET :offset
   ''')
-  Future<List<WeeklyActionReps>> loadWeeklyActionReps(
+  Future<List<AggregatedActionReps>> loadWeeklyActionReps(
       String drill, int numWeeks, int offset);
 }
 
@@ -364,7 +364,7 @@ class ActionSummary {
   AllDrillDateRange,
   _WeeklyDrillTime,
   _WeeklyDrillReps,
-  WeeklyActionReps,
+  AggregatedActionReps,
 ])
 abstract class ResultsDatabase extends FloorDatabase {
   DrillsDao get drillsDao;

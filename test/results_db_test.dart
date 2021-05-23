@@ -563,7 +563,7 @@ void main() {
       expect(
           summary,
           containsAllInOrder([
-            WeeklyActionReps('2017-07-10', '2017-07-16', 'Lane', 10, 0),
+            AggregatedActionReps('2017-07-10', '2017-07-16', 'Lane', 10, 0),
           ]));
     });
 
@@ -584,8 +584,8 @@ void main() {
       expect(
           summary,
           containsAllInOrder([
-            WeeklyActionReps('2017-07-10', '2017-07-16', 'Lane', 10, 1.0),
-            WeeklyActionReps('2017-07-10', '2017-07-16', 'Wall', 10, 0),
+            AggregatedActionReps('2017-07-10', '2017-07-16', 'Lane', 10, 1.0),
+            AggregatedActionReps('2017-07-10', '2017-07-16', 'Wall', 10, 0),
           ]));
     });
 
@@ -606,8 +606,8 @@ void main() {
       expect(
           summary,
           containsAllInOrder([
-            WeeklyActionReps('2017-07-10', '2017-07-16', 'Lane', 10, null),
-            WeeklyActionReps('2017-07-10', '2017-07-16', 'Wall', 10, null),
+            AggregatedActionReps('2017-07-10', '2017-07-16', 'Lane', 10, null),
+            AggregatedActionReps('2017-07-10', '2017-07-16', 'Wall', 10, null),
           ]));
     });
   });
