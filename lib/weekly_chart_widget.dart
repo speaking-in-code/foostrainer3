@@ -78,11 +78,6 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
   }
 
   Widget _buildChart(BuildContext context, List<AggregatedDrillSummary> data) {
-    final endTime = data.last.startDay;
-    DateTime startTime = data.first.startDay;
-    if (data.length > chart_utils.maxWeeksDisplayed) {
-      startTime = data[data.length - chart_utils.maxWeeksDisplayed].startDay;
-    }
     // final startTime = endTime.subtract(_displayedTime);
     final good = charts.Series<AggregatedDrillSummary, DateTime>(
       id: 'Good',
@@ -125,7 +120,7 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
           )
         ],
         primaryMeasureAxis: chart_utils.numericAxisSpec,
-        domainAxis: chart_utils.dateTimeAxis(startTime, endTime));
+        domainAxis: chart_utils.dateTimeAxis(good));
     return chart_utils.paddedChart(chart);
   }
 

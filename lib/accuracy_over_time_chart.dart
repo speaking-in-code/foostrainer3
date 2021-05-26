@@ -5,26 +5,26 @@ import 'chart_utils.dart' as chart_utils;
 import 'results_entities.dart';
 import 'titled_section.dart';
 
-class RepsOverTimeChart extends StatelessWidget {
-  static const title = 'Reps Over Time';
+class AccuracyOverTimeChart extends StatelessWidget {
+  static const title = 'Accuracy Over Time';
   final List<AggregatedDrillSummary> drillHistory;
 
-  RepsOverTimeChart({this.drillHistory});
+  AccuracyOverTimeChart({this.drillHistory});
 
   @override
   Widget build(BuildContext context) {
     final series = _toRepsSeries(drillHistory);
     return TitledSection(
-        title: 'Reps Over Time',
+        title: 'Accuracy Over Time',
         child: chart_utils.paddedChart(_chart(series)));
   }
 
   charts.Series<AggregatedDrillSummary, DateTime> _toRepsSeries(
       List<AggregatedDrillSummary> data) {
     return charts.Series<AggregatedDrillSummary, DateTime>(
-        id: 'reps',
+        id: 'accuracy',
         domainFn: (AggregatedDrillSummary item, _) => item.startDay,
-        measureFn: (AggregatedDrillSummary item, _) => item.reps,
+        measureFn: (AggregatedDrillSummary item, _) => item.accuracy,
         data: data);
   }
 
@@ -39,7 +39,7 @@ class RepsOverTimeChart extends StatelessWidget {
           charts.DomainHighlighter(),
           charts.SelectNearest(),
         ],
-        primaryMeasureAxis: chart_utils.numericAxisSpec,
+        primaryMeasureAxis: chart_utils.percentAxisSpec,
         domainAxis: chart_utils.dateTimeAxis(series));
   }
 }

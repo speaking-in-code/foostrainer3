@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/accuracy_over_time_chart.dart';
 
 import 'chart_utils.dart' as chart_utils;
 import 'drill_chooser_screen.dart';
 import 'drill_data.dart';
+import 'inset_divider.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'reps_over_time_chart.dart';
@@ -60,7 +62,7 @@ class ProgressScreenState extends State<ProgressScreen> {
   Widget _buildBody(BuildContext context) {
     return Column(children: [
       _configWidget(),
-      Divider(indent: 16, endIndent: 16, thickness: 2),
+      InsetDivider(thickness: 2),
       _DrillCharts(drillHistory: drillHistory),
     ]);
   }
@@ -107,6 +109,8 @@ class _DrillChartsState extends State<_DrillCharts> {
         child: SingleChildScrollView(
             child: Column(children: [
       RepsOverTimeChart(drillHistory: snapshot.data),
+      InsetDivider(),
+      AccuracyOverTimeChart(drillHistory: snapshot.data),
     ])));
   }
 }

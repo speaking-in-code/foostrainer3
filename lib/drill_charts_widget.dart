@@ -83,11 +83,7 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
           charts.SelectNearest(),
           charts.DomainHighlighter(),
         ],
-        primaryMeasureAxis: new charts.PercentAxisSpec(
-            renderSpec: charts.GridlineRendererSpec(
-          labelStyle: chart_utils.axisLabelStyle,
-          lineStyle: chart_utils.axisLineStyle,
-        )),
+        primaryMeasureAxis: chart_utils.percentAxisSpec,
         domainAxis:
             charts.DateTimeAxisSpec(renderSpec: chart_utils.dateRenderSpec));
     return chart_utils.paddedChart(chart);

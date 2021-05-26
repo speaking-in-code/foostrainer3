@@ -5,7 +5,7 @@ import 'results_db.dart';
 
 // About two years worth of data.
 const maxWeeks = 52 * 2;
-const maxWeeksDisplayed = 4;
+const maxWeeksDisplayed = 10;
 
 const axisLabelStyle = charts.TextStyleSpec(
   fontSize: 10,
@@ -22,13 +22,24 @@ final numericAxisSpec = charts.NumericAxisSpec(
   ),
 );
 
+final percentAxisSpec = charts.PercentAxisSpec(
+    renderSpec: charts.GridlineRendererSpec(
+  labelStyle: axisLabelStyle,
+  lineStyle: axisLineStyle,
+));
+
 const dateRenderSpec = charts.SmallTickRendererSpec<DateTime>(
   labelStyle: axisLabelStyle,
 );
 
 const titleStyle = charts.TextStyleSpec(color: charts.MaterialPalette.white);
 
-charts.DateTimeAxisSpec dateTimeAxis(DateTime start, DateTime end) {
+charts.DateTimeAxisSpec dateTimeAxis(charts.Series<dynamic, DateTime> series) {
+  final end = series.data.last.startDay;
+  DateTime start = series.data.first.startDay;
+  if (series.data.length > maxWeeksDisplayed) {
+    start = series.data[series.data.length - maxWeeksDisplayed].startDay;
+  }
   return charts.DateTimeAxisSpec(
     renderSpec: dateRenderSpec,
     viewport: charts.DateTimeExtents(start: start, end: end),
