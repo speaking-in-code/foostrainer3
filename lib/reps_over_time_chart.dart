@@ -6,7 +6,7 @@ import 'chart_utils.dart' as chart_utils;
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
-import 'titled_card.dart';
+import 'titled_section.dart';
 
 class RepsOverTimeChart extends StatelessWidget {
   static const title = 'Reps Over Time';
@@ -21,14 +21,14 @@ class RepsOverTimeChart extends StatelessWidget {
         builder:
             (context, AsyncSnapshot<List<AggregatedDrillSummary>> snapshot) {
           if (snapshot.hasError) {
-            return TitledCard(
+            return TitledSection(
                 title: title, child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData) {
-            return TitledCard(title: title, child: Spinner());
+            return TitledSection(title: title, child: Spinner());
           }
           final series = _toRepsSeries(snapshot.data);
-          return TitledCard(
+          return TitledSection(
               title: 'Reps Over Time',
               child: chart_utils.paddedChart(_chart(series)));
         });

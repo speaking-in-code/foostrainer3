@@ -10,7 +10,6 @@ import 'reps_over_time_chart.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'static_drills.dart';
-import 'titled_card.dart';
 import 'log.dart';
 
 final _log = Log.get('progress_screen');
