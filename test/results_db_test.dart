@@ -26,8 +26,12 @@ void main() {
     Future<List<AggregatedDrillSummary>> _summary(
         {String drill, String action}) async {
       const MAX_WEEKS = 4;
-      return summaries.loadWeeklyDrills(
-          numWeeks: MAX_WEEKS, offset: 0, drill: drill, action: action);
+      return summaries.loadAggregateDrills(
+          aggLevel: AggregationLevel.WEEKLY,
+          numWeeks: MAX_WEEKS,
+          offset: 0,
+          drill: drill,
+          action: action);
     }
 
     test('summarizes empty table', () async {
@@ -103,7 +107,8 @@ void main() {
       await actions.incrementAction(drillId, 'Lane', false);
 
       List<AggregatedDrillSummary> summaryList =
-          await summaries.loadWeeklyDrills(numWeeks: 10, offset: 0);
+          await summaries.loadAggregateDrills(
+              aggLevel: AggregationLevel.WEEKLY, numWeeks: 10, offset: 0);
       expect(summaryList.length, equals(1));
       AggregatedDrillSummary weekly = summaryList.first;
       List<DrillSummary> found =

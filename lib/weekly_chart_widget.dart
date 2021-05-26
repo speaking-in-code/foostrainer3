@@ -37,8 +37,11 @@ class _WeeklyChartWidgetState extends State<WeeklyChartWidget> {
     String drill = widget.drillData?.fullName;
     _log.info('Loading weekly summary for $drill');
     super.initState();
-    _weeks = widget.resultsDb.summariesDao.loadWeeklyDrills(
-        numWeeks: chart_utils.maxWeeks, offset: 0, drill: drill);
+    _weeks = widget.resultsDb.summariesDao.loadAggregateDrills(
+        aggLevel: AggregationLevel.WEEKLY,
+        numWeeks: chart_utils.maxWeeks,
+        offset: 0,
+        drill: drill);
   }
 
   @override

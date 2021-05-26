@@ -21,6 +21,7 @@ class ProgressScreen extends StatefulWidget {
   static const routeName = '/progress';
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
+  final _aggValue = ValueNotifier<AggregationLevel>(AggregationLevel.DAILY);
   final _drillValue = ValueNotifier<DrillData>(null);
 
   ProgressScreen({@required this.staticDrills, @required this.resultsDb})
@@ -39,14 +40,19 @@ class ProgressScreenState extends State<ProgressScreen> {
     super.initState();
     _initFuture();
     widget._drillValue.addListener(_initFuture);
+    widget._aggValue.addListener(_initFuture);
   }
 
   void _initFuture() {
-    String drill = widget._drillValue.value?.fullName;
-    _log.info('Reloading data, drill=$drill');
+    final drill = widget._drillValue.value?.fullName;
+    final aggLevel = widget._aggValue.value;
+    _log.info('Reloading data, aggLevel=$aggLevel drill=$drill');
     setState(() {
-      drillHistory = widget.resultsDb.summariesDao.loadWeeklyDrills(
-          drill: drill, numWeeks: chart_utils.maxWeeks, offset: 0);
+      drillHistory = widget.resultsDb.summariesDao.loadAggregateDrills(
+          aggLevel: aggLevel,
+          drill: drill,
+          numWeeks: chart_utils.maxWeeks,
+          offset: 0);
     });
   }
 
@@ -77,7 +83,9 @@ class ProgressScreenState extends State<ProgressScreen> {
                     staticDrills: widget.staticDrills,
                     drillValue: widget._drillValue))
           ]),
-          Row(children: [Expanded(child: _TimeWindowSelector())]),
+          Row(children: [
+            Expanded(child: _TimeWindowSelector(aggValue: widget._aggValue))
+          ]),
         ]));
   }
 }
@@ -146,30 +154,46 @@ class _SelectedDrillState extends State<_SelectedDrill> {
 }
 
 class _TimeWindowSelector extends StatefulWidget {
+  final ValueNotifier<AggregationLevel> aggValue;
+
+  _TimeWindowSelector({this.aggValue});
+
   @override
   State<StatefulWidget> createState() => _TimeWindowSelectorState();
 }
 
+class _TimeWindowOption {
+  final AggregationLevel level;
+  final String label;
+
+  const _TimeWindowOption(this.level, this.label);
+}
+
 class _TimeWindowSelectorState extends State<_TimeWindowSelector> {
-  static const options = ['Daily', 'Weekly', 'Monthly'];
-  String selected = options[0];
+  static const options = {
+    AggregationLevel.DAILY: _TimeWindowOption(AggregationLevel.DAILY, 'Daily'),
+    AggregationLevel.WEEKLY:
+        _TimeWindowOption(AggregationLevel.WEEKLY, 'Weekly'),
+    AggregationLevel.MONTHLY:
+        _TimeWindowOption(AggregationLevel.MONTHLY, 'Monthly'),
+  };
 
   @override
   Widget build(BuildContext context) {
     return _SelectionChip(
-      label: selected,
+      label: options[widget.aggValue.value].label,
       onPressed: _onTimeWindowPressed,
     );
   }
 
   void _onTimeWindowPressed() async {
-    String chosen = await showModalBottomSheet(
+    _TimeWindowOption chosen = await showModalBottomSheet(
         context: context, builder: _timeWindowChooser);
     if (chosen == null) {
       return;
     }
     setState(() {
-      selected = chosen;
+      widget.aggValue.value = chosen.level;
     });
   }
 
@@ -177,18 +201,19 @@ class _TimeWindowSelectorState extends State<_TimeWindowSelector> {
     final List<Widget> tiles = [
       ListTile(title: Text('Time Window')),
     ];
-    tiles.addAll(options.map((String option) {
-      return RadioListTile<String>(
-        title: Text(option),
+    final groupValue = options[widget.aggValue.value];
+    tiles.addAll(options.values.map((_TimeWindowOption option) {
+      return RadioListTile<_TimeWindowOption>(
+        title: Text(option.label),
         value: option,
-        groupValue: selected,
+        groupValue: groupValue,
         onChanged: _onChosen,
       );
     }));
     return ListView(children: tiles);
   }
 
-  void _onChosen(String selected) {
+  void _onChosen(_TimeWindowOption selected) {
     Navigator.pop(context, selected);
   }
 }

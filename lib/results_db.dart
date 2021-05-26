@@ -4,6 +4,7 @@ import 'dart:core';
 
 import 'package:equatable/equatable.dart';
 import 'package:floor/floor.dart';
+import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'log.dart';
@@ -81,7 +82,7 @@ abstract class ActionsDao {
   }
 }
 
-class _WeeklyDrillSummaryBuilder {
+class _AggregateDrillSummaryBuilder {
   DateTime startDay;
   DateTime endDay;
   int elapsedSeconds;
@@ -96,23 +97,23 @@ class _WeeklyDrillSummaryBuilder {
 
 // Weekly drill time summary. Used as DB view via SummariesDao, not directly.
 @DatabaseView('SELECT NULL')
-class _WeeklyDrillTime {
+class _AggregatedDrillTime {
   final String startDay;
   final String endDay;
   final int elapsedSeconds;
 
-  _WeeklyDrillTime(this.startDay, this.endDay, this.elapsedSeconds);
+  _AggregatedDrillTime(this.startDay, this.endDay, this.elapsedSeconds);
 }
 
 // Weekly drill reps summary. Used as DB view via SummariesDao, not directly.
 @DatabaseView('SELECT NULL')
-class _WeeklyDrillReps {
+class _AggregatedDrillReps {
   final String startDay;
   final String endDay;
   final int reps;
   final double accuracy;
 
-  _WeeklyDrillReps(this.startDay, this.endDay, this.reps, this.accuracy);
+  _AggregatedDrillReps(this.startDay, this.endDay, this.reps, this.accuracy);
 }
 
 // Aggregated action reps summary. Used as DB view via SummariesDao, not directly.
@@ -172,6 +173,12 @@ class AllDrillDateRange {
   DateTime get latest => _epochSecondsToDateTime(latestSeconds);
 
   AllDrillDateRange(this.earliestSeconds, this.latestSeconds);
+}
+
+enum AggregationLevel {
+  DAILY,
+  WEEKLY,
+  MONTHLY,
 }
 
 // Useful notes on Floor/SQL translation.
@@ -259,22 +266,111 @@ abstract class SummariesDao {
         drill: drill, reps: reps, good: good, actions: actionMap);
   }
 
-  // Return a weekly summary of drill progress, most recent first.
-  Future<List<AggregatedDrillSummary>> loadWeeklyDrills(
-      {String drill, String action, int numWeeks, int offset}) async {
+  // Return an aggregation of drill progress at the specified aggregation evel.
+  Future<List<AggregatedDrillSummary>> loadAggregateDrills(
+      {@required AggregationLevel aggLevel,
+      @required int numWeeks,
+      @required int offset,
+      String drill,
+      String action}) async {
     drill ??= '';
     action ??= '';
-    Future<List<_WeeklyDrillTime>> times;
+    Future<List<_AggregatedDrillTime>> times = Future.value([]);
     // Drill time is not defined for specific actions.
     if (action.isEmpty) {
-      times = _weeklyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
-    } else {
-      times = Future.value([]);
+      times = _drillTime(
+          aggLevel: aggLevel, drill: drill, numWeeks: numWeeks, offset: offset);
     }
-    Future<List<_WeeklyDrillReps>> reps = _weeklyDrillReps(
+    Future<List<_AggregatedDrillReps>> reps = _weeklyDrillReps(
         drill.isNotEmpty, drill, action.isNotEmpty, action, numWeeks, offset);
-    return _mergeWeekly(await times, await reps);
+    return _mergeAggegate(await times, await reps);
   }
+
+  List<AggregatedDrillSummary> _mergeAggegate(
+      List<_AggregatedDrillTime> times, List<_AggregatedDrillReps> reps) {
+    final builders = Map<String, _AggregateDrillSummaryBuilder>();
+    times.forEach((time) {
+      _AggregateDrillSummaryBuilder b =
+          _getBuilder(builders, time.startDay, time.endDay);
+      b.elapsedSeconds = time.elapsedSeconds;
+    });
+    reps.forEach((rep) {
+      _AggregateDrillSummaryBuilder b =
+          _getBuilder(builders, rep.startDay, rep.endDay);
+      b.reps = rep.reps;
+      b.accuracy = rep.accuracy;
+    });
+    List<AggregatedDrillSummary> out =
+        builders.values.map((b) => b.build()).toList();
+    out.sort((AggregatedDrillSummary a, AggregatedDrillSummary b) =>
+        a.startDay.compareTo(b.startDay));
+    return out;
+  }
+
+  _AggregateDrillSummaryBuilder _getBuilder(
+      Map<String, _AggregateDrillSummaryBuilder> builders,
+      String startDay,
+      String endDay) {
+    return builders.putIfAbsent(
+        startDay,
+        () => _AggregateDrillSummaryBuilder()
+          ..startDay = DateTime.parse(startDay)
+          ..endDay = DateTime.parse(endDay));
+  }
+
+  Future<List<_AggregatedDrillTime>> _drillTime(
+      {@required AggregationLevel aggLevel,
+      @required int numWeeks,
+      @required int offset,
+      String drill}) {
+    switch (aggLevel) {
+      case AggregationLevel.DAILY:
+        return _dailyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
+      case AggregationLevel.WEEKLY:
+        return _weeklyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
+      case AggregationLevel.MONTHLY:
+        return _monthlyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
+      default:
+        throw ArgumentError('Unknown aggLevel $aggLevel');
+    }
+  }
+
+  Future<List<_AggregatedDrillReps>> _drillReps(
+      {@required AggregationLevel aggLevel,
+      @required int numWeeks,
+      @required int offset,
+      String drill,
+      String action}) {
+    switch (aggLevel) {
+      case AggregationLevel.DAILY:
+        return _dailyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
+            action, numWeeks, offset);
+      case AggregationLevel.WEEKLY:
+        return _weeklyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
+            action, numWeeks, offset);
+      case AggregationLevel.MONTHLY:
+        return _monthlyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
+            action, numWeeks, offset);
+      default:
+        throw ArgumentError('Unknown aggLevel $aggLevel');
+    }
+  }
+
+  @Query('''
+   SELECT
+     DATE(startSeconds, "unixepoch", "localtime", "start of day") startDay,
+     DATE(startSeconds, "unixepoch", "localtime", "start of day", "+1 day") endDay,
+     SUM(elapsedSeconds) elapsedSeconds
+   FROM Drills
+   WHERE
+     (NOT :matchDrill OR drill = :drill) 
+   GROUP BY startDay
+   ORDER BY startDay DESC
+   LIMIT :numWeeks
+   OFFSET :offset
+  ''')
+  Future<List<_AggregatedDrillTime>> _dailyDrillTime(
+      bool matchDrill, String drill, int numWeeks, int offset);
 
   @Query('''
    SELECT
@@ -289,8 +385,44 @@ abstract class SummariesDao {
    LIMIT :numWeeks
    OFFSET :offset
   ''')
-  Future<List<_WeeklyDrillTime>> _weeklyDrillTime(
+  Future<List<_AggregatedDrillTime>> _weeklyDrillTime(
       bool matchDrill, String drill, int numWeeks, int offset);
+
+  @Query('''
+   SELECT
+     DATE(startSeconds, "unixepoch", "localtime", "start of month") startDay,
+     DATE(startSeconds, "unixepoch", "localtime", "start of month", "+1 month") endDay,
+     SUM(elapsedSeconds) elapsedSeconds
+   FROM Drills
+   WHERE
+     (NOT :matchDrill OR drill = :drill) 
+   GROUP BY startDay
+   ORDER BY startDay DESC
+   LIMIT :numWeeks
+   OFFSET :offset
+  ''')
+  Future<List<_AggregatedDrillTime>> _monthlyDrillTime(
+      bool matchDrill, String drill, int numWeeks, int offset);
+
+  @Query('''
+   SELECT
+     DATE(startSeconds, "unixepoch", "localtime", "start of day") startDay,
+     DATE(startSeconds, "unixepoch", "localtime", "start of day", "+1 day") endDay,
+     IFNULL(SUM(reps), 0) reps,
+     (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
+      CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
+   FROM Drills
+   LEFT JOIN Actions ON Drills.id = Actions.drillId
+   WHERE
+     (NOT :matchDrill OR drill = :drill) 
+     AND (NOT :matchAction OR action = :action)
+   GROUP BY startDay
+   ORDER BY startDay DESC
+   LIMIT :numWeeks
+   OFFSET :offset
+  ''')
+  Future<List<_AggregatedDrillReps>> _dailyDrillReps(bool matchDrill,
+      String drill, bool matchAction, String action, int numWeeks, int offset);
 
   @Query('''
    SELECT
@@ -309,40 +441,28 @@ abstract class SummariesDao {
    LIMIT :numWeeks
    OFFSET :offset
   ''')
-  Future<List<_WeeklyDrillReps>> _weeklyDrillReps(bool matchDrill, String drill,
-      bool matchAction, String action, int numWeeks, int offset);
+  Future<List<_AggregatedDrillReps>> _weeklyDrillReps(bool matchDrill,
+      String drill, bool matchAction, String action, int numWeeks, int offset);
 
-  List<AggregatedDrillSummary> _mergeWeekly(
-      List<_WeeklyDrillTime> times, List<_WeeklyDrillReps> reps) {
-    final builders = Map<String, _WeeklyDrillSummaryBuilder>();
-    times.forEach((time) {
-      _WeeklyDrillSummaryBuilder b =
-          _getBuilder(builders, time.startDay, time.endDay);
-      b.elapsedSeconds = time.elapsedSeconds;
-    });
-    reps.forEach((rep) {
-      _WeeklyDrillSummaryBuilder b =
-          _getBuilder(builders, rep.startDay, rep.endDay);
-      b.reps = rep.reps;
-      b.accuracy = rep.accuracy;
-    });
-    List<AggregatedDrillSummary> out =
-        builders.values.map((b) => b.build()).toList();
-    out.sort((AggregatedDrillSummary a, AggregatedDrillSummary b) =>
-        a.startDay.compareTo(b.startDay));
-    return out;
-  }
-
-  _WeeklyDrillSummaryBuilder _getBuilder(
-      Map<String, _WeeklyDrillSummaryBuilder> builders,
-      String startDay,
-      String endDay) {
-    return builders.putIfAbsent(
-        startDay,
-        () => _WeeklyDrillSummaryBuilder()
-          ..startDay = DateTime.parse(startDay)
-          ..endDay = DateTime.parse(endDay));
-  }
+  @Query('''
+   SELECT
+     DATE(startSeconds, "unixepoch", "localtime", "start of month") startDay,
+     DATE(startSeconds, "unixepoch", "localtime", "start of month", "+1 month") endDay,
+     IFNULL(SUM(reps), 0) reps,
+     (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
+      CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
+   FROM Drills
+   LEFT JOIN Actions ON Drills.id = Actions.drillId
+   WHERE
+     (NOT :matchDrill OR drill = :drill) 
+     AND (NOT :matchAction OR action = :action)
+   GROUP BY startDay
+   ORDER BY startDay DESC
+   LIMIT :numWeeks
+   OFFSET :offset
+  ''')
+  Future<List<_AggregatedDrillReps>> _monthlyDrillReps(bool matchDrill,
+      String drill, bool matchAction, String action, int numWeeks, int offset);
 
   // TODO(brian): this limit statement here is incorrect, it's not limiting by
   // num weeks, it's limiting by number of rows.
@@ -380,8 +500,8 @@ class ActionSummary {
   StoredAction,
 ], views: [
   AllDrillDateRange,
-  _WeeklyDrillTime,
-  _WeeklyDrillReps,
+  _AggregatedDrillTime,
+  _AggregatedDrillReps,
   AggregatedActionReps,
 ])
 abstract class ResultsDatabase extends FloorDatabase {
