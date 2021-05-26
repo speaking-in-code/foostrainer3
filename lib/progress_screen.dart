@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'chart_utils.dart' as chart_utils;
@@ -65,16 +66,12 @@ class ProgressScreenState extends State<ProgressScreen> {
   }
 
   Widget _configWidget() {
-    final buttons = ButtonBar(alignment: MainAxisAlignment.end, children: [
-      _TimeWindowSelector(),
-      _buildDrillSelector(),
-    ]);
-    return Card(
-      child: Column(children: [
-        _SelectedDrill(drillValue: widget._drillValue),
-        buttons,
-      ]),
-    );
+    return Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(children: [
+          Row(children: [Expanded(child: _buildDrillSelector())]),
+          Row(children: [Expanded(child: _TimeWindowSelector())]),
+        ]));
   }
 
   Widget _buildDrillSelector() {
@@ -176,8 +173,12 @@ class _DrillSelectorState extends State<_DrillSelector> {
 
   @override
   Widget build(BuildContext context) {
+    String label = 'All Drills';
+    if (selected != null) {
+      label = '${selected.type}: ${selected.name}';
+    }
     return _SelectionChip(
-      label: 'Select Drill',
+      label: label,
       onPressed: _onDrillSelectorPressed,
     );
   }
@@ -202,8 +203,10 @@ class _SelectionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InputChip(
-        label: Container(
-            width: 70, child: Text(label, overflow: TextOverflow.ellipsis)),
+        label: Row(
+          children: [Text(label, overflow: TextOverflow.ellipsis)],
+          mainAxisAlignment: MainAxisAlignment.center,
+        ),
         onSelected: (_) => this.onPressed(),
         selected: false,
         backgroundColor: Theme.of(context).colorScheme.primary,
