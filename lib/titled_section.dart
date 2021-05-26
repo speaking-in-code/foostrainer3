@@ -13,7 +13,6 @@ class TitledSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Divider(indent: _padding, endIndent: _padding),
         _titleWidget(context),
         child,
       ],
@@ -22,9 +21,9 @@ class TitledSection extends StatelessWidget {
 
   Widget _titleWidget(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.all(_padding),
+        padding: EdgeInsets.symmetric(horizontal: _padding),
         child: SizedBox(
             width: double.infinity,
-            child: Text(title, style: Theme.of(context).textTheme.headline6)));
+            child: Text(title, style: Theme.of(context).textTheme.subtitle2)));
   }
 }

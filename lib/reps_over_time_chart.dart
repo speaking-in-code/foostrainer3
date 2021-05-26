@@ -1,37 +1,22 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
-import 'package:ft3/aggregated_drill_summary.dart';
 
 import 'chart_utils.dart' as chart_utils;
-import 'results_db.dart';
 import 'results_entities.dart';
-import 'spinner.dart';
 import 'titled_section.dart';
 
 class RepsOverTimeChart extends StatelessWidget {
   static const title = 'Reps Over Time';
-  final Future<List<AggregatedDrillSummary>> drillHistory;
+  final List<AggregatedDrillSummary> drillHistory;
 
   RepsOverTimeChart({this.drillHistory});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: drillHistory,
-        builder:
-            (context, AsyncSnapshot<List<AggregatedDrillSummary>> snapshot) {
-          if (snapshot.hasError) {
-            return TitledSection(
-                title: title, child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return TitledSection(title: title, child: Spinner());
-          }
-          final series = _toRepsSeries(snapshot.data);
-          return TitledSection(
-              title: 'Reps Over Time',
-              child: chart_utils.paddedChart(_chart(series)));
-        });
+    final series = _toRepsSeries(drillHistory);
+    return TitledSection(
+        title: 'Reps Over Time',
+        child: chart_utils.paddedChart(_chart(series)));
   }
 
   charts.Series<AggregatedDrillSummary, DateTime> _toRepsSeries(

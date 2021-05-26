@@ -9,6 +9,7 @@ import 'my_nav_bar.dart';
 import 'reps_over_time_chart.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
+import 'spinner.dart';
 import 'static_drills.dart';
 import 'log.dart';
 
@@ -57,25 +58,56 @@ class ProgressScreenState extends State<ProgressScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return SingleChildScrollView(
-        child: Column(children: [
+    return Column(children: [
       _configWidget(),
-      RepsOverTimeChart(drillHistory: drillHistory),
-    ]));
+      Divider(indent: 16, endIndent: 16, thickness: 2),
+      _DrillCharts(drillHistory: drillHistory),
+    ]);
   }
 
   Widget _configWidget() {
     return Padding(
         padding: EdgeInsets.all(8),
         child: Column(children: [
-          Row(children: [Expanded(child: _buildDrillSelector())]),
+          Row(children: [
+            Expanded(
+                child: _DrillSelector(
+                    staticDrills: widget.staticDrills,
+                    drillValue: widget._drillValue))
+          ]),
           Row(children: [Expanded(child: _TimeWindowSelector())]),
         ]));
   }
+}
 
-  Widget _buildDrillSelector() {
-    return _DrillSelector(
-        staticDrills: widget.staticDrills, drillValue: widget._drillValue);
+class _DrillCharts extends StatefulWidget {
+  final Future<List<AggregatedDrillSummary>> drillHistory;
+
+  _DrillCharts({this.drillHistory});
+
+  @override
+  State<StatefulWidget> createState() => _DrillChartsState();
+}
+
+class _DrillChartsState extends State<_DrillCharts> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(future: widget.drillHistory, builder: _buildSnapshot);
+  }
+
+  Widget _buildSnapshot(BuildContext context,
+      AsyncSnapshot<List<AggregatedDrillSummary>> snapshot) {
+    if (snapshot.hasError) {
+      return Text('${snapshot.error}');
+    }
+    if (!snapshot.hasData) {
+      return Spinner();
+    }
+    return Expanded(
+        child: SingleChildScrollView(
+            child: Column(children: [
+      RepsOverTimeChart(drillHistory: snapshot.data),
+    ])));
   }
 }
 
