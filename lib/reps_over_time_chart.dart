@@ -14,9 +14,7 @@ class RepsOverTimeChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final series = _toRepsSeries(drillHistory);
-    return TitledSection(
-        title: 'Reps Over Time',
-        child: chart_utils.paddedChart(_chart(series)));
+    return chart_utils.paddedChart(_chart(series));
   }
 
   charts.Series<AggregatedDrillSummary, DateTime> _toRepsSeries(

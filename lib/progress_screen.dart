@@ -3,26 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:ft3/accuracy_over_time_chart.dart';
 
 import 'chart_utils.dart' as chart_utils;
-import 'drill_chooser_screen.dart';
-import 'drill_data.dart';
-import 'inset_divider.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
+import 'progress_selector_screen.dart';
 import 'reps_over_time_chart.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
 import 'static_drills.dart';
 import 'log.dart';
+import 'titled_section.dart';
 
 final _log = Log.get('progress_screen');
 
+// TODO(brian):
+// add option to take chart full screen??
+// add per-drill type break down chart
+// converge charts as much as possible between progress screen and drill
+// results/history screen. Per-drill progress screen should probably show everything
+// the drill results screen shows?
 class ProgressScreen extends StatefulWidget {
   static const routeName = '/progress';
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
-  final _aggValue = ValueNotifier<AggregationLevel>(AggregationLevel.DAILY);
-  final _drillValue = ValueNotifier<DrillData>(null);
 
   ProgressScreen({@required this.staticDrills, @required this.resultsDb})
       : assert(staticDrills != null),
@@ -34,18 +37,18 @@ class ProgressScreen extends StatefulWidget {
 
 class ProgressScreenState extends State<ProgressScreen> {
   Future<List<AggregatedDrillSummary>> drillHistory;
+  ProgressOptions options = ProgressOptions(
+      drillData: null, aggregationLevel: AggregationLevel.DAILY);
 
   @override
   void initState() {
     super.initState();
     _initFuture();
-    widget._drillValue.addListener(_initFuture);
-    widget._aggValue.addListener(_initFuture);
   }
 
   void _initFuture() {
-    final drill = widget._drillValue.value?.fullName;
-    final aggLevel = widget._aggValue.value;
+    final drill = options.drillData?.fullName;
+    final aggLevel = options.aggregationLevel;
     _log.info('Reloading data, aggLevel=$aggLevel drill=$drill');
     setState(() {
       drillHistory = widget.resultsDb.summariesDao.loadAggregateDrills(
@@ -58,35 +61,40 @@ class ProgressScreenState extends State<ProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final actions = [
+      IconButton(
+        icon: const Icon(Icons.search),
+        tooltip: 'Select Drills',
+        onPressed: () => _onSelectDrills(context),
+      )
+    ];
     return Scaffold(
-      appBar: MyAppBar(title: 'Progress').build(context),
+      appBar: MyAppBar(title: 'Progress', actions: actions).build(context),
       body: _buildBody(context), // MonthlyDrillsWidget(widget.resultsDb),
       bottomNavigationBar: MyNavBar(location: MyNavBarLocation.progress),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    return Column(children: [
-      _configWidget(),
-      InsetDivider(thickness: 2),
-      _DrillCharts(drillHistory: drillHistory),
-    ]);
+  void _onSelectDrills(BuildContext context) async {
+    ProgressOptions chosen = await ProgressSelectorScreen.startDialog(context,
+        staticDrills: widget.staticDrills, selected: options, allowAll: true);
+    if (chosen != null) {
+      setState(() {
+        options = chosen;
+        _initFuture();
+      });
+    }
   }
 
-  Widget _configWidget() {
+  Widget _buildBody(BuildContext context) {
+    String title = 'All Drills';
+    if (options.drillData != null) {
+      title = '${options.drillData.type}: ${options.drillData.name}';
+    }
     return Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(children: [
-          Row(children: [
-            Expanded(
-                child: _DrillSelector(
-                    staticDrills: widget.staticDrills,
-                    drillValue: widget._drillValue))
-          ]),
-          Row(children: [
-            Expanded(child: _TimeWindowSelector(aggValue: widget._aggValue))
-          ]),
-        ]));
+        padding: EdgeInsets.only(top: 8),
+        child: TitledSection(
+            title: title, child: _DrillCharts(drillHistory: drillHistory)));
   }
 }
 
@@ -97,6 +105,13 @@ class _DrillCharts extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _DrillChartsState();
+}
+
+class _MyTab {
+  final Tab tab;
+  final Widget child;
+
+  _MyTab({this.tab, this.child});
 }
 
 class _DrillChartsState extends State<_DrillCharts> {
@@ -113,16 +128,33 @@ class _DrillChartsState extends State<_DrillCharts> {
     if (!snapshot.hasData) {
       return Spinner();
     }
+    final tabs = [
+      _MyTab(
+          tab: Tab(text: 'Reps'),
+          child: SingleChildScrollView(
+              child: RepsOverTimeChart(drillHistory: snapshot.data))),
+      _MyTab(
+          tab: Tab(text: 'Accuracy'),
+          child: SingleChildScrollView(
+              child: AccuracyOverTimeChart(drillHistory: snapshot.data))),
+    ];
+    final tabBar = TabBar(
+      tabs: tabs.map((e) => e.tab).toList(),
+      physics: NeverScrollableScrollPhysics(),
+    );
+    final tabBarView = Expanded(
+        child: TabBarView(
+      children: tabs.map((e) => e.child).toList(),
+      physics: NeverScrollableScrollPhysics(),
+    ));
     return Expanded(
-        child: SingleChildScrollView(
-            child: Column(children: [
-      RepsOverTimeChart(drillHistory: snapshot.data),
-      InsetDivider(),
-      AccuracyOverTimeChart(drillHistory: snapshot.data),
-    ])));
+        child: DefaultTabController(
+            length: tabs.length,
+            child: Column(children: [tabBar, tabBarView])));
   }
 }
 
+/*
 class _SelectedDrill extends StatefulWidget {
   final ValueNotifier<DrillData> drillValue;
   _SelectedDrill({this.drillValue});
@@ -153,71 +185,6 @@ class _SelectedDrillState extends State<_SelectedDrill> {
   }
 }
 
-class _TimeWindowSelector extends StatefulWidget {
-  final ValueNotifier<AggregationLevel> aggValue;
-
-  _TimeWindowSelector({this.aggValue});
-
-  @override
-  State<StatefulWidget> createState() => _TimeWindowSelectorState();
-}
-
-class _TimeWindowOption {
-  final AggregationLevel level;
-  final String label;
-
-  const _TimeWindowOption(this.level, this.label);
-}
-
-class _TimeWindowSelectorState extends State<_TimeWindowSelector> {
-  static const options = {
-    AggregationLevel.DAILY: _TimeWindowOption(AggregationLevel.DAILY, 'Daily'),
-    AggregationLevel.WEEKLY:
-        _TimeWindowOption(AggregationLevel.WEEKLY, 'Weekly'),
-    AggregationLevel.MONTHLY:
-        _TimeWindowOption(AggregationLevel.MONTHLY, 'Monthly'),
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return _SelectionChip(
-      label: options[widget.aggValue.value].label,
-      onPressed: _onTimeWindowPressed,
-    );
-  }
-
-  void _onTimeWindowPressed() async {
-    _TimeWindowOption chosen = await showModalBottomSheet(
-        context: context, builder: _timeWindowChooser);
-    if (chosen == null) {
-      return;
-    }
-    setState(() {
-      widget.aggValue.value = chosen.level;
-    });
-  }
-
-  Widget _timeWindowChooser(BuildContext context) {
-    final List<Widget> tiles = [
-      ListTile(title: Text('Time Window')),
-    ];
-    final groupValue = options[widget.aggValue.value];
-    tiles.addAll(options.values.map((_TimeWindowOption option) {
-      return RadioListTile<_TimeWindowOption>(
-        title: Text(option.label),
-        value: option,
-        groupValue: groupValue,
-        onChanged: _onChosen,
-      );
-    }));
-    return ListView(children: tiles);
-  }
-
-  void _onChosen(_TimeWindowOption selected) {
-    Navigator.pop(context, selected);
-  }
-}
-
 class _DrillSelector extends StatefulWidget {
   final StaticDrills staticDrills;
   final ValueNotifier<DrillData> drillValue;
@@ -237,7 +204,7 @@ class _DrillSelectorState extends State<_DrillSelector> {
     if (selected != null) {
       label = '${selected.type}: ${selected.name}';
     }
-    return _SelectionChip(
+    return SelectionChip(
       label: label,
       onPressed: _onDrillSelectorPressed,
     );
@@ -252,39 +219,4 @@ class _DrillSelectorState extends State<_DrillSelector> {
       selected = chosen;
     });
   }
-}
-
-class _SelectionChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-
-  _SelectionChip({this.label, this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return InputChip(
-        label: Row(
-          children: [Text(label, overflow: TextOverflow.ellipsis)],
-          mainAxisAlignment: MainAxisAlignment.center,
-        ),
-        onSelected: (_) => this.onPressed(),
-        selected: false,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        onDeleted: this.onPressed,
-        deleteIcon: Icon(Icons.arrow_drop_down));
-  }
-}
-
-// The plan:
-// display a row of chips at the top.
-// - drill selection chip: defaults to all drills. Clicking leads to modal dialog
-//   with a long list of drills to select from.
-// - time window chip: defaults to daily. Clicking leads to modal dialog with daily/weekly/monthly selection.
-//
-// Display charts in scroll view
-// - practice time for (drill) by (window)
-// - practice reps for (drill) by (window)
-// - accuracy for (drill) by (windows)
-//
-// If drill selected: FAB for practicing drill, leads to drill config screen
-//
+}*/
