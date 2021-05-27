@@ -281,8 +281,12 @@ abstract class SummariesDao {
       times = _drillTime(
           aggLevel: aggLevel, drill: drill, numWeeks: numWeeks, offset: offset);
     }
-    Future<List<_AggregatedDrillReps>> reps = _weeklyDrillReps(
-        drill.isNotEmpty, drill, action.isNotEmpty, action, numWeeks, offset);
+    Future<List<_AggregatedDrillReps>> reps = _drillReps(
+        aggLevel: aggLevel,
+        drill: drill,
+        action: action,
+        numWeeks: numWeeks,
+        offset: offset);
     return _mergeAggegate(await times, await reps);
   }
 
