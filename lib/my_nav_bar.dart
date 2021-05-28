@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:meta/meta.dart' show required;
 
+import 'drill_data.dart';
 import 'drill_types_screen.dart';
 import 'monthly_drills_screen.dart';
 import 'progress_screen.dart';
@@ -49,8 +50,9 @@ class MyNavBar extends StatelessWidget {
 
   final MyNavBarLocation location;
   final int currentIndex;
+  final DrillData drillData;
 
-  MyNavBar({@required this.location})
+  MyNavBar({@required this.location, this.drillData})
       : currentIndex = _locationToIndex[location];
 
   @override
@@ -63,7 +65,12 @@ class MyNavBar extends StatelessWidget {
 
   void _onTap(BuildContext context, int itemIndex) {
     if (itemIndex != currentIndex) {
-      Navigator.pushReplacementNamed(context, _locations[itemIndex].route);
+      final location = _locations[itemIndex];
+      if (location == MyNavBarLocation.progress) {
+        ProgressScreen.navigate(context, drillData);
+        return;
+      }
+      Navigator.pushReplacementNamed(context, location.route);
     }
   }
 }

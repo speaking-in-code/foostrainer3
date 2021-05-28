@@ -9,7 +9,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:torch_compat/torch_compat.dart';
+// import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'album_art.dart';
@@ -39,11 +39,14 @@ class PracticeBackground {
       Wakelock.enable();
     }
     _log.info('Starting audio service');
+    await AudioService.connect();
+    _log.info('Connected to audio service');
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
         androidNotificationIcon: 'drawable/ic_stat_ic_notification',
         androidNotificationColor: Colors.blueAccent.value);
+    _log.info('wtf connected is ${AudioService.connected}');
     if (AudioService.running) {
       final progress = PracticeProgress()
         ..drill = drill
@@ -65,6 +68,10 @@ class PracticeBackground {
       _log.info('Playing with results ${progress.results.encode()}');
       AudioService.playMediaItem(getMediaItemFromProgress(progress));
     } else {
+      // Try stopping and hope we recover.
+      _log.info('Stopping audio service');
+      await AudioService.stop();
+      _log.info('wtf connected is ${AudioService.connected}');
       throw StateError('Failed to start AudioService.');
     }
   }
@@ -384,9 +391,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   Future<void> _flashTorch() async {
-    await TorchCompat.turnOn();
+    //await TorchCompat.turnOn();
     await Future.delayed(_flashTime);
-    await TorchCompat.turnOff();
+    //await TorchCompat.turnOff();
   }
 
   // Calling this too frequently makes the notifications UI unresponsive, so

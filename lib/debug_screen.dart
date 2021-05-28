@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:torch_compat/torch_compat.dart';
+// import 'package:torch_compat/torch_compat.dart';
 
 import 'debug_info.dart';
 import 'drill_data.dart';
@@ -57,15 +57,15 @@ class DebugScreen extends StatelessWidget {
           ),
           Card(
             child: ListTile(
-              title: Text('Lamp On'),
-              onTap: () => TorchCompat.turnOn(),
-            ),
+                title: Text('Lamp On'),
+                onTap: () => null // TorchCompat.turnOn(),
+                ),
           ),
           Card(
             child: ListTile(
-              title: Text('Lamp Off'),
-              onTap: () => TorchCompat.turnOff(),
-            ),
+                title: Text('Lamp Off'),
+                onTap: () => null // TorchCompat.turnOff(),
+                ),
           ),
         ]));
   }

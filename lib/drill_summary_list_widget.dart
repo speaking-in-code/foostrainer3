@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'aggregated_drill_summary.dart';
+import 'drill_action_buttons_widget.dart';
 import 'drill_data.dart';
 import 'drill_details_widget.dart';
 import 'drill_stats_screen.dart';
@@ -63,7 +64,7 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
             _buildHeader(context, panelData.drill, drillData),
         body: Column(children: [
           StatsGridWidget(summary: panelData.drill, drillData: drillData),
-          _ActionButtons(drill: panelData.drill, drillData: drillData),
+          DrillActionButtonsWidget(drillData: drillData),
         ]),
         isExpanded: panelData.isExpanded);
   }
@@ -84,35 +85,5 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
               child: Text(drillData.displayName))),
       // Expanded(flex: 1, child: Text('${drill.reps}')),
     ]);
-  }
-}
-
-class _ActionButtons extends StatelessWidget {
-  final DrillSummary drill;
-  final DrillData drillData;
-
-  _ActionButtons({this.drill, this.drillData});
-
-  Widget build(BuildContext context) {
-    return ButtonBar(children: [
-      OutlinedButton.icon(
-        icon: Icon(Icons.show_chart),
-        label: Text('Progress'),
-        onPressed: () => _onProgressClick(context),
-      ),
-      ElevatedButton.icon(
-        icon: Icon(Icons.play_arrow),
-        label: Text('Practice'),
-        onPressed: () => _onPlayPressed(context),
-      ),
-    ]);
-  }
-
-  void _onProgressClick(BuildContext context) {
-    ProgressScreen.navigate(context, drillData);
-  }
-
-  void _onPlayPressed(BuildContext context) {
-    PracticeConfigScreen.navigate(context, drillData);
   }
 }

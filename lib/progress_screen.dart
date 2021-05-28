@@ -26,6 +26,8 @@ final _log = Log.get('progress_screen');
 // Drill history screen: link to progress screen, and use icons instead
 // of text label buttons. Use two-line expansion tile headers. Remove drill
 // details link, since it's boring.
+//
+// Replace layout here with card + standard list tile for drill name.
 class ProgressScreen extends StatefulWidget {
   static const routeName = '/progress';
   final StaticDrills staticDrills;
@@ -80,7 +82,7 @@ class ProgressScreenState extends State<ProgressScreen> {
     ];
     return Scaffold(
       appBar: MyAppBar(title: 'Progress', actions: actions).build(context),
-      body: _buildBody(context), // MonthlyDrillsWidget(widget.resultsDb),
+      body: _buildBody(context),
       bottomNavigationBar: MyNavBar(location: MyNavBarLocation.progress),
     );
   }
@@ -97,7 +99,7 @@ class ProgressScreenState extends State<ProgressScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    String title = options.drillData?.fullName ?? 'All Drills';
+    String title = options.drillData?.displayName ?? 'All Drills';
     return Padding(
         padding: EdgeInsets.only(top: 8),
         child: TitledSection(
@@ -160,70 +162,3 @@ class _DrillChartsState extends State<_DrillCharts> {
             child: Column(children: [tabBar, tabBarView])));
   }
 }
-
-/*
-class _SelectedDrill extends StatefulWidget {
-  final ValueNotifier<DrillData> drillValue;
-  _SelectedDrill({this.drillValue});
-
-  @override
-  State<StatefulWidget> createState() => _SelectedDrillState();
-}
-
-class _SelectedDrillState extends State<_SelectedDrill> {
-  @override
-  void initState() {
-    super.initState();
-    widget.drillValue.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String title = 'Drill: All';
-    Text subtitle;
-    DrillData drillData = widget.drillValue.value;
-    if (drillData != null) {
-      title = 'Drill: ${drillData.type}';
-      subtitle = Text(widget.drillValue.value.name);
-    }
-    return ListTile(title: Text(title), subtitle: subtitle);
-  }
-}
-
-class _DrillSelector extends StatefulWidget {
-  final StaticDrills staticDrills;
-  final ValueNotifier<DrillData> drillValue;
-
-  _DrillSelector({this.staticDrills, this.drillValue});
-
-  @override
-  State<StatefulWidget> createState() => _DrillSelectorState();
-}
-
-class _DrillSelectorState extends State<_DrillSelector> {
-  DrillData selected;
-
-  @override
-  Widget build(BuildContext context) {
-    String label = 'All Drills';
-    if (selected != null) {
-      label = '${selected.type}: ${selected.name}';
-    }
-    return SelectionChip(
-      label: label,
-      onPressed: _onDrillSelectorPressed,
-    );
-  }
-
-  void _onDrillSelectorPressed() async {
-    DrillData chosen = await DrillChooserScreen.startDialog(context,
-        staticDrills: widget.staticDrills, selected: selected, allowAll: true);
-    _log.info('Setting new value of ${chosen?.fullName}');
-    widget.drillValue.value = chosen;
-    setState(() {
-      selected = chosen;
-    });
-  }
-}*/

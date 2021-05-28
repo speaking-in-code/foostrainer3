@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
-import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
+import 'drill_performance_table.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
-import 'percent_formatter.dart';
+import 'my_nav_bar.dart';
+import 'practice_config_screen.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
 import 'static_drills.dart';
 import 'stats_grid_widget.dart';
-import 'titled_card.dart';
 
 final _log = Log.get('results_screen');
 
-class _Args {
+class ResultsScreenArgs {
   final int drillId;
   final DrillData drillData;
 
-  _Args(this.drillId, this.drillData);
+  ResultsScreenArgs(this.drillId, this.drillData);
 }
 
 // Make the bottom nav bar here smarter. Should be a choice between details, history
@@ -30,12 +29,12 @@ class ResultsScreen extends StatelessWidget {
 
   static void push(BuildContext context, int drillId, DrillData drillData) =>
       Navigator.pushNamed(context, routeName,
-          arguments: _Args(drillId, drillData));
+          arguments: ResultsScreenArgs(drillId, drillData));
 
   static void pushReplacement(
       BuildContext context, int drillId, DrillData drillData) {
     Navigator.pushReplacementNamed(context, routeName,
-        arguments: _Args(drillId, drillData));
+        arguments: ResultsScreenArgs(drillId, drillData));
   }
 
   final StaticDrills staticDrills;
@@ -45,20 +44,26 @@ class ResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _Args args = ModalRoute.of(context).settings.arguments;
+    final ResultsScreenArgs args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: MyAppBar(title: 'Results').build(context),
-      body: _LoadedResultsScreen(staticDrills, resultsDb, args.drillId),
+      body: _LoadedResultsScreen(resultsDb, args.drillData, args.drillId),
+      bottomNavigationBar: MyNavBar(
+          location: MyNavBarLocation.monthly, drillData: args.drillData),
     );
+  }
+
+  Widget _replayButton() {
+    return FloatingActionButton(child: Icon(Icons.replay));
   }
 }
 
 class _LoadedResultsScreen extends StatefulWidget {
-  final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
+  final DrillData drillData;
   final int drillId;
 
-  _LoadedResultsScreen(this.staticDrills, this.resultsDb, this.drillId);
+  _LoadedResultsScreen(this.resultsDb, this.drillData, this.drillId);
 
   @override
   State<StatefulWidget> createState() => _LoadedResultsScreenState();
@@ -85,61 +90,30 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
           if (!snapshot.hasData) {
             return Spinner();
           }
-          final summary = snapshot.data;
-          final drillData = widget.staticDrills.getDrill(summary.drill.drill);
-          final children = [
-            _summaryCard(summary, drillData),
-          ];
-          if (summary.drill.tracking) {
-            children.add(_accuracyChart(summary, drillData));
-          }
-          return ListView(children: children);
+          return _summaryCard(snapshot.data);
         });
   }
 
-  Widget _summaryCard(DrillSummary summary, DrillData drillData) {
-    return TitledCard(
-        title: drillData.name,
-        child: StatsGridWidget(summary: summary, drillData: drillData));
-  }
-
-  List<_PerActionAccuracy> _perActionAccuracy(
-      DrillSummary summary, DrillData drillData) {
-    final perAction = drillData.actions.map((ActionData action) {
-      double accuracy = summary.actions[action.label]?.accuracy;
-      return _PerActionAccuracy(action.label, accuracy);
-    });
-    return perAction.toList();
-  }
-
-  // Reorder entries here by order in StaticDrills, not alphabetical order.
-  Widget _accuracyChart(DrillSummary summary, DrillData drillData) {
-    List<_PerActionAccuracy> data = _perActionAccuracy(summary, drillData);
-    final accuracy = charts.Series<_PerActionAccuracy, String>(
-      id: 'accuracy',
-      domainFn: (_PerActionAccuracy action, _) => action.action,
-      measureFn: (_PerActionAccuracy action, _) => action.accuracy,
-      data: data,
-      labelAccessorFn: (_PerActionAccuracy action, _) =>
-          PercentFormatter.format(action.accuracy),
-    );
-    final chart = charts.BarChart(
-      [accuracy],
-      animate: true,
-      barRendererDecorator: charts.BarLabelDecorator<String>(),
-      domainAxis: charts.OrdinalAxisSpec(
-        renderSpec: charts.SmallTickRendererSpec(
-          labelStyle: chart_utils.axisLabelStyle,
+  Widget _summaryCard(DrillSummary summary) {
+    return ListView(children: [
+      Card(
+        child: ListTile(
+          title: Text(widget.drillData.type),
+          subtitle: Text(widget.drillData.name),
+          trailing: IconButton(
+            icon: Icon(Icons.play_arrow),
+            onPressed: _onPlay,
+          ),
         ),
       ),
-    );
-    return TitledCard(title: 'Accuracy', child: chart_utils.paddedChart(chart));
+      Card(
+          child:
+              StatsGridWidget(summary: summary, drillData: widget.drillData)),
+      Card(child: DrillPerformanceTable(summary: summary)),
+    ]);
   }
-}
 
-class _PerActionAccuracy {
-  final String action;
-  final double accuracy;
-
-  _PerActionAccuracy(this.action, this.accuracy);
+  void _onPlay() {
+    PracticeConfigScreen.navigate(context, widget.drillData);
+  }
 }
