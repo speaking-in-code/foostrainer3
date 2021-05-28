@@ -23,11 +23,6 @@ final _log = Log.get('progress_screen');
 // converge charts as much as possible between progress screen and drill
 // results/history screen. Per-drill progress screen should probably show everything
 // the drill results screen shows?
-// Drill history screen: link to progress screen, and use icons instead
-// of text label buttons. Use two-line expansion tile headers. Remove drill
-// details link, since it's boring.
-//
-// Replace layout here with card + standard list tile for drill name.
 class ProgressScreen extends StatefulWidget {
   static const routeName = '/progress';
   final StaticDrills staticDrills;
@@ -73,21 +68,14 @@ class ProgressScreenState extends State<ProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final actions = [
-      IconButton(
-        icon: const Icon(Icons.search),
-        tooltip: 'Select Drills',
-        onPressed: () => _onSelectDrills(context),
-      )
-    ];
     return Scaffold(
-      appBar: MyAppBar(title: 'Progress', actions: actions).build(context),
+      appBar: MyAppBar(title: 'Progress').build(context),
       body: _buildBody(context),
       bottomNavigationBar: MyNavBar(location: MyNavBarLocation.progress),
     );
   }
 
-  void _onSelectDrills(BuildContext context) async {
+  void _onSelectDrills() async {
     ProgressOptions chosen = await ProgressSelectorScreen.startDialog(context,
         staticDrills: widget.staticDrills, selected: options, allowAll: true);
     if (chosen != null) {
@@ -99,11 +87,16 @@ class ProgressScreenState extends State<ProgressScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    String title = options.drillData?.displayName ?? 'All Drills';
-    return Padding(
-        padding: EdgeInsets.only(top: 8),
-        child: TitledSection(
-            title: title, child: _DrillCharts(drillHistory: drillHistory)));
+    final title = options.drillData?.type ?? 'All Drills';
+    final subtitle = options.drillData?.name;
+    return Column(children: [
+      ListTile(
+          title: Text(title),
+          subtitle: subtitle != null ? Text(subtitle) : null,
+          trailing:
+              IconButton(icon: Icon(Icons.edit), onPressed: _onSelectDrills)),
+      _DrillCharts(drillHistory: drillHistory),
+    ]);
   }
 }
 

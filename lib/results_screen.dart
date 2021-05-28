@@ -52,10 +52,6 @@ class ResultsScreen extends StatelessWidget {
           location: MyNavBarLocation.monthly, drillData: args.drillData),
     );
   }
-
-  Widget _replayButton() {
-    return FloatingActionButton(child: Icon(Icons.replay));
-  }
 }
 
 class _LoadedResultsScreen extends StatefulWidget {
