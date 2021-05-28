@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ft3/accuracy_over_time_chart.dart';
-import 'package:ft3/drill_data.dart';
 
+import 'accuracy_over_time_chart.dart';
 import 'chart_utils.dart' as chart_utils;
+import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'progress_selector_screen.dart';
@@ -13,7 +13,6 @@ import 'results_entities.dart';
 import 'spinner.dart';
 import 'static_drills.dart';
 import 'log.dart';
-import 'titled_section.dart';
 
 final _log = Log.get('progress_screen');
 
@@ -93,8 +92,8 @@ class ProgressScreenState extends State<ProgressScreen> {
       ListTile(
           title: Text(title),
           subtitle: subtitle != null ? Text(subtitle) : null,
-          trailing:
-              IconButton(icon: Icon(Icons.edit), onPressed: _onSelectDrills)),
+          trailing: IconButton(
+              icon: Icon(Icons.expand_more), onPressed: _onSelectDrills)),
       _DrillCharts(drillHistory: drillHistory),
     ]);
   }
