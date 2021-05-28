@@ -2,11 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'date_formatter.dart';
+import 'drill_data.dart';
 import 'drill_summary_list_widget.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
+import 'results_screen.dart';
+import 'spinner.dart';
 import 'static_drills.dart';
 
 class DailyDrillsScreen extends StatelessWidget {
@@ -72,14 +75,26 @@ class _DailyDrillListState extends State<_DailyDrillList> {
       return Text('${snapshot.error}');
     }
     if (!snapshot.hasData) {
-      return Center(child: CircularProgressIndicator());
+      return Spinner();
     }
     if (snapshot.data.isEmpty) {
       return Center(child: Text('No drills, go practice!'));
     }
-    return SingleChildScrollView(
-        child: Container(
-            child: DrillSummaryListWidget(
-                staticDrills: widget.staticDrills, drills: snapshot.data)));
+    return ListView(children: snapshot.data.map((e) => _toTile(e)).toList());
+  }
+
+  Widget _toTile(DrillSummary drill) {
+    final DrillData data = widget.staticDrills.getDrill(drill.drill.drill);
+    return ListTile(
+      title: Text(data.type),
+      subtitle: Text(data.name),
+      trailing: IconButton(
+          icon: Icon(Icons.expand_more),
+          onPressed: () => _onDrillSelect(drill.drill.id, data)),
+    );
+  }
+
+  void _onDrillSelect(int drillId, DrillData data) {
+    ResultsScreen.push(context, drillId, data);
   }
 }
