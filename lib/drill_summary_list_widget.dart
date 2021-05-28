@@ -5,6 +5,7 @@ import 'drill_data.dart';
 import 'drill_details_widget.dart';
 import 'drill_stats_screen.dart';
 import 'practice_config_screen.dart';
+import 'progress_screen.dart';
 import 'results_entities.dart';
 import 'results_screen.dart';
 import 'static_drills.dart';
@@ -75,12 +76,12 @@ class DrillSummaryListWidgetState extends State<DrillSummaryListWidget> {
   }
 
   Widget _title(DrillSummary drill, DrillData drillData) {
-    final displayName = '${drillData.name}';
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Expanded(
           flex: 3,
           child: Padding(
-              padding: EdgeInsets.only(right: 5.0), child: Text(displayName))),
+              padding: EdgeInsets.only(right: 5.0),
+              child: Text(drillData.displayName))),
       // Expanded(flex: 1, child: Text('${drill.reps}')),
     ]);
   }
@@ -94,16 +95,24 @@ class _ActionButtons extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return ButtonBar(children: [
-      OutlinedButton(
-          child: Text('Details'),
-          onPressed: () =>
-              ResultsScreen.push(context, drill.drill.id, drillData)),
-      OutlinedButton(
-          child: Text('History'),
-          onPressed: () => DrillStatsScreen.navigate(context, drillData)),
-      ElevatedButton(
-          child: Text('Practice'),
-          onPressed: () => PracticeConfigScreen.navigate(context, drillData)),
+      OutlinedButton.icon(
+        icon: Icon(Icons.show_chart),
+        label: Text('Progress'),
+        onPressed: () => _onProgressClick(context),
+      ),
+      ElevatedButton.icon(
+        icon: Icon(Icons.play_arrow),
+        label: Text('Practice'),
+        onPressed: () => _onPlayPressed(context),
+      ),
     ]);
+  }
+
+  void _onProgressClick(BuildContext context) {
+    ProgressScreen.navigate(context, drillData);
+  }
+
+  void _onPlayPressed(BuildContext context) {
+    PracticeConfigScreen.navigate(context, drillData);
   }
 }

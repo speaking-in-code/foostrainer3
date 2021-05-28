@@ -28,8 +28,6 @@ class MyNavBarLocation {
       ),
       route: MonthlyDrillsScreen.routeName);
 
-  // TODO: this navigation won't work, make the drill stats screen show
-  // some overall charts with drill down options.
   static const MyNavBarLocation progress = MyNavBarLocation._create(
       item: BottomNavigationBarItem(
         icon: Icon(Icons.show_chart),

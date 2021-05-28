@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ft3/accuracy_over_time_chart.dart';
+import 'package:ft3/drill_data.dart';
 
 import 'chart_utils.dart' as chart_utils;
 import 'my_app_bar.dart';
@@ -22,10 +23,17 @@ final _log = Log.get('progress_screen');
 // converge charts as much as possible between progress screen and drill
 // results/history screen. Per-drill progress screen should probably show everything
 // the drill results screen shows?
+// Drill history screen: link to progress screen, and use icons instead
+// of text label buttons. Use two-line expansion tile headers. Remove drill
+// details link, since it's boring.
 class ProgressScreen extends StatefulWidget {
   static const routeName = '/progress';
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
+
+  static void navigate(BuildContext context, DrillData drillData) {
+    Navigator.pushNamed(context, routeName, arguments: drillData);
+  }
 
   ProgressScreen({@required this.staticDrills, @required this.resultsDb})
       : assert(staticDrills != null),
@@ -37,12 +45,14 @@ class ProgressScreen extends StatefulWidget {
 
 class ProgressScreenState extends State<ProgressScreen> {
   Future<List<AggregatedDrillSummary>> drillHistory;
-  ProgressOptions options = ProgressOptions(
-      drillData: null, aggregationLevel: AggregationLevel.DAILY);
+  ProgressOptions options;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    DrillData drillData = ModalRoute.of(context).settings.arguments;
+    options = ProgressOptions(
+        drillData: drillData, aggregationLevel: AggregationLevel.DAILY);
     _initFuture();
   }
 
@@ -87,10 +97,7 @@ class ProgressScreenState extends State<ProgressScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    String title = 'All Drills';
-    if (options.drillData != null) {
-      title = '${options.drillData.type}: ${options.drillData.name}';
-    }
+    String title = options.drillData?.fullName ?? 'All Drills';
     return Padding(
         padding: EdgeInsets.only(top: 8),
         child: TitledSection(

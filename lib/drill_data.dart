@@ -57,6 +57,8 @@ class DrillData {
 
   String get fullName => '$type:$name';
 
+  String get displayName => '$type: $name';
+
   factory DrillData.decode(String json) =>
       _$DrillDataFromJson(jsonDecode(json));
   factory DrillData.fromJson(Map<String, dynamic> json) =>
