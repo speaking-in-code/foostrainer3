@@ -6,6 +6,7 @@ import 'log.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'practice_config_screen.dart';
+import 'progress_screen.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
@@ -46,11 +47,25 @@ class ResultsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ResultsScreenArgs args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-      appBar: MyAppBar(title: 'Results').build(context),
+      appBar: MyAppBar(title: 'Results', actions: _actionsList(context, args))
+          .build(context),
       body: _LoadedResultsScreen(resultsDb, args.drillData, args.drillId),
       bottomNavigationBar: MyNavBar(
           location: MyNavBarLocation.monthly, drillData: args.drillData),
     );
+  }
+
+  List<IconButton> _actionsList(BuildContext context, ResultsScreenArgs args) {
+    return [
+      IconButton(
+        icon: Icon(Icons.show_chart),
+        onPressed: () => ProgressScreen.navigate(context, args.drillData),
+      ),
+      IconButton(
+        icon: Icon(Icons.play_arrow),
+        onPressed: () => PracticeConfigScreen.navigate(context, args.drillData),
+      )
+    ];
   }
 }
 
@@ -96,10 +111,6 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
         child: ListTile(
           title: Text(widget.drillData.type),
           subtitle: Text(widget.drillData.name),
-          trailing: IconButton(
-            icon: Icon(Icons.play_arrow),
-            onPressed: _onPlay,
-          ),
         ),
       ),
       Card(
@@ -107,9 +118,5 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
               StatsGridWidget(summary: summary, drillData: widget.drillData)),
       Card(child: DrillPerformanceTable(summary: summary)),
     ]);
-  }
-
-  void _onPlay() {
-    PracticeConfigScreen.navigate(context, widget.drillData);
   }
 }

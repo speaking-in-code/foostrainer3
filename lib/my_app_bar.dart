@@ -19,15 +19,21 @@ class MyAppBar {
         key: key,
         bottom: bottom,
         title: Text(title),
-        actions: this.actions +
-            [
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                key: moreKey,
-                tooltip: 'More Options',
-                onPressed: () => _onMoreOptions(context),
-              ),
-            ]);
+        actions: _makeActions(context));
+  }
+
+  List<IconButton> _makeActions(BuildContext context) {
+    if (actions.isNotEmpty) {
+      return actions;
+    }
+    return [
+      IconButton(
+        icon: const Icon(Icons.more_vert),
+        key: moreKey,
+        tooltip: 'More Options',
+        onPressed: () => _onMoreOptions(context),
+      ),
+    ];
   }
 
   Future<void> _onMoreOptions(BuildContext context) {
