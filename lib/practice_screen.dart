@@ -129,8 +129,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   BottomAppBar _controlButtons(
       BuildContext context, PracticeProgress progress) {
-    final stopButton = ElevatedButton(
-      child: Icon(Icons.stop),
+    final stopButton = TextButton.icon(
+      icon: Icon(Icons.stop),
+      label: Text('Stop'),
       onPressed: _onStop,
     );
     final actionButton = _actionButton(progress);
@@ -143,14 +144,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   ButtonStyleButton _actionButton(PracticeProgress progress) {
     if (progress.practiceState == PracticeState.playing) {
-      return ElevatedButton(
+      return TextButton.icon(
           key: pauseKey,
-          child: Icon(Icons.pause),
+          icon: Icon(Icons.pause),
+          label: Text('Pause'),
           onPressed: PracticeBackground.pause);
     }
-    return ElevatedButton(
+    return TextButton.icon(
         key: playKey,
-        child: Icon(Icons.play_arrow),
+        icon: Icon(Icons.play_arrow),
+        label: Text('Play'),
         onPressed: PracticeBackground.play);
   }
 
