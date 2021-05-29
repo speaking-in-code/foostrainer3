@@ -68,7 +68,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       fabClicked = null;
     }
     return Scaffold(
-      appBar: MyAppBar(title: _drill.name).build(context),
+      appBar: MyAppBar.drillTitle(drillData: _drill).build(context),
       body: _expansionPanels(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: fabColor,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart' show required;
 
 import 'drill_data.dart';
-import 'drill_types_screen.dart';
+import 'home_screen.dart';
 import 'monthly_drills_screen.dart';
 import 'progress_screen.dart';
 
@@ -20,7 +20,7 @@ class MyNavBarLocation {
         icon: Icon(Icons.play_arrow),
         label: 'Practice',
       ),
-      route: DrillTypesScreen.routeName);
+      route: HomeScreen.routeName);
 
   static const MyNavBarLocation monthly = MyNavBarLocation._create(
       item: BottomNavigationBarItem(
@@ -66,10 +66,6 @@ class MyNavBar extends StatelessWidget {
   void _onTap(BuildContext context, int itemIndex) {
     if (itemIndex != currentIndex) {
       final location = _locations[itemIndex];
-      if (location == MyNavBarLocation.progress) {
-        ProgressScreen.navigate(context, drillData);
-        return;
-      }
       Navigator.pushReplacementNamed(context, location.route);
     }
   }

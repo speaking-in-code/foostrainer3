@@ -32,7 +32,7 @@ class DailyDrillsScreen extends StatelessWidget {
       appBar: MyAppBar(title: '${DateFormatter.format(day)}').build(context),
       body: _DailyDrillList(
           staticDrills: staticDrills, resultsDb: resultsDb, day: day),
-      //bottomNavigationBar: MyNavBar(location: MyNavBarLocation.monthly),
+      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.monthly),
     );
   }
 }
@@ -85,12 +85,15 @@ class _DailyDrillListState extends State<_DailyDrillList> {
 
   Widget _toTile(DrillSummary drill) {
     final DrillData data = widget.staticDrills.getDrill(drill.drill.drill);
+    final onTap = () => _onDrillSelect(drill.drill.id, data);
     return ListTile(
       title: Text(data.type),
       subtitle: Text(data.name),
+      onTap: onTap,
       trailing: IconButton(
-          icon: Icon(Icons.expand_more),
-          onPressed: () => _onDrillSelect(drill.drill.id, data)),
+        icon: Icon(Icons.expand_more),
+        onPressed: onTap,
+      ),
     );
   }
 

@@ -1,18 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/app_bar_chip.dart';
 
 import 'accuracy_over_time_chart.dart';
 import 'chart_utils.dart' as chart_utils;
+import 'drill_chooser_chip.dart';
 import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
-import 'progress_selector_screen.dart';
 import 'reps_over_time_chart.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
 import 'static_drills.dart';
 import 'log.dart';
+import 'progress_selection_chip.dart';
 
 final _log = Log.get('progress_screen');
 
@@ -41,24 +43,23 @@ class ProgressScreen extends StatefulWidget {
 
 class ProgressScreenState extends State<ProgressScreen> {
   Future<List<AggregatedDrillSummary>> drillHistory;
-  ProgressOptions options;
+  ProgressSelection selected;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     DrillData drillData = ModalRoute.of(context).settings.arguments;
-    options = ProgressOptions(
-        drillData: drillData, aggregationLevel: AggregationLevel.DAILY);
+    selected = ProgressSelection(
+        drillData: drillData, aggLevel: AggregationLevel.DAILY);
     _initFuture();
   }
 
   void _initFuture() {
-    final drill = options.drillData?.fullName;
-    final aggLevel = options.aggregationLevel;
-    _log.info('Reloading data, aggLevel=$aggLevel drill=$drill');
+    final drill = selected.drillData?.fullName;
+    _log.info('Reloading data, aggLevel=${selected.aggLevel} drill=$drill');
     setState(() {
       drillHistory = widget.resultsDb.summariesDao.loadAggregateDrills(
-          aggLevel: aggLevel,
+          aggLevel: selected.aggLevel,
           drill: drill,
           numWeeks: chart_utils.maxWeeks,
           offset: 0);
@@ -67,33 +68,33 @@ class ProgressScreenState extends State<ProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _log.info('build called');
     return Scaffold(
-      appBar: MyAppBar(title: 'Progress').build(context),
+      appBar: MyAppBar.titleWidget(
+              titleWidget: _titleWidget(), includeMoreAction: false)
+          .build(context),
       body: _buildBody(context),
       bottomNavigationBar: MyNavBar(location: MyNavBarLocation.progress),
     );
   }
 
-  void _onSelectDrills() async {
-    ProgressOptions chosen = await ProgressSelectorScreen.startDialog(context,
-        staticDrills: widget.staticDrills, selected: options, allowAll: true);
-    if (chosen != null) {
-      setState(() {
-        options = chosen;
-        _initFuture();
-      });
-    }
+  Widget _titleWidget() {
+    return ProgressSelectionChip(
+      staticDrills: widget.staticDrills,
+      selected: selected,
+      onProgressChange: _onProgressChange,
+    );
+  }
+
+  void _onProgressChange(ProgressSelection newSelected) {
+    setState(() {
+      selected = newSelected;
+      _initFuture();
+    });
   }
 
   Widget _buildBody(BuildContext context) {
-    final title = options.drillData?.type ?? 'All Drills';
-    final subtitle = options.drillData?.name;
     return Column(children: [
-      ListTile(
-          title: Text(title),
-          subtitle: subtitle != null ? Text(subtitle) : null,
-          trailing: IconButton(
-              icon: Icon(Icons.expand_more), onPressed: _onSelectDrills)),
       _DrillCharts(drillHistory: drillHistory),
     ]);
   }

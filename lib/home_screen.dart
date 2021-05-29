@@ -8,11 +8,11 @@ import 'practice_config_screen.dart';
 import 'static_drills.dart';
 
 // Widget to select drill for practice.
-class DrillTypesScreen extends StatelessWidget {
-  static const routeName = '/drillTypes';
+class HomeScreen extends StatelessWidget {
+  static const routeName = '/home';
   final StaticDrills staticDrills;
 
-  DrillTypesScreen({@required this.staticDrills});
+  HomeScreen({@required this.staticDrills});
 
   @override
   Widget build(BuildContext context) {

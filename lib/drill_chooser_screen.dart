@@ -16,7 +16,7 @@ class DrillChooserScreen extends StatelessWidget {
       {@required StaticDrills staticDrills,
       DrillData selected,
       bool allowAll = false}) async {
-    DrillData chosen = await Navigator.push(
+    return Navigator.push(
         context,
         MaterialPageRoute(
             fullscreenDialog: true,
@@ -25,7 +25,6 @@ class DrillChooserScreen extends StatelessWidget {
                   selected: selected,
                   allowAll: allowAll,
                 )));
-    return chosen;
   }
 
   final StaticDrills staticDrills;
@@ -38,17 +37,26 @@ class DrillChooserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: MyAppBar(title: 'Choose Drill').build(context),
-      body: DrillChooserWidget(
-          staticDrills: staticDrills,
-          onDrillChosen: (DrillData drill) => _onDrillChosen(context, drill),
-          selected: selected,
-          allowAll: allowAll),
-    );
+    return WillPopScope(
+        onWillPop: () => _onWillPop(context),
+        child: Scaffold(
+          appBar: MyAppBar(title: 'Choose Drill').build(context),
+          body: DrillChooserWidget(
+              staticDrills: staticDrills,
+              onDrillChosen: (DrillData drill) =>
+                  _onDrillChosen(context, drill),
+              selected: selected,
+              allowAll: allowAll),
+        ));
   }
 
   void _onDrillChosen(BuildContext context, DrillData drill) {
     Navigator.pop(context, drill);
+  }
+
+  Future<bool> _onWillPop(BuildContext context) async {
+    // Screen closed without selection, return the original value.
+    Navigator.pop(context, selected);
+    return true;
   }
 }

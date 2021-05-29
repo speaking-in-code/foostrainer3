@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'drill_data.dart';
+import 'drill_description_tile.dart';
 import 'drill_performance_table.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
-import 'my_nav_bar.dart';
 import 'practice_config_screen.dart';
 import 'progress_screen.dart';
 import 'results_db.dart';
@@ -22,9 +22,6 @@ class ResultsScreenArgs {
   ResultsScreenArgs(this.drillId, this.drillData);
 }
 
-// Make the bottom nav bar here smarter. Should be a choice between details, history
-// and practice, I think, with practice probably on bottom right. Highlight
-// whichever one we're on.
 class ResultsScreen extends StatelessWidget {
   static const routeName = '/results';
 
@@ -46,35 +43,15 @@ class ResultsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ResultsScreenArgs args = ModalRoute.of(context).settings.arguments;
-    return Scaffold(
-      appBar: MyAppBar(title: 'Results', actions: _actionsList(context, args))
-          .build(context),
-      body: _LoadedResultsScreen(resultsDb, args.drillData, args.drillId),
-      bottomNavigationBar: MyNavBar(
-          location: MyNavBarLocation.monthly, drillData: args.drillData),
-    );
-  }
-
-  List<IconButton> _actionsList(BuildContext context, ResultsScreenArgs args) {
-    return [
-      IconButton(
-        icon: Icon(Icons.show_chart),
-        onPressed: () => ProgressScreen.navigate(context, args.drillData),
-      ),
-      IconButton(
-        icon: Icon(Icons.play_arrow),
-        onPressed: () => PracticeConfigScreen.navigate(context, args.drillData),
-      )
-    ];
+    return _LoadedResultsScreen(resultsDb, args);
   }
 }
 
 class _LoadedResultsScreen extends StatefulWidget {
   final ResultsDatabase resultsDb;
-  final DrillData drillData;
-  final int drillId;
+  final ResultsScreenArgs args;
 
-  _LoadedResultsScreen(this.resultsDb, this.drillData, this.drillId);
+  _LoadedResultsScreen(this.resultsDb, this.args);
 
   @override
   State<StatefulWidget> createState() => _LoadedResultsScreenState();
@@ -87,7 +64,7 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
   void initState() {
     super.initState();
     _summary = widget.resultsDb.summariesDao
-        .loadDrill(widget.resultsDb, widget.drillId);
+        .loadDrill(widget.resultsDb, widget.args.drillId);
   }
 
   @override
@@ -101,22 +78,42 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
           if (!snapshot.hasData) {
             return Spinner();
           }
-          return _summaryCard(snapshot.data);
+          return _buildScaffold(snapshot.data);
         });
+  }
+
+  Widget _buildScaffold(DrillSummary summary) {
+    return Scaffold(
+      appBar: MyAppBar.drillTitle(
+              drillData: widget.args.drillData, includeMoreAction: false)
+          .build(context),
+      body: _summaryCard(summary),
+      bottomNavigationBar: _bottomBar(context, widget.args),
+    );
+  }
+
+  BottomAppBar _bottomBar(BuildContext context, ResultsScreenArgs args) {
+    return BottomAppBar(
+      child: Row(children: [
+        Spacer(),
+        IconButton(
+          icon: Icon(Icons.show_chart),
+          onPressed: () => ProgressScreen.navigate(context, args.drillData),
+        ),
+        IconButton(
+          icon: Icon(Icons.play_arrow),
+          onPressed: () =>
+              PracticeConfigScreen.navigate(context, args.drillData),
+        )
+      ]),
+    );
   }
 
   Widget _summaryCard(DrillSummary summary) {
     return ListView(children: [
-      Card(
-        child: ListTile(
-          title: Text(widget.drillData.type),
-          subtitle: Text(widget.drillData.name),
-        ),
-      ),
-      Card(
-          child:
-              StatsGridWidget(summary: summary, drillData: widget.drillData)),
-      Card(child: DrillPerformanceTable(summary: summary)),
+      // DrillDescriptionTile(drillData: widget.args.drillData),
+      StatsGridWidget(summary: summary, drillData: widget.args.drillData),
+      DrillPerformanceTable(summary: summary),
     ]);
   }
 }

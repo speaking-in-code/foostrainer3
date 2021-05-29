@@ -2,14 +2,14 @@ import 'package:audio_service/audio_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
-import 'package:ft3/daily_drills_screen.dart';
-import 'package:ft3/drill_stats_screen.dart';
-import 'package:ft3/monthly_drills_screen.dart';
 
 import 'album_art.dart';
+import 'daily_drills_screen.dart';
 import 'debug_screen.dart';
-import 'drill_types_screen.dart';
+import 'drill_stats_screen.dart';
+import 'home_screen.dart';
 import 'log.dart';
+import 'monthly_drills_screen.dart';
 import 'practice_config_screen.dart';
 import 'practice_screen.dart';
 import 'progress_screen.dart';
@@ -52,12 +52,12 @@ class MainApp extends StatelessWidget {
       title: 'FoosTrainer',
       theme: _darkTheme,
       navigatorObservers: <NavigatorObserver>[_observer],
-      initialRoute: DrillTypesScreen.routeName,
+      initialRoute: HomeScreen.routeName,
       routes: {
         DailyDrillsScreen.routeName: (context) =>
             DailyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
-        DrillTypesScreen.routeName: (context) =>
-            AudioServiceWidget(child: DrillTypesScreen(staticDrills: drills)),
+        HomeScreen.routeName: (context) =>
+            AudioServiceWidget(child: HomeScreen(staticDrills: drills)),
         DrillStatsScreen.routeName: (context) =>
             DrillStatsScreen(staticDrills: drills, resultsDb: resultsDb),
         MonthlyDrillsScreen.routeName: (context) =>
