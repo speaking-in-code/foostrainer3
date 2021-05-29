@@ -480,7 +480,8 @@ void main() {
         drills.add(_insertDrill(start, i));
       }
       await Future.wait(drills);
-      List<DrillSummary> pageOne = await summaries.loadRecentDrills(db, 10, 0);
+      List<DrillSummary> pageOne =
+          await summaries.loadRecentDrills(db, limit: 10, offset: 0);
       expect(pageOne.length, equals(10));
       for (int i = 94, j = 0; i >= 85; --i, ++j) {
         expect(pageOne[j].drill.drill, equals('Shot:Drill $i'));
@@ -491,7 +492,8 @@ void main() {
       for (int i = 4, j = 0; i >= 0; --i, ++j) {
         expect(lastPage[j].drill.drill, equals('Shot:Drill $i'));
       }
-      List<DrillSummary> offPage = await summaries.loadRecentDrills(db, 10, 95);
+      List<DrillSummary> offPage =
+          await summaries.loadRecentDrills(db, limit: 10, offset: 95);
       expect(offPage.length, equals(0));
     });
 
@@ -504,7 +506,8 @@ void main() {
       await db.deleteAll();
       final gone = await drills.loadDrill(drillId);
       expect(gone, isNull);
-      List<DrillSummary> summary = await summaries.loadRecentDrills(db, 10, 0);
+      List<DrillSummary> summary =
+          await summaries.loadRecentDrills(db, limit: 10, offset: 0);
       expect(summary, isEmpty);
     });
 
