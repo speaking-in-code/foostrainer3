@@ -227,6 +227,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     final bool shouldResume = !_pauseForDrillComplete;
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return TrackingDialog(callback: (TrackingResult result) {
             _finishTracking(context, result, shouldResume);
