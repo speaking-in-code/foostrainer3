@@ -25,6 +25,7 @@ dependencies:
   flutter_treeview: ^1.0.3+2
   #torch_compat:
   #  path: ../flutter_torch_compat
+  infinite_scroll_pagination: ^2.3.0
   intl: ^0.16.1
   json_annotation:
   logging: ^1.0.1

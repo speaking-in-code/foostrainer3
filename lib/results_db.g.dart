@@ -307,10 +307,15 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<StoredDrill>> _loadRecentStoredDrills(
-      int limit, int offset) async {
+      bool matchName, String fullName, int limit, int offset) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Drills ORDER BY startSeconds DESC LIMIT ? OFFSET ?',
-        arguments: <dynamic>[limit, offset],
+        'SELECT * FROM Drills WHERE NOT ? OR drill = ? ORDER BY startSeconds DESC LIMIT ? OFFSET ?',
+        arguments: <dynamic>[
+          matchName == null ? null : (matchName ? 1 : 0),
+          fullName,
+          limit,
+          offset
+        ],
         mapper: (Map<String, dynamic> row) => StoredDrill(
             id: row['id'] as int,
             startSeconds: row['startSeconds'] as int,

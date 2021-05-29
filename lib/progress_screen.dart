@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/drill_list_widget.dart';
 
 import 'accuracy_over_time_chart.dart';
 import 'chart_utils.dart' as chart_utils;
@@ -93,18 +94,32 @@ class ProgressScreenState extends State<ProgressScreen> {
 
   Widget _buildBody(BuildContext context) {
     return Column(children: [
-      _DrillCharts(drillHistory: drillHistory),
+      _DrillTabs(
+          resultsDb: widget.resultsDb,
+          staticDrills: widget.staticDrills,
+          drillData: selected.drillData,
+          drillHistory: drillHistory)
     ]);
   }
 }
 
-class _DrillCharts extends StatefulWidget {
+class _DrillTabs extends StatefulWidget {
+  final ResultsDatabase resultsDb;
+  final StaticDrills staticDrills;
+  final DrillData drillData;
   final Future<List<AggregatedDrillSummary>> drillHistory;
 
-  _DrillCharts({this.drillHistory});
+  _DrillTabs(
+      {this.resultsDb,
+      this.staticDrills,
+      this.drillData,
+      @required this.drillHistory})
+      : assert(resultsDb != null),
+        assert(staticDrills != null),
+        assert(drillHistory != null);
 
   @override
-  State<StatefulWidget> createState() => _DrillChartsState();
+  State<StatefulWidget> createState() => _DrillTabsState();
 }
 
 class _MyTab {
@@ -114,7 +129,7 @@ class _MyTab {
   _MyTab({this.tab, this.child});
 }
 
-class _DrillChartsState extends State<_DrillCharts> {
+class _DrillTabsState extends State<_DrillTabs> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(future: widget.drillHistory, builder: _buildSnapshot);
@@ -122,6 +137,7 @@ class _DrillChartsState extends State<_DrillCharts> {
 
   Widget _buildSnapshot(BuildContext context,
       AsyncSnapshot<List<AggregatedDrillSummary>> snapshot) {
+    _log.info('Rebuilding tabs, drill is ${widget.drillData?.fullName}');
     if (snapshot.hasError) {
       return Text('${snapshot.error}');
     }
@@ -137,6 +153,14 @@ class _DrillChartsState extends State<_DrillCharts> {
           tab: Tab(text: 'Accuracy'),
           child: SingleChildScrollView(
               child: AccuracyOverTimeChart(drillHistory: snapshot.data))),
+      _MyTab(
+        tab: Tab(text: 'Log'),
+        child: DrillListWidget(
+            key: UniqueKey(),
+            resultsDb: widget.resultsDb,
+            staticDrills: widget.staticDrills,
+            drillFullName: widget.drillData?.fullName),
+      )
     ];
     final tabBar = TabBar(
       tabs: tabs.map((e) => e.tab).toList(),

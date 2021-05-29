@@ -204,9 +204,12 @@ abstract class SummariesDao {
     return _buildDrillSummary(await drill, await actions);
   }
 
-  Future<List<DrillSummary>> loadRecentDrills(
-      ResultsDatabase db, int limit, int offset) async {
-    List<StoredDrill> drills = await _loadRecentStoredDrills(limit, offset);
+  Future<List<DrillSummary>> loadRecentDrills(ResultsDatabase db,
+      {@required int limit, @required int offset, String fullName}) async {
+    assert(limit != null);
+    assert(offset != null);
+    List<StoredDrill> drills = await _loadRecentStoredDrills(
+        fullName != null, fullName ?? '', limit, offset);
     return _summarizeDrills(db, drills);
   }
 
@@ -244,11 +247,14 @@ abstract class SummariesDao {
 
   @Query('''
   SELECT * FROM Drills
+  WHERE 
+  NOT :matchName OR drill = :fullName
   ORDER BY startSeconds DESC
   LIMIT :limit
   OFFSET :offset
   ''')
-  Future<List<StoredDrill>> _loadRecentStoredDrills(int limit, int offset);
+  Future<List<StoredDrill>> _loadRecentStoredDrills(
+      bool matchName, String fullName, int limit, int offset);
 
   static DrillSummary _buildDrillSummary(
       StoredDrill drill, List<StoredAction> actions) {
