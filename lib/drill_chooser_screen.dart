@@ -51,6 +51,7 @@ class DrillChooserScreen extends StatelessWidget {
   }
 
   void _onDrillChosen(BuildContext context, DrillData drill) {
+    _log.info('Drill chosen: $drill');
     Navigator.pop(context, drill);
   }
 

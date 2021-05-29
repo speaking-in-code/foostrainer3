@@ -63,7 +63,7 @@ class ProgressChooserSheetState extends State<ProgressChooserSheet> {
 
   void _onAggLevelSelected(BuildContext context, AggregationLevel aggLevel) {
     setState(() {
-      selected = selected.copyWith(aggLevel: aggLevel);
+      selected = selected.withAggLevel(aggLevel);
     });
   }
 
@@ -72,8 +72,9 @@ class ProgressChooserSheetState extends State<ProgressChooserSheet> {
         staticDrills: widget.staticDrills,
         selected: selected.drillData,
         allowAll: true);
+    _log.info('Got drill $chosen');
     setState(() {
-      selected = selected.copyWith(drillData: chosen);
+      selected = selected.withDrillData(chosen);
     });
   }
 }

@@ -16,10 +16,12 @@ class ProgressSelection {
   ProgressSelection({this.drillData, @required this.aggLevel})
       : assert(aggLevel != null);
 
-  ProgressSelection copyWith({DrillData drillData, AggregationLevel aggLevel}) {
-    return ProgressSelection(
-        drillData: drillData ?? this.drillData,
-        aggLevel: aggLevel ?? this.aggLevel);
+  ProgressSelection withAggLevel(AggregationLevel aggLevel) {
+    return ProgressSelection(drillData: drillData, aggLevel: aggLevel);
+  }
+
+  ProgressSelection withDrillData(DrillData drillData) {
+    return ProgressSelection(drillData: drillData, aggLevel: aggLevel);
   }
 }
 
