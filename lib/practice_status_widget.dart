@@ -7,19 +7,23 @@ import 'package:flutter/material.dart';
 
 import 'duration_formatter.dart';
 import 'percent_formatter.dart';
+import 'practice_background.dart';
 import 'results_entities.dart';
 import 'static_drills.dart';
 
-class ResultsWidget extends StatelessWidget {
+class PracticeStatusWidget extends StatelessWidget {
   final StaticDrills staticDrills;
+  final PracticeProgress progress;
   final DrillSummary summary;
 
-  ResultsWidget({Key key, @required this.staticDrills, @required this.summary})
-      : assert(summary != null);
+  PracticeStatusWidget(
+      {Key key, @required this.staticDrills, @required this.progress})
+      : summary = progress.results,
+        assert(progress != null),
+        assert(progress.results != null);
 
   @override
   Widget build(BuildContext context) {
-    final drillData = staticDrills.getDrill(summary.drill.drill);
     TextStyle labelStyle = Theme.of(context).textTheme.headline5;
     labelStyle = labelStyle.copyWith(color: labelStyle.color.withOpacity(0.75));
     TextStyle dataStyle = Theme.of(context).textTheme.headline4;
@@ -30,7 +34,7 @@ class ResultsWidget extends StatelessWidget {
       Row(children: [
         Expanded(
           child: Text(
-            drillData.name,
+            progress.action,
             textAlign: TextAlign.center,
             style: dataStyle,
           ),

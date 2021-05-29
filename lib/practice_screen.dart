@@ -13,7 +13,7 @@ import 'my_app_bar.dart';
 import 'practice_background.dart';
 import 'results_entities.dart';
 import 'results_screen.dart';
-import 'results_widget.dart';
+import 'practice_status_widget.dart';
 import 'screenshot_data.dart';
 import 'simple_dialog_item.dart';
 import 'spinner.dart';
@@ -121,9 +121,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       Future.delayed(Duration.zero, () => _showTrackingDialog(context));
     }
     return Scaffold(
-        appBar: MyAppBar(title: _progress.drill.name).build(context),
-        body: ResultsWidget(
-            staticDrills: widget.staticDrills, summary: _progress.results),
+        appBar: MyAppBar.drillTitle(drillData: _progress.drill).build(context),
+        body: PracticeStatusWidget(
+            staticDrills: widget.staticDrills, progress: _progress),
         bottomNavigationBar: _controlButtons(context, _progress));
   }
 
