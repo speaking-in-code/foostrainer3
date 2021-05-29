@@ -15,8 +15,10 @@ import 'results_entities.dart';
 import 'results_screen.dart';
 import 'results_widget.dart';
 import 'screenshot_data.dart';
+import 'simple_dialog_item.dart';
 import 'spinner.dart';
 import 'static_drills.dart';
+import 'tracking_dialog.dart';
 import 'tracking_info.dart';
 
 final _log = Log.get('PracticeScreen');
@@ -168,14 +170,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
       builder: (context) => SimpleDialog(
         title: Text('Cancel Drill'),
         children: <Widget>[
-          _SimpleDialogItem(
+          SimpleDialogItem(
               text: 'Continue',
               icon: Icons.play_arrow,
               color: Theme.of(context).accentColor,
               onPressed: () {
                 Navigator.pop(context, false);
               }),
-          _SimpleDialogItem(
+          SimpleDialogItem(
             text: 'Stop',
             icon: Icons.clear,
             color: Theme.of(context).unselectedWidgetColor,
@@ -224,36 +226,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void _showTrackingDialog(BuildContext context) async {
     final bool shouldResume = !_pauseForDrillComplete;
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text('Enter Result'),
-          children: <Widget>[
-            _SimpleDialogItem(
-              onPressed: () =>
-                  _finishTracking(context, TrackingResult.GOOD, shouldResume),
-              text: 'Good',
-              icon: Icons.thumb_up,
-              color: Theme.of(context).accentColor,
-            ),
-            _SimpleDialogItem(
-              onPressed: () =>
-                  _finishTracking(context, TrackingResult.MISSED, shouldResume),
-              text: 'Missed',
-              icon: Icons.thumb_down,
-              color: Theme.of(context).unselectedWidgetColor,
-            ),
-            _SimpleDialogItem(
-              onPressed: () =>
-                  _finishTracking(context, TrackingResult.SKIP, shouldResume),
-              text: 'Skip',
-              icon: Icons.double_arrow,
-              color: Theme.of(context).primaryColor,
-            ),
-          ],
-        );
-      },
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return TrackingDialog(callback: (TrackingResult result) {
+            _finishTracking(context, result, shouldResume);
+          });
+        });
   }
 
   void _finishTracking(
@@ -264,37 +242,5 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (shouldResume) {
       PracticeBackground.play();
     }
-  }
-}
-
-// Copied from https://material.io/components/dialogs/flutter#simple-dialog.
-class _SimpleDialogItem extends StatelessWidget {
-  const _SimpleDialogItem(
-      {Key key, this.icon, this.color, this.text, this.onPressed})
-      : super(key: key);
-
-  final IconData icon;
-  final Color color;
-  final String text;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    double iconSize = 48;
-    TextStyle textStyle = Theme.of(context).textTheme.headline6;
-    return SimpleDialogOption(
-      onPressed: onPressed,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, size: iconSize, color: color),
-          Padding(
-            padding: const EdgeInsetsDirectional.only(start: 16.0),
-            child: Text(text, style: textStyle),
-          ),
-        ],
-      ),
-    );
   }
 }
