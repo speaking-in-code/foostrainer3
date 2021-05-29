@@ -61,7 +61,8 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill.signal ??= Signal.AUDIO;
     _drill.tracking ??= true; // TODO(brian): switch default to false
     _practiceMinutes ??= (_drill.practiceMinutes ?? kDefaultMinutes).toDouble();
-    Color fabColor = Theme.of(context).buttonColor;
+    Color fabColor =
+        Theme.of(context).floatingActionButtonTheme.backgroundColor;
     Function fabClicked = _startPractice;
     if (_transitioning) {
       fabColor = Theme.of(context).disabledColor;

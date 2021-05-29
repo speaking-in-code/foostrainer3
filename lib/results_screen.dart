@@ -5,6 +5,8 @@ import 'drill_performance_table.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
+import 'practice_config_screen.dart';
+import 'progress_screen.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
@@ -82,13 +84,12 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
 
   Widget _buildScaffold(DrillSummary summary) {
     return Scaffold(
-        appBar: MyAppBar.drillTitle(
-                drillData: widget.args.drillData, includeMoreAction: false)
-            .build(context),
-        body: _summaryCard(summary),
-        bottomNavigationBar: MyNavBar(
-            location: MyNavBarLocation.progress,
-            drillData: widget.args.drillData));
+      appBar: MyAppBar.drillTitle(
+              drillData: widget.args.drillData, includeMoreAction: false)
+          .build(context),
+      body: _summaryCard(summary),
+      bottomNavigationBar: _bottomBar(),
+    );
   }
 
   Widget _summaryCard(DrillSummary summary) {
@@ -97,5 +98,36 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
       StatsGridWidget(summary: summary, drillData: widget.args.drillData),
       DrillPerformanceTable(summary: summary),
     ]);
+  }
+
+  // TODO: refactor this to share code with my_nav_bar.dart, but only if this
+  // UI turns out to be worth keeping.
+  Widget _bottomBar() {
+    return BottomNavigationBar(
+      selectedItemColor: Theme.of(context).unselectedWidgetColor,
+      unselectedItemColor: Theme.of(context).unselectedWidgetColor,
+      onTap: _onTap,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.show_chart),
+          label: 'Progress',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.replay),
+          label: 'Repeat',
+        ),
+      ],
+    );
+  }
+
+  void _onTap(int value) {
+    switch (value) {
+      case 0:
+        ProgressScreen.navigate(context, widget.args.drillData);
+        break;
+      case 1:
+        PracticeConfigScreen.navigate(context, widget.args.drillData);
+        break;
+    }
   }
 }
