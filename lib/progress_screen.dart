@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ft3/app_bar_chip.dart';
 
 import 'accuracy_over_time_chart.dart';
 import 'chart_utils.dart' as chart_utils;
-import 'drill_chooser_chip.dart';
 import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
