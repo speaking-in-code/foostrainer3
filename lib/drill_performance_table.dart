@@ -15,10 +15,26 @@ class DrillPerformanceTable extends StatelessWidget {
       DataColumn(label: Text('Acc')),
     ];
     final List<DataRow> rows = [];
+    if (summary.actions.length > 1) {
+      rows.add(_buildTotal());
+    }
     rows.addAll(summary.actions.values.map((action) => _buildRow(action)));
     return IgnorePointer(
         child: DataTable(columns: columns, rows: rows),
         ignoringSemantics: false);
+  }
+
+  DataRow _buildTotal() {
+    int totalReps = 0;
+    int totalGood = summary.drill.tracking ? 0 : null;
+    summary.actions.values.forEach((StoredAction action) {
+      totalReps += action.reps;
+      if (totalGood != null) {
+        totalGood += action.good;
+      }
+    });
+    final total = StoredAction(action: 'All', reps: totalReps, good: totalGood);
+    return _buildRow(total);
   }
 
   DataRow _buildRow(StoredAction action) {

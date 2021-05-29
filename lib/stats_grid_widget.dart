@@ -22,12 +22,18 @@ class StatsGridWidget extends StatelessWidget {
       mainAxisSpacing: 0,
       crossAxisSpacing: 0,
       children: [
+        _date(context),
         _time(context),
         _duration(context),
         _reps(context),
-        _accuracy(context),
+        // _accuracy(context),
       ],
     );
+  }
+
+  Widget _date(BuildContext context) {
+    return _labeledData(context,
+        label: 'Date', data: DateFormat.yMd().format(summary.drill.startTime));
   }
 
   Widget _time(BuildContext context) {
@@ -47,13 +53,6 @@ class StatsGridWidget extends StatelessWidget {
       repsString = '${summary.good}/${summary.reps}';
     }
     return _labeledData(context, label: 'Reps', data: repsString);
-  }
-
-  Widget _accuracy(BuildContext context) {
-    return _labeledData(context,
-        label: 'Accuracy',
-        data: PercentFormatter.formatAccuracy(
-            trackedReps: summary.reps, trackedGood: summary.good));
   }
 
   Widget _labeledData(BuildContext context, {String label, String data}) {
