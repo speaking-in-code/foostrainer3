@@ -73,7 +73,8 @@ class ProgressScreenState extends State<ProgressScreen> {
               titleWidget: _titleWidget(), includeMoreAction: false)
           .build(context),
       body: _buildBody(context),
-      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.progress),
+      bottomNavigationBar:
+          MyNavBar.forDrillNav(MyNavBarLocation.progress, selected.drillData),
     );
   }
 

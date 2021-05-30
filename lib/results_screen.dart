@@ -85,10 +85,20 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
   Widget _buildScaffold(DrillSummary summary) {
     return Scaffold(
       appBar: MyAppBar.drillTitle(
-              drillData: widget.args.drillData, includeMoreAction: false)
-          .build(context),
+          drillData: widget.args.drillData,
+          includeMoreAction: false,
+          actions: [_replayButton()]).build(context),
       body: _summaryCard(summary),
-      bottomNavigationBar: _bottomBar(),
+      bottomNavigationBar: MyNavBar.forDrillNav(
+          MyNavBarLocation.progress, widget.args.drillData),
+    );
+  }
+
+  Widget _replayButton() {
+    return IconButton(
+      icon: Icon(Icons.replay),
+      onPressed: () =>
+          PracticeConfigScreen.navigate(context, widget.args.drillData),
     );
   }
 
@@ -98,36 +108,5 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
       StatsGridWidget(summary: summary, drillData: widget.args.drillData),
       DrillPerformanceTable(summary: summary),
     ]);
-  }
-
-  // TODO: refactor this to share code with my_nav_bar.dart, but only if this
-  // UI turns out to be worth keeping.
-  Widget _bottomBar() {
-    return BottomNavigationBar(
-      selectedItemColor: Theme.of(context).unselectedWidgetColor,
-      unselectedItemColor: Theme.of(context).unselectedWidgetColor,
-      onTap: _onTap,
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.show_chart),
-          label: 'Progress',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.replay),
-          label: 'Repeat',
-        ),
-      ],
-    );
-  }
-
-  void _onTap(int value) {
-    switch (value) {
-      case 0:
-        ProgressScreen.navigate(context, widget.args.drillData);
-        break;
-      case 1:
-        PracticeConfigScreen.navigate(context, widget.args.drillData);
-        break;
-    }
   }
 }

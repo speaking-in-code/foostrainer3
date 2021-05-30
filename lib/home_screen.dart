@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(title: 'FoosTrainer').build(context),
       body: _playButton(context),
-      bottomNavigationBar: MyNavBar(location: MyNavBarLocation.practice),
+      bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.practice),
     );
   }
 

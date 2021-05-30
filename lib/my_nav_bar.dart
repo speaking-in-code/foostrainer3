@@ -10,8 +10,10 @@ import 'progress_screen.dart';
 class MyNavBarLocation {
   final BottomNavigationBarItem item;
   final String route;
+  final Object arguments;
 
-  const MyNavBarLocation._create({@required this.item, @required this.route})
+  const MyNavBarLocation._create(
+      {@required this.item, @required this.route, this.arguments})
       : assert(item != null),
         assert(route != null);
 
@@ -38,6 +40,14 @@ class MyNavBarLocation {
 }
 
 class MyNavBar extends StatelessWidget {
+  static MyNavBar forNormalNav(MyNavBarLocation location) {
+    return MyNavBar._(location: location);
+  }
+
+  static MyNavBar forDrillNav(MyNavBarLocation location, DrillData drillData) {
+    return MyNavBar._(location: location, drillData: drillData);
+  }
+
   static final _locations = [
     MyNavBarLocation.practice,
     MyNavBarLocation.monthly,
@@ -52,8 +62,10 @@ class MyNavBar extends StatelessWidget {
   final int currentIndex;
   final DrillData drillData;
 
-  MyNavBar({@required this.location, this.drillData})
-      : currentIndex = _locationToIndex[location];
+  MyNavBar._({@required this.location, this.drillData})
+      : currentIndex = _locationToIndex[location] {
+    assert(currentIndex >= 0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +78,8 @@ class MyNavBar extends StatelessWidget {
   void _onTap(BuildContext context, int itemIndex) {
     if (itemIndex != currentIndex) {
       final location = _locations[itemIndex];
-      Navigator.pushReplacementNamed(context, location.route);
+      Navigator.pushReplacementNamed(context, location.route,
+          arguments: drillData);
     }
   }
 }

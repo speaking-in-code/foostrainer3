@@ -35,7 +35,7 @@ class DebugScreen extends StatelessWidget {
     });
     return Scaffold(
         appBar: MyAppBar(title: 'Debug').build(context),
-        bottomNavigationBar: MyNavBar(location: MyNavBarLocation.practice),
+        bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.practice),
         body: ListView(children: [
           Card(
               child: ListTile(
