@@ -55,6 +55,15 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   double _practiceMinutes;
 
   @override
+  void initState() {
+    super.initState();
+    // Start the background process early, so that when the user clicks to
+    // play it's already running.
+    _log.info('Starting practice in background');
+    PracticeBackground.startInBackground();
+  }
+
+  @override
   Widget build(BuildContext context) {
     _drill = ModalRoute.of(context).settings.arguments;
     _drill.tempo ??= Tempo.RANDOM;
@@ -68,15 +77,23 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       fabColor = Theme.of(context).disabledColor;
       fabClicked = null;
     }
-    return Scaffold(
-      appBar: MyAppBar.drillTitle(drillData: _drill).build(context),
-      body: _expansionPanels(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: fabColor,
-        onPressed: fabClicked,
-        child: Icon(Icons.play_arrow, key: PracticeConfigScreen.playKey),
-      ),
-    );
+    return WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          appBar: MyAppBar.drillTitle(drillData: _drill).build(context),
+          body: _expansionPanels(),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: fabColor,
+            onPressed: fabClicked,
+            child: Icon(Icons.play_arrow, key: PracticeConfigScreen.playKey),
+          ),
+        ));
+  }
+
+  Future<bool> _onWillPop() async {
+    _log.info('onWillPop invoked, stopping background process');
+    PracticeBackground.stopPractice();
+    return true;
   }
 
   // Note: these panels don't obscure the FloatingActionButton, even on very

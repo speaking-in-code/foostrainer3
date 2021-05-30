@@ -33,10 +33,9 @@ class PracticeBackground {
   static const _confirm = 'confirm';
   static const _practiceState = 'practiceState';
 
-  /// Start practicing the provided drill.
-  static Future<void> startPractice(DrillData drill) async {
-    if (drill.signal == Signal.AUDIO_AND_FLASH) {
-      Wakelock.enable();
+  static Future<void> startInBackground() async {
+    if (AudioService.running) {
+      return;
     }
     _log.info('Starting audio service');
     await AudioService.connect();
@@ -46,7 +45,16 @@ class PracticeBackground {
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
         androidNotificationIcon: 'drawable/ic_stat_ic_notification',
         androidNotificationColor: Colors.blueAccent.value);
-    _log.info('wtf connected is ${AudioService.connected}');
+    _log.info('Audio service started: ${AudioService.running}');
+  }
+
+  /// Start practicing the provided drill.
+  static Future<void> startPractice(DrillData drill) async {
+    if (drill.signal == Signal.AUDIO_AND_FLASH) {
+      Wakelock.enable();
+    }
+    await startInBackground();
+    _log.info('AudioService connected is ${AudioService.connected}');
     if (AudioService.running) {
       final progress = PracticeProgress()
         ..drill = drill
@@ -71,7 +79,6 @@ class PracticeBackground {
       // Try stopping and hope we recover.
       _log.info('Stopping audio service');
       await AudioService.stop();
-      _log.info('wtf connected is ${AudioService.connected}');
       throw StateError('Failed to start AudioService.');
     }
   }
