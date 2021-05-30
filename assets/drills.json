@@ -2,8 +2,12 @@
   "drills": [
     {
       "name": "Lane",
-      "type": "Pass",
+      "type": "Stick Pass",
       "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Lane",
@@ -13,8 +17,12 @@
     },
     {
       "name": "Wall",
-      "type": "Pass",
+      "type": "Stick Pass",
       "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Wall",
@@ -23,31 +31,13 @@
       ]
     },
     {
-      "name": "Bounce",
-      "type": "Pass",
-      "possessionSeconds": 10,
-      "actions": [
-        {
-          "label": "Bounce",
-          "audioAsset": "assets/pass_bounce.mp3"
-        }
-      ]
-    },
-    {
-      "name": "Tic-Tac Wall",
-      "type": "Pass",
-      "possessionSeconds": 10,
-      "actions": [
-        {
-          "label": "Bounce",
-          "audioAsset": "assets/pass_tic_tac_wall.mp3"
-        }
-      ]
-    },
-    {
       "name": "Lane/Wall",
-      "type": "Pass",
+      "type": "Stick Pass",
       "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Lane",
@@ -60,24 +50,13 @@
       ]
     },
     {
-      "name": "Bounce/Wall",
-      "type": "Pass",
-      "possessionSeconds": 10,
-      "actions": [
-        {
-          "label": "Bounce",
-          "audioAsset": "assets/pass_bounce.mp3"
-        },
-        {
-          "label": "Wall",
-          "audioAsset": "assets/pass_wall.mp3"
-        }
-      ]
-    },
-    {
       "name": "Lane/Wall/Bounce",
-      "type": "Pass",
+      "type": "Stick Pass",
       "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Lane",
@@ -95,8 +74,12 @@
     },
     {
       "name": "Lane/Wall/Bounce/Tic-Tac Wall",
-      "type": "Pass",
+      "type": "Stick Pass",
       "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Lane",
@@ -117,9 +100,62 @@
       ]
     },
     {
+      "name": "Lane",
+      "type": "Brush Pass",
+      "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
+      "actions": [
+        {
+          "label": "Lane",
+          "audioAsset": "assets/pass_lane.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Wall",
+      "type": "Brush Pass",
+      "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
+      "actions": [
+        {
+          "label": "Wall",
+          "audioAsset": "assets/pass_wall.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Lane/Wall",
+      "type": "Brush Pass",
+      "possessionSeconds": 10,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
+      "actions": [
+        {
+          "label": "Lane",
+          "audioAsset": "assets/pass_lane.mp3"
+        },
+        {
+          "label": "Wall",
+          "audioAsset": "assets/pass_wall.mp3"
+        }
+      ]
+    },
+    {
       "name": "Up",
       "type": "Rollover",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Up",
@@ -131,6 +167,10 @@
       "name": "Down",
       "type": "Rollover",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Down",
@@ -142,6 +182,10 @@
       "name": "Middle",
       "type": "Rollover",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Middle",
@@ -153,6 +197,10 @@
       "name": "Up/Down",
       "type": "Rollover",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Up",
@@ -168,6 +216,10 @@
       "name": "Up/Middle",
       "type": "Rollover",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Up",
@@ -183,6 +235,10 @@
       "name": "Down/Middle",
       "type": "Rollover",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Down",
@@ -198,6 +254,10 @@
       "name": "Up/Down/Middle",
       "type": "Rollover",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Up",
@@ -217,6 +277,10 @@
       "name": "Straight",
       "type": "Pull",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",
@@ -228,6 +292,10 @@
       "name": "Middle",
       "type": "Pull",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Middle",
@@ -239,6 +307,10 @@
       "name": "Long",
       "type": "Pull",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Long",
@@ -250,6 +322,10 @@
       "name": "Straight/Long",
       "type": "Pull",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",
@@ -265,6 +341,10 @@
       "name": "Straight/Middle",
       "type": "Pull",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",
@@ -280,6 +360,10 @@
       "name": "Middle/Long",
       "type": "Pull",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Middle",
@@ -295,6 +379,10 @@
       "name": "Straight/Middle/Long",
       "type": "Pull",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",
@@ -314,6 +402,10 @@
       "name": "Straight",
       "type": "Push",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",
@@ -325,6 +417,10 @@
       "name": "Middle",
       "type": "Push",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Middle",
@@ -336,6 +432,10 @@
       "name": "Long",
       "type": "Push",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Long",
@@ -347,6 +447,10 @@
       "name": "Straight/Long",
       "type": "Push",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",
@@ -362,6 +466,10 @@
       "name": "Straight/Middle",
       "type": "Push",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",
@@ -377,6 +485,10 @@
       "name": "Middle/Long",
       "type": "Push",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Middle",
@@ -392,6 +504,10 @@
       "name": "Straight/Middle/Long",
       "type": "Push",
       "possessionSeconds": 15,
+      "tempo": null,
+      "signal": null,
+      "practiceMinutes": null,
+      "tracking": null,
       "actions": [
         {
           "label": "Straight",

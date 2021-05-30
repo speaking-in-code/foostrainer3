@@ -63,6 +63,7 @@ class DrillData {
       _$DrillDataFromJson(jsonDecode(json));
   factory DrillData.fromJson(Map<String, dynamic> json) =>
       _$DrillDataFromJson(json);
+  Map<String, dynamic> toJson() => _$DrillDataToJson(this);
   String encode() => jsonEncode(_$DrillDataToJson(this));
 }
 
@@ -75,4 +76,5 @@ class DrillListData {
   factory DrillListData.decode(String json) =>
       _$DrillListDataFromJson(jsonDecode(json));
   String encode() => jsonEncode(_$DrillListDataToJson(this));
+  Map<String, dynamic> toJson() => _$DrillListDataToJson(this);
 }

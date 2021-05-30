@@ -5,8 +5,24 @@ import 'dart:io';
 
 import '../lib/drill_data.dart';
 
+enum AudioPrefix {
+  pass,
+  shoot,
+}
+
 DrillData _makeDrill(
-    String type, String prefix, int maxSeconds, List<String> actions) {
+    String type, AudioPrefix prefixType, int maxSeconds, List<String> actions) {
+  String prefix;
+  switch (prefixType) {
+    case AudioPrefix.pass:
+      prefix = 'pass';
+      break;
+    case AudioPrefix.shoot:
+      prefix = 'shoot';
+      break;
+    default:
+      throw ArgumentError('Unknown prefix: $prefixType');
+  }
   final nameRegexp = RegExp(r'[^A-Za-z0-9_/.]');
   var drill = DrillData(type: type, possessionSeconds: maxSeconds);
   drill.name = actions.join('/');
@@ -22,44 +38,57 @@ DrillData _makeDrill(
   return drill;
 }
 
-DrillData _makePass(String type, String prefix, List<String> actions) {
+DrillData _makePass(String type, AudioPrefix prefix, List<String> actions) {
   return _makeDrill(type, prefix, 10, actions);
 }
 
-DrillData _makeShot(String type, String prefix, List<String> actions) {
+DrillData _makeShot(String type, AudioPrefix prefix, List<String> actions) {
   return _makeDrill(type, prefix, 15, actions);
 }
 
 int main() {
   var drills = DrillListData();
   try {
-    // Passes
-    drills.drills.add(_makePass('Pass', 'pass', ['Lane']));
-    drills.drills.add(_makePass('Pass', 'pass', ['Wall']));
-    drills.drills.add(_makePass('Pass', 'pass', ['Lane', 'Wall']));
-    drills.drills.add(_makePass('Pass', 'pass', ['Lane', 'Wall', 'Bounce']));
+    // Stick pass
+    drills.drills.add(_makePass('Stick Pass', AudioPrefix.pass, ['Lane']));
+    drills.drills.add(_makePass('Stick Pass', AudioPrefix.pass, ['Wall']));
+    drills.drills
+        .add(_makePass('Stick Pass', AudioPrefix.pass, ['Lane', 'Wall']));
     drills.drills.add(
-        _makePass('Pass', 'pass', ['Lane', 'Wall', 'Bounce', 'Tic-Tac Wall']));
+        _makePass('Stick Pass', AudioPrefix.pass, ['Lane', 'Wall', 'Bounce']));
+    drills.drills.add(_makePass('Stick Pass', AudioPrefix.pass,
+        ['Lane', 'Wall', 'Bounce', 'Tic-Tac Wall']));
+
+    // Brush pass
+    drills.drills.add(_makePass('Brush Pass', AudioPrefix.pass, ['Lane']));
+    drills.drills.add(_makePass('Brush Pass', AudioPrefix.pass, ['Wall']));
+    drills.drills
+        .add(_makePass('Brush Pass', AudioPrefix.pass, ['Lane', 'Wall']));
 
     // Rollovers
-    drills.drills.add(_makeShot('Rollover', 'shoot', ['Up']));
-    drills.drills.add(_makeShot('Rollover', 'shoot', ['Down']));
-    drills.drills.add(_makeShot('Rollover', 'shoot', ['Middle']));
-    drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Down']));
-    drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Middle']));
-    drills.drills.add(_makeShot('Rollover', 'shoot', ['Down', 'Middle']));
-    drills.drills.add(_makeShot('Rollover', 'shoot', ['Up', 'Down', 'Middle']));
+    drills.drills.add(_makeShot('Rollover', AudioPrefix.shoot, ['Up']));
+    drills.drills.add(_makeShot('Rollover', AudioPrefix.shoot, ['Down']));
+    drills.drills.add(_makeShot('Rollover', AudioPrefix.shoot, ['Middle']));
+    drills.drills.add(_makeShot('Rollover', AudioPrefix.shoot, ['Up', 'Down']));
+    drills.drills
+        .add(_makeShot('Rollover', AudioPrefix.shoot, ['Up', 'Middle']));
+    drills.drills
+        .add(_makeShot('Rollover', AudioPrefix.shoot, ['Down', 'Middle']));
+    drills.drills.add(
+        _makeShot('Rollover', AudioPrefix.shoot, ['Up', 'Down', 'Middle']));
 
     // Pull/Push shots
     for (var type in ['Pull', 'Push']) {
-      drills.drills.add(_makeShot(type, 'shoot', ['Straight']));
-      drills.drills.add(_makeShot(type, 'shoot', ['Middle']));
-      drills.drills.add(_makeShot(type, 'shoot', ['Long']));
-      drills.drills.add(_makeShot(type, 'shoot', ['Straight', 'Long']));
-      drills.drills.add(_makeShot(type, 'shoot', ['Straight', 'Middle']));
-      drills.drills.add(_makeShot(type, 'shoot', ['Middle', 'Long']));
+      drills.drills.add(_makeShot(type, AudioPrefix.shoot, ['Straight']));
+      drills.drills.add(_makeShot(type, AudioPrefix.shoot, ['Middle']));
+      drills.drills.add(_makeShot(type, AudioPrefix.shoot, ['Long']));
       drills.drills
-          .add(_makeShot(type, 'shoot', ['Straight', 'Middle', 'Long']));
+          .add(_makeShot(type, AudioPrefix.shoot, ['Straight', 'Long']));
+      drills.drills
+          .add(_makeShot(type, AudioPrefix.shoot, ['Straight', 'Middle']));
+      drills.drills.add(_makeShot(type, AudioPrefix.shoot, ['Middle', 'Long']));
+      drills.drills.add(
+          _makeShot(type, AudioPrefix.shoot, ['Straight', 'Middle', 'Long']));
     }
   } on ArgumentError catch (e) {
     print('Error: ${e.message}');
@@ -67,12 +96,25 @@ int main() {
   }
 
   File outputFile = new File('assets/drills.json');
-  String text = JsonEncoder.withIndent('  ').convert(drills);
-  outputFile.writeAsStringSync(text, flush: true);
-  print('Created ${outputFile.path} with ${drills.drills.length} drills.');
-
+  try {
+    String text = JsonEncoder.withIndent('  ').convert(drills);
+    outputFile.writeAsStringSync(text, flush: true);
+    print('Created ${outputFile.path} with ${drills.drills.length} drills.');
+  } catch (e) {
+    print('Error: ${_errorToString(e)}');
+    throw e;
+  }
   // Verify the data.
-  DrillListData.fromJson(jsonDecode(outputFile.readAsStringSync()));
+  DrillListData.decode(outputFile.readAsStringSync());
   print('Verified output file.');
   return 0;
+}
+
+String _errorToString(Object error) {
+  String msg = '$error';
+  while (error.runtimeType == JsonUnsupportedObjectError) {
+    error = (error as JsonUnsupportedObjectError).cause;
+    msg += '\nCaused by $error';
+  }
+  return msg;
 }
