@@ -121,10 +121,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
       Future.delayed(Duration.zero, () => _showTrackingDialog(context));
     }
     return Scaffold(
-        appBar: MyAppBar.drillTitle(drillData: _progress.drill).build(context),
-        body: PracticeStatusWidget(
-            staticDrills: widget.staticDrills, progress: _progress),
-        bottomNavigationBar: _controlButtons(context, _progress));
+      appBar: MyAppBar.drillTitle(drillData: _progress.drill).build(context),
+      body: PracticeStatusWidget(
+          staticDrills: widget.staticDrills,
+          progress: _progress,
+          onStop: _onStop),
+    );
   }
 
   BottomAppBar _controlButtons(

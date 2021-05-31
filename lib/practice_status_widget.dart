@@ -15,12 +15,17 @@ class PracticeStatusWidget extends StatelessWidget {
   final StaticDrills staticDrills;
   final PracticeProgress progress;
   final DrillSummary summary;
+  final VoidCallback onStop;
 
   PracticeStatusWidget(
-      {Key key, @required this.staticDrills, @required this.progress})
+      {Key key,
+      @required this.staticDrills,
+      @required this.progress,
+      @required this.onStop})
       : summary = progress.results,
         assert(progress != null),
-        assert(progress.results != null);
+        assert(progress.results != null),
+        assert(onStop != null);
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +49,35 @@ class PracticeStatusWidget extends StatelessWidget {
         _firstColumn(labelStyle: labelStyle, dataStyle: dataStyle),
         _secondColumn(labelStyle: labelStyle, dataStyle: dataStyle),
       ]),
+      _controlButtons(context),
     ]);
+  }
+
+  Widget _controlButtons(BuildContext context) {
+    final stopButton = _fabButton(context, Icons.stop, onStop);
+    Widget actionButton;
+    if (progress.practiceState == PracticeState.playing) {
+      actionButton = _fabButton(context, Icons.pause, PracticeBackground.pause);
+    } else {
+      actionButton =
+          _fabButton(context, Icons.play_arrow, PracticeBackground.play);
+    }
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [stopButton, actionButton]);
+  }
+
+  Widget _fabButton(
+      BuildContext context, IconData iconData, VoidCallback onPressed) {
+    return Ink(
+        decoration: ShapeDecoration(
+          color: Theme.of(context).accentColor,
+          shape: CircleBorder(),
+        ),
+        child: IconButton(
+            icon: Icon(iconData),
+            onPressed: onPressed,
+            color: Theme.of(context).colorScheme.onSecondary));
   }
 
   Widget _padBelow(Text text) {
