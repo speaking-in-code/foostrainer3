@@ -204,24 +204,35 @@ abstract class SummariesDao {
     return _buildDrillSummary(await drill, await actions);
   }
 
-  Future<List<DrillSummary>> loadDrillsByDate(ResultsDatabase db,
-      {@required int limit,
-      @required int offset,
-      String fullName,
-      DateTime start,
-      DateTime end}) async {
-    assert(limit != null);
-    assert(offset != null);
+  // Load drills for a range. Must specify either limit and offset, or start
+  // and end dates.
+  Future<List<DrillSummary>> loadDrillsByDate(
+    ResultsDatabase db, {
+    int limit,
+    int offset,
+    DateTime start,
+    DateTime end,
+    String fullName,
+  }) async {
+    assert(limit != null || start != null);
+    assert(
+        (limit != null && offset != null) || (limit == null && offset == null));
+    assert((start != null && end != null) || (start == null && end == null));
     int startSeconds = start != null ? _secondsSinceEpoch(start) : 0;
     int endSeconds = end != null ? _secondsSinceEpoch(end) : 0;
-    List<StoredDrill> drills = await _loadDrillsByDate(
+    List<StoredDrill> drills;
+    if (limit != null) {
+      drills = await _loadDrillsByDate(start != null, startSeconds, endSeconds,
+          fullName != null, fullName ?? '', limit, offset);
+    } else {
+      drills = await _loadDrillsByDateNoLimit(
         start != null,
         startSeconds,
         endSeconds,
         fullName != null,
         fullName ?? '',
-        limit,
-        offset);
+      );
+    }
     return _summarizeDrills(db, drills);
   }
 
@@ -245,6 +256,16 @@ abstract class SummariesDao {
   ''')
   Future<List<StoredDrill>> _loadDrillsByDate(bool matchDate, int startSeconds,
       int endSeconds, bool matchName, String fullName, int limit, int offset);
+
+  @Query('''
+  SELECT * FROM Drills
+  WHERE
+      (NOT :matchDate OR (startSeconds >= :startSeconds AND startSeconds <= :endSeconds))
+      AND (NOT :matchName OR drill = :fullName)
+  ORDER BY startSeconds DESC
+  ''')
+  Future<List<StoredDrill>> _loadDrillsByDateNoLimit(bool matchDate,
+      int startSeconds, int endSeconds, bool matchName, String fullName);
 
   static DrillSummary _buildDrillSummary(
       StoredDrill drill, List<StoredAction> actions) {

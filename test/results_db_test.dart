@@ -113,7 +113,7 @@ void main() {
       expect(summaryList.length, equals(1));
       AggregatedDrillSummary weekly = summaryList.first;
       List<DrillSummary> found = await summaries.loadDrillsByDate(db,
-          start: weekly.startDay, end: weekly.endDay, limit: 1000, offset: 0);
+          start: weekly.startDay, end: weekly.endDay);
       expect(found.length, equals(1),
           reason:
               'Bad time $date, $secsSinceEpoch, should be in range ${weekly.startDay} - ${weekly.endDay}');

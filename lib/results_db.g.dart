@@ -315,6 +315,27 @@ class _$SummariesDao extends SummariesDao {
   }
 
   @override
+  Future<List<StoredDrill>> _loadDrillsByDateNoLimit(bool matchDate,
+      int startSeconds, int endSeconds, bool matchName, String fullName) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Drills WHERE (NOT ? OR (startSeconds >= ? AND startSeconds <= ?)) AND (NOT ? OR drill = ?) ORDER BY startSeconds DESC',
+        arguments: <dynamic>[
+          matchDate == null ? null : (matchDate ? 1 : 0),
+          startSeconds,
+          endSeconds,
+          matchName == null ? null : (matchName ? 1 : 0),
+          fullName
+        ],
+        mapper: (Map<String, dynamic> row) => StoredDrill(
+            id: row['id'] as int,
+            startSeconds: row['startSeconds'] as int,
+            drill: row['drill'] as String,
+            tracking:
+                row['tracking'] == null ? null : (row['tracking'] as int) != 0,
+            elapsedSeconds: row['elapsedSeconds'] as int));
+  }
+
+  @override
   Future<List<_AggregatedDrillTime>> _dailyDrillTime(
       bool matchDrill, String drill, int numWeeks, int offset) async {
     return _queryAdapter.queryList(
