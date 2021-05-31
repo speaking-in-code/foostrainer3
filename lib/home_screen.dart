@@ -11,27 +11,36 @@ import 'static_drills.dart';
 final _log = Log.get('home_screen');
 
 // Widget to select drill for practice.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
   final StaticDrills staticDrills;
 
   HomeScreen({@required this.staticDrills});
 
   @override
-  Widget build(BuildContext context) {
+  State<StatefulWidget> createState() => HomeScreenState();
+}
+
+class HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
     _navToPracticeIfRunning(context);
-    return Scaffold(
-      appBar: MyAppBar(title: 'FoosTrainer').build(context),
-      body: PlayButtonWidget(staticDrills: staticDrills),
-      bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.practice),
-    );
   }
 
   void _navToPracticeIfRunning(BuildContext context) async {
     if (await PracticeBackground.running()) {
       _log.info('Audio running, navigating to practice screen.');
-      Navigator.of(context, rootNavigator: true)
-          .pushReplacementNamed(PracticeScreen.routeName);
+      PracticeScreen.pushNamed(context);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: MyAppBar(title: 'FoosTrainer').build(context),
+      body: PlayButtonWidget(staticDrills: widget.staticDrills),
+      bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.practice),
+    );
   }
 }
