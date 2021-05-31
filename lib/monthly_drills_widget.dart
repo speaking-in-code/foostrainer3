@@ -51,7 +51,7 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
       return _MonthlyDrills(range, {}, null, null);
     }
     final monthStart = DateTime(month.year, month.month, 1);
-    final monthEnd = DateTime(month.year, month.month + 1, 0);
+    final monthEnd = DateTime(month.year, month.month + 1, 1);
     _log.info('Month $monthStart to $monthEnd');
     final drills = await widget.resultsDb.summariesDao
         .loadDrillsByDate(widget.resultsDb, start: monthStart, end: monthEnd);
@@ -85,11 +85,11 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
     if (!snapshot.hasData) {
       return Spinner();
     }
-    if (snapshot.data.allTime.latest == null) {
+    final _MonthlyDrills drills = snapshot.data;
+    if (drills.allTime.latest == null) {
       // TODO(brian): make this a tap target to go the practice screen.
       return Center(child: Text('No drills. Go practice!'));
     }
-    final _MonthlyDrills drills = snapshot.data;
     return CalendarDatePicker(
         initialDate: drills.monthMax,
         firstDate: drills.allTime.earliest,
