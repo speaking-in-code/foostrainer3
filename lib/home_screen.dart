@@ -4,6 +4,7 @@ import 'drill_chooser_screen.dart';
 import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
+import 'play_button_widget.dart';
 import 'practice_config_screen.dart';
 import 'static_drills.dart';
 
@@ -18,25 +19,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(title: 'FoosTrainer').build(context),
-      body: _playButton(context),
+      body: PlayButtonWidget(staticDrills: staticDrills),
       bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.practice),
     );
-  }
-
-  Widget _playButton(BuildContext context) {
-    return Center(
-        child: ElevatedButton.icon(
-      label: Text('Start Practice'),
-      icon: Icon(Icons.play_arrow),
-      onPressed: () => _onStartPractice(context),
-    ));
-  }
-
-  void _onStartPractice(BuildContext context) async {
-    DrillData chosen = await DrillChooserScreen.startDialog(context,
-        staticDrills: staticDrills);
-    if (chosen != null) {
-      PracticeConfigScreen.navigate(context, chosen);
-    }
   }
 }

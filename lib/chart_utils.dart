@@ -1,5 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:charts_common/common.dart' as charts_common;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'results_db.dart';
 
@@ -34,7 +36,22 @@ const dateRenderSpec = charts.SmallTickRendererSpec<DateTime>(
 
 const titleStyle = charts.TextStyleSpec(color: charts.MaterialPalette.white);
 
-charts.DateTimeAxisSpec dateTimeAxis(charts.Series<dynamic, DateTime> series) {
+// These don't work, they cause rendering glitches and log warnings from the
+// charts library about formats changing too frequently.
+final _dateFormats = {
+  AggregationLevel.MONTHLY:
+      charts_common.BasicDateTimeTickFormatterSpec.fromDateFormat(
+          DateFormat.yMMM()),
+  AggregationLevel.WEEKLY:
+      charts_common.BasicDateTimeTickFormatterSpec.fromDateFormat(
+          DateFormat.yMMMd()),
+  AggregationLevel.DAILY:
+      charts_common.BasicDateTimeTickFormatterSpec.fromDateFormat(
+          DateFormat.yMMMd()),
+};
+
+charts.DateTimeAxisSpec dateTimeAxis(
+    AggregationLevel aggLevel, charts.Series<dynamic, DateTime> series) {
   final end = series.data.last.startDay;
   DateTime start = series.data.first.startDay;
   if (series.data.length > maxWeeksDisplayed) {
@@ -43,6 +60,7 @@ charts.DateTimeAxisSpec dateTimeAxis(charts.Series<dynamic, DateTime> series) {
   return charts.DateTimeAxisSpec(
     renderSpec: dateRenderSpec,
     viewport: charts.DateTimeExtents(start: start, end: end),
+    //tickFormatterSpec: _dateFormats[aggLevel],
   );
 }
 

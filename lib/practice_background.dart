@@ -34,7 +34,7 @@ class PracticeBackground {
   static const _practiceState = 'practiceState';
 
   static Future<void> startInBackground() async {
-    if (AudioService.running) {
+    if (AudioService.connected && AudioService.running) {
       return;
     }
     _log.info('Starting audio service');

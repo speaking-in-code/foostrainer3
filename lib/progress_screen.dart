@@ -7,6 +7,7 @@ import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
+import 'play_button_widget.dart';
 import 'reps_over_time_chart.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
@@ -99,7 +100,8 @@ class ProgressScreenState extends State<ProgressScreen> {
           resultsDb: widget.resultsDb,
           staticDrills: widget.staticDrills,
           drillData: selected.drillData,
-          drillHistory: drillHistory)
+          drillHistory: drillHistory,
+          aggLevel: selected.aggLevel)
     ]);
   }
 }
@@ -109,15 +111,18 @@ class _DrillTabs extends StatefulWidget {
   final StaticDrills staticDrills;
   final DrillData drillData;
   final Future<List<AggregatedDrillSummary>> drillHistory;
+  final AggregationLevel aggLevel;
 
   _DrillTabs(
       {this.resultsDb,
       this.staticDrills,
       this.drillData,
-      @required this.drillHistory})
+      @required this.drillHistory,
+      @required this.aggLevel})
       : assert(resultsDb != null),
         assert(staticDrills != null),
-        assert(drillHistory != null);
+        assert(drillHistory != null),
+        assert(aggLevel != null);
 
   @override
   State<StatefulWidget> createState() => _DrillTabsState();
@@ -145,23 +150,30 @@ class _DrillTabsState extends State<_DrillTabs> {
     if (!snapshot.hasData) {
       return Spinner();
     }
+    Widget reps;
+    Widget accuracy;
+    Widget log;
+    if (snapshot.data.isNotEmpty) {
+      reps = SingleChildScrollView(
+          child: RepsOverTimeChart(
+              aggLevel: widget.aggLevel, drillHistory: snapshot.data));
+      accuracy = SingleChildScrollView(
+          child: AccuracyOverTimeChart(
+              aggLevel: widget.aggLevel, drillHistory: snapshot.data));
+      log = DrillListWidget(
+          key: UniqueKey(),
+          resultsDb: widget.resultsDb,
+          staticDrills: widget.staticDrills,
+          drillFullName: widget.drillData?.fullName);
+    } else {
+      reps = _noDataWidget();
+      accuracy = reps;
+      log = reps;
+    }
     final tabs = [
-      _MyTab(
-          tab: Tab(text: 'Reps'),
-          child: SingleChildScrollView(
-              child: RepsOverTimeChart(drillHistory: snapshot.data))),
-      _MyTab(
-          tab: Tab(text: 'Accuracy'),
-          child: SingleChildScrollView(
-              child: AccuracyOverTimeChart(drillHistory: snapshot.data))),
-      _MyTab(
-        tab: Tab(text: 'Log'),
-        child: DrillListWidget(
-            key: UniqueKey(),
-            resultsDb: widget.resultsDb,
-            staticDrills: widget.staticDrills,
-            drillFullName: widget.drillData?.fullName),
-      )
+      _MyTab(tab: Tab(text: 'Reps'), child: reps),
+      _MyTab(tab: Tab(text: 'Accuracy'), child: accuracy),
+      _MyTab(tab: Tab(text: 'Log'), child: log),
     ];
     final tabBar = TabBar(
       tabs: tabs.map((e) => e.tab).toList(),
@@ -176,5 +188,27 @@ class _DrillTabsState extends State<_DrillTabs> {
         child: DefaultTabController(
             length: tabs.length,
             child: Column(children: [tabBar, tabBarView])));
+  }
+
+  Widget _noDataWidget() {
+    List<Widget> children = [];
+    final large = Theme.of(context).textTheme.headline5;
+    final medium = Theme.of(context).textTheme.headline6;
+    final bigErrorText = Text('No Drills Found', style: large);
+    if (widget.drillData == null) {
+      children.add(bigErrorText);
+    } else {
+      children.add(Column(children: [
+        Text('${widget.drillData.type}', style: medium),
+        SizedBox(height: 6),
+        Text('${widget.drillData.name}', style: medium),
+        SizedBox(height: 12),
+        bigErrorText,
+      ]));
+    }
+    children.add(PlayButtonWidget(
+        staticDrills: widget.staticDrills, drillData: widget.drillData));
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: children);
   }
 }

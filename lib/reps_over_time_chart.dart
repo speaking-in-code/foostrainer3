@@ -2,14 +2,16 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
 import 'chart_utils.dart' as chart_utils;
+import 'results_db.dart';
 import 'results_entities.dart';
-import 'titled_section.dart';
 
 class RepsOverTimeChart extends StatelessWidget {
-  static const title = 'Reps Over Time';
+  final AggregationLevel aggLevel;
   final List<AggregatedDrillSummary> drillHistory;
 
-  RepsOverTimeChart({this.drillHistory});
+  RepsOverTimeChart({@required this.aggLevel, @required this.drillHistory})
+      : assert(aggLevel != null),
+        assert(drillHistory != null);
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,6 @@ class RepsOverTimeChart extends StatelessWidget {
           charts.SelectNearest(),
         ],
         primaryMeasureAxis: chart_utils.numericAxisSpec,
-        domainAxis: chart_utils.dateTimeAxis(series));
+        domainAxis: chart_utils.dateTimeAxis(aggLevel, series));
   }
 }
