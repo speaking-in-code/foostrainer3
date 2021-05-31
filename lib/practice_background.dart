@@ -226,7 +226,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   final AudioPlayer _player;
   final PauseTimer _pauseTimer;
   final _stopwatch = Stopwatch();
-  ResultsDatabase _resultsDatabase;
+  final Future<ResultsDatabase> _resultsDatabase;
 
   PracticeProgress _progress = PracticeProgress();
   Timer _elapsedTimeUpdater;
@@ -242,7 +242,8 @@ class _BackgroundTask extends BackgroundAudioTask {
     return _BackgroundTask._(player, pauseTimer);
   }
 
-  _BackgroundTask._(this._player, this._pauseTimer) {
+  _BackgroundTask._(this._player, this._pauseTimer)
+      : _resultsDatabase = ResultsDatabase.init() {
     _log.info('Finished creating player');
   }
 
@@ -257,20 +258,19 @@ class _BackgroundTask extends BackgroundAudioTask {
   @override
   Future<void> onStart(Map<String, dynamic> params) async {
     _log.info('onStart called');
-    Future<ResultsDatabase> db = ResultsDatabase.init();
     Future<void> artLoading = AlbumArt.load();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
     await artLoading;
-    _resultsDatabase = await db;
     _log.info('Finished onStart');
   }
 
   @override
   Future<void> onPlayMediaItem(MediaItem mediaItem) async {
     _progress = PracticeBackground._transformBackgroundUpdate(mediaItem);
-    final drillId =
-        await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
+    final drillId = await (await _resultsDatabase)
+        .drillsDao
+        .insertDrill(_progress.results.drill);
     _progress.results = _progress.results
         .copyWith(drill: _progress.results.drill.copyWith(id: drillId));
     _randomDelay = RandomDelay(
@@ -326,9 +326,12 @@ class _BackgroundTask extends BackgroundAudioTask {
     _log.info('Writing results: ${_progress.results.drill.encode()}');
     try {
       if (_progress.results.reps > 0) {
-        await _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
+        await (await _resultsDatabase)
+            .drillsDao
+            .insertDrill(_progress.results.drill);
       } else {
-        await _resultsDatabase.drillsDao
+        await (await _resultsDatabase)
+            .drillsDao
             .removeDrill(_progress.results.drill.id);
       }
     } catch (e) {
@@ -390,10 +393,12 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.drill.tracking) {
       _waitForTracking();
     } else {
-      await _resultsDatabase.actionsDao
+      await (await _resultsDatabase)
+          .actionsDao
           .incrementAction(_progress.results.drill.id, _progress.action, null);
-      _progress.results = await _resultsDatabase.summariesDao
-          .loadDrill(_resultsDatabase, _progress.results.drill.id);
+      _progress.results = await (await _resultsDatabase)
+          .summariesDao
+          .loadDrill(await _resultsDatabase, _progress.results.drill.id);
       _updateMediaItem();
       _pause(_resetTime).whenComplete(_waitForSetup);
     }
@@ -441,7 +446,7 @@ class _BackgroundTask extends BackgroundAudioTask {
         drill: _progress.results.drill
             .copyWith(elapsedSeconds: _stopwatch.elapsed.inSeconds));
     final writeOp =
-        _resultsDatabase.drillsDao.insertDrill(_progress.results.drill);
+        (await _resultsDatabase).drillsDao.insertDrill(_progress.results.drill);
     final MediaItem item =
         PracticeBackground.getMediaItemFromProgress(_progress);
     await AudioServiceBackground.setMediaItem(item);
@@ -487,17 +492,18 @@ class _BackgroundTask extends BackgroundAudioTask {
     final request = SetTrackingRequest.fromJson(jsonDecode(arguments));
     switch (request.trackingResult) {
       case TrackingResult.GOOD:
-        await _resultsDatabase.actionsDao.incrementAction(
+        await (await _resultsDatabase).actionsDao.incrementAction(
             _progress.results.drill.id, _progress.lastAction, true);
         break;
       case TrackingResult.MISSED:
-        await _resultsDatabase.actionsDao.incrementAction(
+        await (await _resultsDatabase).actionsDao.incrementAction(
             _progress.results.drill.id, _progress.lastAction, false);
         break;
       case TrackingResult.SKIP:
         break;
     }
-    _progress.results = await _resultsDatabase.summariesDao
-        .loadDrill(_resultsDatabase, _progress.results.drill.id);
+    _progress.results = await (await _resultsDatabase)
+        .summariesDao
+        .loadDrill((await _resultsDatabase), _progress.results.drill.id);
   }
 }
