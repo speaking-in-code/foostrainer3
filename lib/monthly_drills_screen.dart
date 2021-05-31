@@ -4,27 +4,25 @@ import 'monthly_drills_widget.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'results_db.dart';
+import 'static_drills.dart';
 
-class MonthlyDrillsScreen extends StatefulWidget {
+class MonthlyDrillsScreen extends StatelessWidget {
   static const routeName = '/monthly';
 
   static void navigate(BuildContext context) =>
       Navigator.pushNamed(context, routeName);
 
   final ResultsDatabase resultsDb;
+  final StaticDrills staticDrills;
 
-  MonthlyDrillsScreen({this.resultsDb});
+  MonthlyDrillsScreen({@required this.resultsDb, @required this.staticDrills});
 
-  @override
-  State<StatefulWidget> createState() => _MonthlyDrillsScreenState();
-}
-
-class _MonthlyDrillsScreenState extends State<MonthlyDrillsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(title: 'History').build(context),
-      body: MonthlyDrillsWidget(widget.resultsDb),
+      body:
+          MonthlyDrillsWidget(resultsDb: resultsDb, staticDrills: staticDrills),
       bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.monthly),
     );
   }

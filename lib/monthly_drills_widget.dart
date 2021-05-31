@@ -4,15 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:ft3/daily_drills_screen.dart';
 
 import 'log.dart';
+import 'no_drills_widget.dart';
 import 'results_db.dart';
 import 'spinner.dart';
+import 'static_drills.dart';
 
 final _log = Log.get('recent_drills');
 
 class MonthlyDrillsWidget extends StatefulWidget {
   final ResultsDatabase resultsDb;
+  final StaticDrills staticDrills;
 
-  MonthlyDrillsWidget(this.resultsDb);
+  MonthlyDrillsWidget({@required this.resultsDb, @required this.staticDrills})
+      : assert(resultsDb != null),
+        assert(staticDrills != null);
 
   @override
   State<StatefulWidget> createState() {
@@ -87,8 +92,7 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
     }
     final _MonthlyDrills drills = snapshot.data;
     if (drills.allTime.latest == null) {
-      // TODO(brian): make this a tap target to go the practice screen.
-      return Center(child: Text('No drills. Go practice!'));
+      return NoDrillsWidget(staticDrills: widget.staticDrills);
     }
     return CalendarDatePicker(
         initialDate: drills.monthMax,

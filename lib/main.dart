@@ -57,7 +57,7 @@ class MainApp extends StatelessWidget {
         HomeScreen.routeName: (context) =>
             AudioServiceWidget(child: HomeScreen(staticDrills: drills)),
         MonthlyDrillsScreen.routeName: (context) =>
-            MonthlyDrillsScreen(resultsDb: resultsDb),
+            MonthlyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
         PracticeScreen.routeName: (context) =>
             PracticeScreen(staticDrills: drills),

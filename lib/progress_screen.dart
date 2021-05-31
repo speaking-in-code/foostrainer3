@@ -7,6 +7,7 @@ import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
+import 'no_drills_widget.dart';
 import 'play_button_widget.dart';
 import 'reps_over_time_chart.dart';
 import 'results_db.dart';
@@ -166,7 +167,8 @@ class _DrillTabsState extends State<_DrillTabs> {
           staticDrills: widget.staticDrills,
           drillFullName: widget.drillData?.fullName);
     } else {
-      reps = _noDataWidget();
+      reps = NoDrillsWidget(
+          staticDrills: widget.staticDrills, drillData: widget.drillData);
       accuracy = reps;
       log = reps;
     }
@@ -188,27 +190,5 @@ class _DrillTabsState extends State<_DrillTabs> {
         child: DefaultTabController(
             length: tabs.length,
             child: Column(children: [tabBar, tabBarView])));
-  }
-
-  Widget _noDataWidget() {
-    List<Widget> children = [];
-    final large = Theme.of(context).textTheme.headline5;
-    final medium = Theme.of(context).textTheme.headline6;
-    final bigErrorText = Text('No Drills Found', style: large);
-    if (widget.drillData == null) {
-      children.add(bigErrorText);
-    } else {
-      children.add(Column(children: [
-        Text('${widget.drillData.type}', style: medium),
-        SizedBox(height: 6),
-        Text('${widget.drillData.name}', style: medium),
-        SizedBox(height: 12),
-        bigErrorText,
-      ]));
-    }
-    children.add(PlayButtonWidget(
-        staticDrills: widget.staticDrills, drillData: widget.drillData));
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: children);
   }
 }
