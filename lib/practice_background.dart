@@ -84,7 +84,14 @@ class PracticeBackground {
   }
 
   // True if the audio service is running in the background.
-  static get running => AudioService.running;
+  static Future<bool> running() async {
+    if (!(AudioService.connected ?? false)) {
+      _log.info('Checking if running, but not connected');
+      await AudioService.connect();
+    }
+    _log.info('running is ${AudioService.running}');
+    return AudioService.running ?? false;
+  }
 
   /// Pause the drill.
   static pause() {
