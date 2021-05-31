@@ -71,9 +71,7 @@ class ProgressScreenState extends State<ProgressScreen> {
   Widget build(BuildContext context) {
     _log.info('build called');
     return Scaffold(
-      appBar: MyAppBar.titleWidget(
-              titleWidget: _titleWidget(), includeMoreAction: false)
-          .build(context),
+      appBar: MyAppBar.titleWidget(titleWidget: _titleWidget()).build(context),
       body: _buildBody(context),
       bottomNavigationBar:
           MyNavBar.forDrillNav(MyNavBarLocation.progress, selected.drillData),

@@ -105,7 +105,7 @@ class DebugScreen extends StatelessWidget {
     );
   }
 
-  static const numDrills = 1;
+  static const numDrills = 500;
   Future<void> _initDatabase(BuildContext context) async {
     final progress = ValueNotifier<int>(0);
     List<Future<void>> creations = [];
