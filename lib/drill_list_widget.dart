@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:ft3/percent_formatter.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 
 import 'drill_data.dart';
-import 'drill_description_tile.dart';
+import 'date_formatter.dart';
 import 'duration_formatter.dart';
 import 'log.dart';
+import 'percent_formatter.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'results_screen.dart';
@@ -44,7 +43,6 @@ class DrillListWidget extends StatefulWidget {
 
 class DrillListWidgetState extends State<DrillListWidget> {
   static const _pageSize = 20;
-  static final _dateFormat = DateFormat.yMd().add_jm();
   static const _rowSpace = SizedBox(height: 6);
   final String drillFullName;
   PagingController<int, DrillSummary> _controller;
@@ -113,9 +111,12 @@ class DrillListWidgetState extends State<DrillListWidget> {
             ])));
   }
 
+  // TODO(brian): see how this looks on smaller screen, maybe merge reps
+  // and accuracy into a single line, or maybe make it a single column layout
+  // instead.
   Widget _drillInfo(
       BuildContext context, DrillSummary summary, DrillData drillData) {
-    final date = _dateFormat.format(summary.drill.startTime);
+    final date = DateFormatter.formatDayTime(summary.drill.startTime);
     String repsText;
     if (summary.good == null) {
       repsText = 'Reps: ${summary.reps}';

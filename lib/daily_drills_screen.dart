@@ -32,7 +32,7 @@ class DailyDrillsScreen extends StatelessWidget {
     final endDate =
         DateTime(startDate.year, startDate.month, startDate.day + 1);
     return Scaffold(
-      appBar: MyAppBar(title: '${DateFormatter.format(day)}').build(context),
+      appBar: MyAppBar(title: '${DateFormatter.formatDay(day)}').build(context),
       body: DrillListWidget(
           staticDrills: staticDrills,
           resultsDb: resultsDb,
