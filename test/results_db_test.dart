@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -487,7 +488,7 @@ void main() {
         expect(pageOne[j].drill.drill, equals('Shot:Drill $i'));
       }
       List<DrillSummary> lastPage =
-          await summaries.loadRecentDrills(db, 10, 90);
+          await summaries.loadRecentDrills(db, limit: 10, offset: 90);
       expect(lastPage.length, equals(5));
       for (int i = 4, j = 0; i >= 0; --i, ++j) {
         expect(lastPage[j].drill.drill, equals('Shot:Drill $i'));
@@ -617,6 +618,28 @@ void main() {
             AggregatedActionReps('2017-07-10', '2017-07-16', 'Lane', 10, null),
             AggregatedActionReps('2017-07-10', '2017-07-16', 'Wall', 10, null),
           ]));
+    });
+
+    test('renames pass to stick pass', () async {
+      final id1 = await db.drillsDao.insertDrill(
+          StoredDrill.newDrill(drill: 'Pass:Wall', tracking: true));
+      final id2 = await db.drillsDao.insertDrill(
+          StoredDrill.newDrill(drill: 'Pass:Lane', tracking: false));
+      final otherDrill = await db.drillsDao.insertDrill(
+          StoredDrill.newDrill(drill: 'Pull:Straight', tracking: false));
+      await renameStickPassMigration.migrate(db.database);
+
+      final migrated1 = await db.drillsDao.loadDrill(id1);
+      expect(migrated1.drill, equals('Stick Pass:Wall'));
+      expect(migrated1.tracking, isTrue);
+
+      final migrated2 = await db.drillsDao.loadDrill(id2);
+      expect(migrated2.drill, equals('Stick Pass:Lane'));
+      expect(migrated2.tracking, isFalse);
+
+      final unmodified = await db.drillsDao.loadDrill(otherDrill);
+      expect(unmodified.drill, equals('Pull:Straight'));
+      expect(unmodified.tracking, isFalse);
     });
   });
 }

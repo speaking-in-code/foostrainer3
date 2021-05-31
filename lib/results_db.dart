@@ -216,7 +216,6 @@ abstract class SummariesDao {
   Future<List<DrillSummary>> loadDrillsByDate(
       ResultsDatabase db, DateTime start, DateTime end,
       {String fullName}) async {
-    _log.info('load by date $start - $end, name $fullName');
     List<StoredDrill> drills = await _loadDrillsByDate(
         _secondsSinceEpoch(start),
         _secondsSinceEpoch(end),
@@ -505,7 +504,18 @@ class ActionSummary {
   ActionSummary(this.action, this.reps, this.goodCount);
 }
 
-@Database(version: 1, entities: [
+final renameStickPassMigration =
+    Migration(1, 2, (sqflite.DatabaseExecutor database) async {
+  _log.info('Migrating "Pass" to "Stick Pass"');
+  final changed = await database.rawUpdate('''
+  UPDATE Drills
+    SET drill = 'Stick Pass' || SUBSTR(drill, 5)
+    WHERE drill LIKE 'Pass:%'
+  ''');
+  _log.info('Migrated $changed records');
+});
+
+@Database(version: 2, entities: [
   StoredDrill,
   StoredAction,
 ], views: [
@@ -520,7 +530,9 @@ abstract class ResultsDatabase extends FloorDatabase {
   SummariesDao get summariesDao;
 
   static Future<ResultsDatabase> init() {
-    return $FloorResultsDatabase.databaseBuilder('results3.db').build();
+    return $FloorResultsDatabase
+        .databaseBuilder('results3.db')
+        .addMigrations([renameStickPassMigration]).build();
   }
 
   Future<int> addData(StoredDrill results,
