@@ -35,36 +35,77 @@ class PracticeStatusWidget extends StatelessWidget {
     dataStyle = dataStyle.copyWith(
         color: dataStyle.color.withOpacity(1.0),
         fontFeatures: [FontFeature.tabularFigures()]);
-    return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      Row(children: [
-        Expanded(
-          child: Text(
-            progress.action,
-            textAlign: TextAlign.center,
-            style: dataStyle,
-          ),
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      return _buildPortrait(context, labelStyle, dataStyle);
+    } else {
+      return _buildLandscape(context, labelStyle, dataStyle);
+    }
+  }
+
+  Widget _buildPortrait(
+      BuildContext context, TextStyle labelStyle, TextStyle dataStyle) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _currentAction(dataStyle),
+        _infoGrid(context, labelStyle, dataStyle),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _stopButton(context),
+          _actionButton(context),
+        ])
+      ],
+    );
+  }
+
+  Widget _buildLandscape(
+      BuildContext context, TextStyle labelStyle, TextStyle dataStyle) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _currentAction(dataStyle),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _infoGrid(context, labelStyle, dataStyle),
+            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+              _padBelow(_actionButton(context)),
+              _stopButton(context)
+            ]),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _currentAction(TextStyle dataStyle) {
+    return Row(children: [
+      Expanded(
+        child: Text(
+          progress.action,
+          textAlign: TextAlign.center,
+          style: dataStyle,
         ),
-      ]),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        _firstColumn(labelStyle: labelStyle, dataStyle: dataStyle),
-        _secondColumn(labelStyle: labelStyle, dataStyle: dataStyle),
-      ]),
-      _controlButtons(context),
+      ),
     ]);
   }
 
-  Widget _controlButtons(BuildContext context) {
-    final stopButton = _fabButton(context, Icons.stop, onStop);
-    Widget actionButton;
+  Widget _infoGrid(
+      BuildContext context, TextStyle labelStyle, TextStyle dataStyle) {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      _firstColumn(labelStyle: labelStyle, dataStyle: dataStyle),
+      _secondColumn(labelStyle: labelStyle, dataStyle: dataStyle),
+    ]);
+  }
+
+  Widget _stopButton(BuildContext context) {
+    return _fabButton(context, Icons.stop, onStop);
+  }
+
+  Widget _actionButton(BuildContext context) {
     if (progress.practiceState == PracticeState.playing) {
-      actionButton = _fabButton(context, Icons.pause, PracticeBackground.pause);
-    } else {
-      actionButton =
-          _fabButton(context, Icons.play_arrow, PracticeBackground.play);
+      return _fabButton(context, Icons.pause, PracticeBackground.pause);
     }
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [stopButton, actionButton]);
+    return _fabButton(context, Icons.play_arrow, PracticeBackground.play);
   }
 
   Widget _fabButton(
@@ -80,8 +121,8 @@ class PracticeStatusWidget extends StatelessWidget {
             color: Theme.of(context).colorScheme.onSecondary));
   }
 
-  Widget _padBelow(Text text) {
-    return Padding(padding: EdgeInsets.only(bottom: 16), child: text);
+  Widget _padBelow(Widget child) {
+    return Padding(padding: EdgeInsets.only(bottom: 16), child: child);
   }
 
   Widget _firstColumn({TextStyle labelStyle, TextStyle dataStyle}) {

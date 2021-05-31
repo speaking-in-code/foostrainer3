@@ -129,36 +129,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
   }
 
-  BottomAppBar _controlButtons(
-      BuildContext context, PracticeProgress progress) {
-    final stopButton = TextButton.icon(
-      icon: Icon(Icons.stop),
-      label: Text('Stop'),
-      onPressed: _onStop,
-    );
-    final actionButton = _actionButton(progress);
-    return BottomAppBar(
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      stopButton,
-      actionButton,
-    ]));
-  }
-
-  ButtonStyleButton _actionButton(PracticeProgress progress) {
-    if (progress.practiceState == PracticeState.playing) {
-      return TextButton.icon(
-          key: pauseKey,
-          icon: Icon(Icons.pause),
-          label: Text('Pause'),
-          onPressed: PracticeBackground.pause);
-    }
-    return TextButton.icon(
-        key: playKey,
-        icon: Icon(Icons.play_arrow),
-        label: Text('Play'),
-        onPressed: PracticeBackground.play);
-  }
-
   // Stop the audio service on navigation away from this screen. This is only
   // invoked by in-app user navigation. This is triggered by:
   // - the phone back button
