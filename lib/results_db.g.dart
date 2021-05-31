@@ -287,30 +287,19 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<StoredDrill>> _loadDrillsByDate(
-      int startSeconds, int endSeconds, bool matchName, String fullName) async {
+      bool matchDate,
+      int startSeconds,
+      int endSeconds,
+      bool matchName,
+      String fullName,
+      int limit,
+      int offset) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Drills WHERE startSeconds >= ? AND startSeconds <= ? AND (NOT ? OR drill = ?) ORDER BY startSeconds DESC',
+        'SELECT * FROM Drills WHERE (NOT ? OR (startSeconds >= ? AND startSeconds <= ?)) AND (NOT ? OR drill = ?) ORDER BY startSeconds DESC LIMIT ? OFFSET ?',
         arguments: <dynamic>[
+          matchDate == null ? null : (matchDate ? 1 : 0),
           startSeconds,
           endSeconds,
-          matchName == null ? null : (matchName ? 1 : 0),
-          fullName
-        ],
-        mapper: (Map<String, dynamic> row) => StoredDrill(
-            id: row['id'] as int,
-            startSeconds: row['startSeconds'] as int,
-            drill: row['drill'] as String,
-            tracking:
-                row['tracking'] == null ? null : (row['tracking'] as int) != 0,
-            elapsedSeconds: row['elapsedSeconds'] as int));
-  }
-
-  @override
-  Future<List<StoredDrill>> _loadRecentStoredDrills(
-      bool matchName, String fullName, int limit, int offset) async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM Drills WHERE NOT ? OR drill = ? ORDER BY startSeconds DESC LIMIT ? OFFSET ?',
-        arguments: <dynamic>[
           matchName == null ? null : (matchName ? 1 : 0),
           fullName,
           limit,

@@ -21,15 +21,21 @@ class DrillListWidget extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final StaticDrills staticDrills;
   final String drillFullName;
+  //final DateTime date;
+  final DateTime startDate;
+  final DateTime endDate;
 
   DrillListWidget(
       {Key key,
       @required this.resultsDb,
       @required this.staticDrills,
-      this.drillFullName})
+      this.drillFullName,
+      this.startDate,
+      this.endDate})
       : assert(resultsDb != null),
         super(key: key) {
-    _log.info('Creating drill list widget for drill=$drillFullName');
+    _log.info(
+        'Creating drill list widget for drill=$drillFullName start=$startDate end=$endDate');
   }
 
   @override
@@ -63,8 +69,12 @@ class DrillListWidgetState extends State<DrillListWidget> {
   Future<void> _fetchPage(int pageKey) async {
     try {
       final List<DrillSummary> drills = await widget.resultsDb.summariesDao
-          .loadRecentDrills(widget.resultsDb,
-              limit: _pageSize, offset: pageKey, fullName: drillFullName);
+          .loadDrillsByDate(widget.resultsDb,
+              limit: _pageSize,
+              offset: pageKey,
+              fullName: drillFullName,
+              start: widget.startDate,
+              end: widget.endDate);
       if (_controller == null) {
         // Future completed late.
         return;
@@ -96,12 +106,11 @@ class DrillListWidgetState extends State<DrillListWidget> {
     final drillData = widget.staticDrills.getDrill(summary.drill.drill);
     return Padding(
         padding: EdgeInsets.all(8),
-        child: Row(children: [
-          Expanded(child: _drillInfo(context, summary, drillData)),
-          IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: () => _onPressed(context, summary, drillData)),
-        ]));
+        child: InkWell(
+            onTap: () => _onPressed(context, summary, drillData),
+            child: Row(children: [
+              Expanded(child: _drillInfo(context, summary, drillData)),
+            ])));
   }
 
   Widget _drillInfo(
@@ -111,25 +120,37 @@ class DrillListWidgetState extends State<DrillListWidget> {
     if (summary.good == null) {
       repsText = 'Reps: ${summary.reps}';
     } else {
-      repsText =
-          'Reps: ${summary.good}/${summary.reps}    ${PercentFormatter.format(summary.good / summary.reps)}';
+      repsText = 'Reps: ${summary.good}/${summary.reps}';
     }
     final duration =
         'Duration: ${DurationFormatter.format(summary.drill.elapsed)}';
     final baseStyle = Theme.of(context).textTheme.bodyText2;
     final shaded = baseStyle.copyWith(color: baseStyle.color.withOpacity(0.8));
+    final children = [
+      _leftAndRight(
+          Text('${drillData.type}', style: shaded), Text(date, style: shaded)),
+      _rowSpace,
+      Text(drillData.name, style: baseStyle, textAlign: TextAlign.center),
+      _rowSpace,
+      _leftAndRight(
+          Text(repsText, style: baseStyle), Text(duration, style: baseStyle)),
+    ];
+    if (summary.good != null) {
+      children.addAll([
+        _rowSpace,
+        Text(
+            'Accuracy: ${PercentFormatter.format(summary.good / summary.reps)}',
+            style: baseStyle),
+      ]);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$date    ${drillData.type}', style: shaded),
-        _rowSpace,
-        Text(drillData.name, style: baseStyle),
-        _rowSpace,
-        Text(repsText, style: baseStyle),
-        _rowSpace,
-        Text(duration, style: baseStyle),
-      ],
+      children: children,
     );
+  }
+
+  Widget _leftAndRight(Widget left, Widget right) {
+    return Row(children: [left, Spacer(), right]);
   }
 
   void _onPressed(

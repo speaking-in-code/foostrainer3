@@ -112,8 +112,8 @@ void main() {
               aggLevel: AggregationLevel.WEEKLY, numWeeks: 10, offset: 0);
       expect(summaryList.length, equals(1));
       AggregatedDrillSummary weekly = summaryList.first;
-      List<DrillSummary> found =
-          await summaries.loadDrillsByDate(db, weekly.startDay, weekly.endDay);
+      List<DrillSummary> found = await summaries.loadDrillsByDate(db,
+          start: weekly.startDay, end: weekly.endDay, limit: 1000, offset: 0);
       expect(found.length, equals(1),
           reason:
               'Bad time $date, $secsSinceEpoch, should be in range ${weekly.startDay} - ${weekly.endDay}');
@@ -482,19 +482,19 @@ void main() {
       }
       await Future.wait(drills);
       List<DrillSummary> pageOne =
-          await summaries.loadRecentDrills(db, limit: 10, offset: 0);
+          await summaries.loadDrillsByDate(db, limit: 10, offset: 0);
       expect(pageOne.length, equals(10));
       for (int i = 94, j = 0; i >= 85; --i, ++j) {
         expect(pageOne[j].drill.drill, equals('Shot:Drill $i'));
       }
       List<DrillSummary> lastPage =
-          await summaries.loadRecentDrills(db, limit: 10, offset: 90);
+          await summaries.loadDrillsByDate(db, limit: 10, offset: 90);
       expect(lastPage.length, equals(5));
       for (int i = 4, j = 0; i >= 0; --i, ++j) {
         expect(lastPage[j].drill.drill, equals('Shot:Drill $i'));
       }
       List<DrillSummary> offPage =
-          await summaries.loadRecentDrills(db, limit: 10, offset: 95);
+          await summaries.loadDrillsByDate(db, limit: 10, offset: 95);
       expect(offPage.length, equals(0));
     });
 
@@ -508,7 +508,7 @@ void main() {
       final gone = await drills.loadDrill(drillId);
       expect(gone, isNull);
       List<DrillSummary> summary =
-          await summaries.loadRecentDrills(db, limit: 10, offset: 0);
+          await summaries.loadDrillsByDate(db, limit: 10, offset: 0);
       expect(summary, isEmpty);
     });
 

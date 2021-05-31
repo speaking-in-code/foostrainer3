@@ -54,7 +54,7 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
     final monthEnd = DateTime(month.year, month.month + 1, 0);
     _log.info('Month $monthStart to $monthEnd');
     final drills = await widget.resultsDb.summariesDao
-        .loadDrillsByDate(widget.resultsDb, monthStart, monthEnd);
+        .loadDrillsByDate(widget.resultsDb, start: monthStart, end: monthEnd);
     final drillDays = Set<DateTime>();
     DateTime min;
     DateTime max;

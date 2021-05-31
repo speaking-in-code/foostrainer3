@@ -204,23 +204,24 @@ abstract class SummariesDao {
     return _buildDrillSummary(await drill, await actions);
   }
 
-  Future<List<DrillSummary>> loadRecentDrills(ResultsDatabase db,
-      {@required int limit, @required int offset, String fullName}) async {
+  Future<List<DrillSummary>> loadDrillsByDate(ResultsDatabase db,
+      {@required int limit,
+      @required int offset,
+      String fullName,
+      DateTime start,
+      DateTime end}) async {
     assert(limit != null);
     assert(offset != null);
-    List<StoredDrill> drills = await _loadRecentStoredDrills(
-        fullName != null, fullName ?? '', limit, offset);
-    return _summarizeDrills(db, drills);
-  }
-
-  Future<List<DrillSummary>> loadDrillsByDate(
-      ResultsDatabase db, DateTime start, DateTime end,
-      {String fullName}) async {
+    int startSeconds = start != null ? _secondsSinceEpoch(start) : 0;
+    int endSeconds = end != null ? _secondsSinceEpoch(end) : 0;
     List<StoredDrill> drills = await _loadDrillsByDate(
-        _secondsSinceEpoch(start),
-        _secondsSinceEpoch(end),
+        start != null,
+        startSeconds,
+        endSeconds,
         fullName != null,
-        fullName ?? '');
+        fullName ?? '',
+        limit,
+        offset);
     return _summarizeDrills(db, drills);
   }
 
@@ -236,24 +237,14 @@ abstract class SummariesDao {
   @Query('''
   SELECT * FROM Drills
   WHERE
-      startSeconds >= :startSeconds
-      AND startSeconds <= :endSeconds
+      (NOT :matchDate OR (startSeconds >= :startSeconds AND startSeconds <= :endSeconds))
       AND (NOT :matchName OR drill = :fullName)
-  ORDER BY startSeconds DESC
-  ''')
-  Future<List<StoredDrill>> _loadDrillsByDate(
-      int startSeconds, int endSeconds, bool matchName, String fullName);
-
-  @Query('''
-  SELECT * FROM Drills
-  WHERE 
-  NOT :matchName OR drill = :fullName
   ORDER BY startSeconds DESC
   LIMIT :limit
   OFFSET :offset
   ''')
-  Future<List<StoredDrill>> _loadRecentStoredDrills(
-      bool matchName, String fullName, int limit, int offset);
+  Future<List<StoredDrill>> _loadDrillsByDate(bool matchDate, int startSeconds,
+      int endSeconds, bool matchName, String fullName, int limit, int offset);
 
   static DrillSummary _buildDrillSummary(
       StoredDrill drill, List<StoredAction> actions) {

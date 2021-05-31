@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'album_art.dart';
 import 'daily_drills_screen.dart';
 import 'debug_screen.dart';
-import 'drill_stats_screen.dart';
 import 'home_screen.dart';
 import 'log.dart';
 import 'monthly_drills_screen.dart';
@@ -16,7 +15,6 @@ import 'progress_screen.dart';
 import 'results_db.dart';
 import 'results_screen.dart';
 import 'static_drills.dart';
-import 'stats_screen.dart';
 
 final _log = Log.get('main');
 
@@ -58,8 +56,6 @@ class MainApp extends StatelessWidget {
             DailyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
         HomeScreen.routeName: (context) =>
             AudioServiceWidget(child: HomeScreen(staticDrills: drills)),
-        DrillStatsScreen.routeName: (context) =>
-            DrillStatsScreen(staticDrills: drills, resultsDb: resultsDb),
         MonthlyDrillsScreen.routeName: (context) =>
             MonthlyDrillsScreen(resultsDb: resultsDb),
         PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
@@ -71,8 +67,6 @@ class MainApp extends StatelessWidget {
             ResultsScreen(staticDrills: drills, resultsDb: resultsDb),
         DebugScreen.routeName: (context) =>
             DebugScreen(staticDrills: drills, resultsDb: resultsDb),
-        StatsScreen.routeName: (context) =>
-            StatsScreen(staticDrills: drills, resultsDb: resultsDb),
       },
     );
   }

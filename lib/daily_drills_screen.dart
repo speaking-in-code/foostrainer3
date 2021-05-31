@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'date_formatter.dart';
 import 'drill_data.dart';
-import 'drill_summary_list_widget.dart';
+import 'drill_list_widget.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'results_db.dart';
@@ -28,10 +28,16 @@ class DailyDrillsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DateTime day = ModalRoute.of(context).settings.arguments;
+    final startDate = DateTime(day.year, day.month, day.day);
+    final endDate =
+        DateTime(startDate.year, startDate.month, startDate.day + 1);
     return Scaffold(
       appBar: MyAppBar(title: '${DateFormatter.format(day)}').build(context),
-      body: _DailyDrillList(
-          staticDrills: staticDrills, resultsDb: resultsDb, day: day),
+      body: DrillListWidget(
+          staticDrills: staticDrills,
+          resultsDb: resultsDb,
+          startDate: startDate,
+          endDate: endDate),
       bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.monthly),
     );
   }
@@ -61,7 +67,7 @@ class _DailyDrillListState extends State<_DailyDrillList> {
     final start = DateTime(widget.day.year, widget.day.month, widget.day.day);
     final end = DateTime(start.year, start.month, start.day + 1);
     return widget.resultsDb.summariesDao
-        .loadDrillsByDate(widget.resultsDb, start, end);
+        .loadDrillsByDate(widget.resultsDb, start: start, end: end);
   }
 
   @override
