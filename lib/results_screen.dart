@@ -89,8 +89,8 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
           includeMoreAction: false,
           actions: [_replayButton()]).build(context),
       body: _summaryCard(summary),
-      bottomNavigationBar: MyNavBar.forDrillNav(
-          MyNavBarLocation.progress, widget.args.drillData),
+      bottomNavigationBar:
+          MyNavBar.forDrillNav(MyNavBarLocation.monthly, widget.args.drillData),
     );
   }
 
