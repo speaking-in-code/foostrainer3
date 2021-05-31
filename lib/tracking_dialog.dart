@@ -1,13 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ft3/tracking_info.dart';
+import 'dart:math';
 
+import 'log.dart';
 import 'simple_dialog_item.dart';
+import 'tracking_info.dart';
+
+final _log = Log.get('tracking_dialog');
 
 typedef TrackingDialogCallback = void Function(TrackingResult);
 
 class TrackingDialog extends StatelessWidget {
-  static const iconSize = 72.0;
+  static const _iconSize = 72.0;
+  static const _space = SizedBox(height: 20, width: 20);
+
   final TrackingDialogCallback callback;
 
   const TrackingDialog({Key key, this.callback}) : super(key: key);
@@ -16,33 +21,40 @@ class TrackingDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: Text('Enter Result'),
-      children: _items(context),
+      children: [_items(context)],
     );
   }
 
-  List<Widget> _items(BuildContext context) {
-    return [
+  Widget _items(BuildContext context) {
+    final screen = MediaQuery.of(context);
+    final options = [
       SimpleDialogItem(
         onPressed: () => callback(TrackingResult.GOOD),
         text: 'Good',
         icon: Icons.thumb_up,
-        iconSize: iconSize,
+        iconSize: _iconSize,
         color: Theme.of(context).accentColor,
       ),
+      _space,
       SimpleDialogItem(
         onPressed: () => callback(TrackingResult.MISSED),
         text: 'Missed',
         icon: Icons.thumb_down,
-        iconSize: iconSize,
+        iconSize: _iconSize,
         color: Theme.of(context).unselectedWidgetColor,
       ),
+      _space,
       SimpleDialogItem(
         onPressed: () => callback(TrackingResult.SKIP),
         text: 'Skip',
         icon: Icons.double_arrow,
-        iconSize: iconSize,
+        iconSize: _iconSize,
         color: Theme.of(context).primaryColor,
       ),
     ];
+    if (screen.orientation == Orientation.portrait) {
+      return Column(children: options);
+    }
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: options);
   }
 }

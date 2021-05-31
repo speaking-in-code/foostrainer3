@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 
 class SimpleDialogItem extends StatelessWidget {
+  static const _insets = const EdgeInsetsDirectional.only(start: 16.0);
+
   const SimpleDialogItem(
       {Key key,
       this.icon,
@@ -20,19 +22,39 @@ class SimpleDialogItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.headline6;
-    return SimpleDialogOption(
-      onPressed: onPressed,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, size: iconSize, color: color),
-          Padding(
-            padding: const EdgeInsetsDirectional.only(start: 16.0),
-            child: Text(text, style: textStyle),
-          ),
-        ],
-      ),
+    // For portrait mode, text goes next to icon.
+    // For landsacpe, text goes under icon.
+    final child = MediaQuery.of(context).orientation == Orientation.portrait
+        ? _buildRow(textStyle)
+        : _buildColumn(textStyle);
+    return SimpleDialogOption(onPressed: onPressed, child: child);
+  }
+
+  Widget _buildRow(TextStyle style) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(icon, size: iconSize, color: color),
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 16.0),
+          child: Text(text, style: style),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildColumn(TextStyle style) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(icon, size: iconSize, color: color),
+        Padding(
+          padding: const EdgeInsetsDirectional.only(top: 16.0),
+          child: Text(text, style: style),
+        ),
+      ],
     );
   }
 }
