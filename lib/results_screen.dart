@@ -6,7 +6,6 @@ import 'log.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'practice_config_screen.dart';
-import 'progress_screen.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
 import 'spinner.dart';
@@ -84,19 +83,19 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
 
   Widget _buildScaffold(DrillSummary summary) {
     return Scaffold(
-      appBar: MyAppBar.drillTitle(
-          drillData: widget.args.drillData,
-          includeMoreAction: false,
-          actions: [_replayButton()]).build(context),
+      appBar:
+          MyAppBar.drillTitle(drillData: widget.args.drillData).build(context),
       body: _summaryCard(summary),
+      floatingActionButton: _playButton(),
       bottomNavigationBar:
           MyNavBar.forDrillNav(MyNavBarLocation.monthly, widget.args.drillData),
     );
   }
 
-  Widget _replayButton() {
-    return IconButton(
-      icon: Icon(Icons.replay),
+  Widget _playButton() {
+    return FloatingActionButton(
+      child: Icon(Icons.play_arrow),
+      mini: true,
       onPressed: () =>
           PracticeConfigScreen.navigate(context, widget.args.drillData),
     );
@@ -107,6 +106,8 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
       // DrillDescriptionTile(drillData: widget.args.drillData),
       StatsGridWidget(summary: summary, drillData: widget.args.drillData),
       DrillPerformanceTable(summary: summary),
+      // Add space at end to display fab.
+      SizedBox(height: 56.0),
     ]);
   }
 }
