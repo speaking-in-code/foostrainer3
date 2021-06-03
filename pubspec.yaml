@@ -22,7 +22,6 @@ dependencies:
   floor: ^0.19.1
   flutter:
     sdk: flutter
-  flutter_treeview: ^1.0.3+2
   #torch_compat:
   #  path: ../flutter_torch_compat
   infinite_scroll_pagination: ^2.3.0

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'drill_chooser_modal.dart';
 import 'drill_chooser_screen.dart';
 import 'drill_data.dart';
 import 'practice_config_screen.dart';
@@ -18,18 +19,7 @@ class PlayButtonWidget extends StatelessWidget {
         child: ElevatedButton.icon(
       label: Text('Start Practice'),
       icon: Icon(Icons.play_arrow),
-      onPressed: () => _onStartPractice(context),
+      onPressed: () => DrillChooserScreen.push(context, drillData),
     ));
-  }
-
-  void _onStartPractice(BuildContext context) async {
-    DrillData chosen = drillData;
-    if (chosen == null) {
-      chosen = await DrillChooserScreen.startDialog(context,
-          staticDrills: staticDrills);
-    }
-    if (chosen != null) {
-      PracticeConfigScreen.navigate(context, chosen);
-    }
   }
 }

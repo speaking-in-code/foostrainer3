@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'album_art.dart';
 import 'daily_drills_screen.dart';
 import 'debug_screen.dart';
+import 'drill_chooser_screen.dart';
 import 'home_screen.dart';
 import 'log.dart';
 import 'monthly_drills_screen.dart';
@@ -54,6 +55,8 @@ class MainApp extends StatelessWidget {
       routes: {
         DailyDrillsScreen.routeName: (context) =>
             DailyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
+        DrillChooserScreen.routeName: (context) =>
+            DrillChooserScreen(staticDrills: drills),
         HomeScreen.routeName: (context) =>
             AudioServiceWidget(child: HomeScreen(staticDrills: drills)),
         MonthlyDrillsScreen.routeName: (context) =>

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_treeview/flutter_treeview.dart' as treeview;
 
 import 'drill_data.dart';
 import 'static_drills.dart';
@@ -11,8 +10,6 @@ class DrillChooserWidget extends StatefulWidget {
   final OnDrillChosen onDrillChosen;
   final DrillData selected;
   final bool allowAll;
-  final bool shrinkWrap;
-  final bool primaryScroll;
 
   /// Creates a drill chooser widget. onSelected is notified when the user has
   /// made a selection.
@@ -20,9 +17,7 @@ class DrillChooserWidget extends StatefulWidget {
       {@required this.staticDrills,
       @required this.onDrillChosen,
       this.selected,
-      this.allowAll = false,
-      this.shrinkWrap = false,
-      this.primaryScroll = false})
+      this.allowAll = false})
       : assert(staticDrills != null);
 
   @override
@@ -30,75 +25,74 @@ class DrillChooserWidget extends StatefulWidget {
 }
 
 class _DrillChooserWidgetState extends State<DrillChooserWidget> {
-  static const allKey = 'all';
-  treeview.TreeViewController _controller;
+  List<String> choices;
+  String selectedType;
+  TextStyle typeStyle;
+  TextStyle drillStyle;
 
   @override
   void initState() {
     super.initState();
-    final List<treeview.Node<DrillData>> nodes = [];
-    if (widget.allowAll) {
-      nodes.add(treeview.Node<DrillData>(key: allKey, label: 'All'));
-    }
-    nodes.addAll(widget.staticDrills.types.map(_typeNode));
-    _controller = treeview.TreeViewController(
-        children: nodes, selectedKey: widget.selected?.fullName);
-  }
-
-  treeview.Node<DrillData> _typeNode(String type) {
-    List<treeview.Node<DrillData>> drills =
-        widget.staticDrills.getDrills(type).map(_drillNode).toList();
-    bool expanded = false;
-    if (type == widget.selected?.type) {
-      expanded = true;
-    }
-    return treeview.Node(
-        key: type, label: type, expanded: expanded, children: drills);
-  }
-
-  treeview.Node<DrillData> _drillNode(DrillData drill) {
-    return treeview.Node(key: drill.fullName, label: drill.name, data: drill);
-  }
-
-  treeview.TreeViewTheme get _treeViewTheme {
-    final theme = Theme.of(context);
-    return treeview.TreeViewTheme(
-      expanderTheme: treeview.ExpanderThemeData(
-        color: theme.selectedRowColor,
-      ),
-      colorScheme: theme.colorScheme,
-    );
-  }
-
-  void _onExpansionChanged(String key, bool expanded) {
-    treeview.Node node = _controller.getNode(key);
-    if (node == null) {
-      return;
-    }
-    final updated =
-        _controller.updateNode(key, node.copyWith(expanded: expanded));
-    setState(() {
-      _controller = _controller.copyWith(children: updated);
-    });
-  }
-
-  void _onNodeTap(String key) {
-    treeview.Node<DrillData> node = _controller.getNode(key);
-    setState(() {
-      _controller = _controller.copyWith(selectedKey: key);
-    });
-    widget.onDrillChosen(node.data);
+    choices = widget.staticDrills.types;
+    selectedType = widget.selected?.type;
   }
 
   @override
   Widget build(BuildContext context) {
-    return treeview.TreeView(
-      controller: _controller,
-      shrinkWrap: widget.shrinkWrap,
-      primary: widget.primaryScroll,
-      onExpansionChanged: _onExpansionChanged,
-      onNodeTap: _onNodeTap,
-      theme: _treeViewTheme,
+    typeStyle = Theme.of(context).textTheme.bodyText1;
+    typeStyle = typeStyle.copyWith(color: typeStyle.color.withOpacity(0.8));
+    drillStyle = Theme.of(context).textTheme.bodyText1;
+    final children =
+        choices.map((drillType) => _buildPanel(drillType)).toList();
+    return SingleChildScrollView(
+      child: Container(
+          child: ExpansionPanelList(
+              expandedHeaderPadding: EdgeInsets.zero,
+              expansionCallback: _expansionCallback,
+              children: children)),
+    );
+  }
+
+  void _expansionCallback(int index, bool currentlyExpanded) {
+    setState(() {
+      if (currentlyExpanded) {
+        selectedType = null;
+      } else {
+        selectedType = choices[index];
+      }
+    });
+  }
+
+  ExpansionPanel _buildPanel(String drillType) {
+    final drillDatas = widget.staticDrills.getDrills(drillType);
+    return ExpansionPanel(
+      headerBuilder: (context, isExpanded) =>
+          _buildHeader(context, isExpanded, drillType),
+      body: _buildBody(drillDatas),
+      isExpanded: selectedType == drillType,
+      canTapOnHeader: true,
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isExpanded, String drillType) {
+    return ListTile(title: Text(drillType, style: typeStyle));
+  }
+
+  Widget _buildBody(List<DrillData> drillDatas) {
+    return ListView.separated(
+      shrinkWrap: true,
+      primary: false,
+      itemCount: drillDatas.length,
+      itemBuilder: (context, itemIndex) => _buildDrill(drillDatas[itemIndex]),
+      separatorBuilder: (context, itemIndex) => const Divider(),
+    );
+  }
+
+  Widget _buildDrill(DrillData drillData) {
+    return ListTile(
+      title: Text(drillData.name, style: drillStyle),
+      trailing: Icon(Icons.arrow_right, color: drillStyle.color),
+      onTap: () => widget.onDrillChosen(drillData),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'drill_chooser_screen.dart';
+import 'drill_chooser_modal.dart';
 import 'drill_data.dart';
 import 'drill_description_tile.dart';
 import 'log.dart';
@@ -68,7 +68,7 @@ class ProgressChooserSheetState extends State<ProgressChooserSheet> {
   }
 
   void _onDrillTap(BuildContext context) async {
-    DrillData chosen = await DrillChooserScreen.startDialog(context,
+    DrillData chosen = await DrillChooserModal.startDialog(context,
         staticDrills: widget.staticDrills,
         selected: selected.drillData,
         allowAll: true);
