@@ -43,12 +43,29 @@ Note that the well-documented version of the 'flutter drive' command
 does not work. For reasons I don't understand, the app fails to connect  
 to the background audio service and so drills don't execute.
 
-## Release Build
+## Release Build - Android
 
-This will build and install the app to a locally connected device.
+This will build and install the app to a locally connected android device.
 
 ```
-bash tools/prod-build.sh
+bash tools/prod-build.sh --device-id *id*
+```
+
+## iOS magic
+
+Sometimes running "flutter run" for an iOS device just works. Other times, you
+need something like this:
+
+```
+cd ios
+rm Podfile.lock
+rm -rf Pods
+pod cache clean --all
+pod deintegrate
+pod repo update
+pod setup
+pod install
+flutter run
 ```
 
 To install a release build on iOS, sometimes this comes in handy:
