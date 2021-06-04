@@ -25,6 +25,7 @@ class DrillChooserWidget extends StatefulWidget {
 }
 
 class _DrillChooserWidgetState extends State<DrillChooserWidget> {
+  static const _allType = 'all';
   List<String> choices;
   String selectedType;
   TextStyle typeStyle;
@@ -33,8 +34,15 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   @override
   void initState() {
     super.initState();
-    choices = widget.staticDrills.types;
+    choices = [];
+    if (widget.allowAll) {
+      choices.add(_allType);
+    }
+    choices.addAll(widget.staticDrills.types);
     selectedType = widget.selected?.type;
+    if (selectedType == null && widget.allowAll) {
+      selectedType = _allType;
+    }
   }
 
   @override
@@ -64,6 +72,15 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   }
 
   ExpansionPanel _buildPanel(String drillType) {
+    if (drillType == _allType) {
+      return ExpansionPanel(
+        headerBuilder: (context, isExpanded) =>
+            _buildHeader(context, isExpanded, drillType),
+        body: _buildAllTileBody(),
+        isExpanded: selectedType == drillType,
+        canTapOnHeader: true,
+      );
+    }
     final drillDatas = widget.staticDrills.getDrills(drillType);
     return ExpansionPanel(
       headerBuilder: (context, isExpanded) =>
@@ -75,7 +92,18 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   }
 
   Widget _buildHeader(BuildContext context, bool isExpanded, String drillType) {
+    if (drillType == _allType) {
+      drillType = 'All Drills';
+    }
     return ListTile(title: Text(drillType, style: typeStyle));
+  }
+
+  Widget _buildAllTileBody() {
+    return ListTile(
+      title: Text('Show All Drills', style: drillStyle),
+      trailing: Icon(Icons.arrow_right, color: drillStyle.color),
+      onTap: () => widget.onDrillChosen(null),
+    );
   }
 
   Widget _buildBody(List<DrillData> drillDatas) {
