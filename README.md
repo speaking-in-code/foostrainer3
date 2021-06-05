@@ -48,7 +48,7 @@ to the background audio service and so drills don't execute.
 This will build and install the app to a locally connected android device.
 
 ```
-bash tools/prod-build.sh --device-id *id*
+bash tools/android-prod-build.sh --device-id *id*
 ```
 
 ## iOS magic
@@ -71,7 +71,19 @@ flutter run
 To install a release build on iOS, sometimes this comes in handy:
 
 ```
-ideviceinstaller -i FoosTrainer.ipa
+bash tool/ios-release-build.sh
+```
+
+Another approach, from XCode UI:
+
+```
+Product > Archive
+Window > Organizer
+- Distribute App > Ad Hoc
+- Distribute
+- (click through)
+- (select download location)
+- ideviceinstaller -i (download location)/FoosTrainer.ipa
 ```
 
 ## Update Screenshots after UI Change
