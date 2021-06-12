@@ -352,10 +352,11 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   // Plays audio until complete.
-  Future<void> _playUntilDone() async {
+  Future<void> _playUntilDone(String asset) async {
     // Pause first, since otherwise play() might return immediately.
     await _player.pause();
-    return _player.play();
+    await _player.setAsset(asset);
+    await _player.play();
   }
 
   void _waitForSetup() async {
@@ -364,8 +365,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     }
     _progress.action = 'Setup';
     _updateMediaItem();
-    await _player.setAsset('assets/cowbell.mp3');
-    await _playUntilDone();
+    await _playUntilDone('assets/cowbell.mp3');
     _pause(_setupTime).whenComplete(_waitForAction);
   }
 
@@ -389,8 +389,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     if (_progress.drill.signal == Signal.AUDIO_AND_FLASH) {
       _flashTorch();
     }
-    await _player.setAsset(actionData.audioAsset);
-    await _playUntilDone();
+    await _playUntilDone(actionData.audioAsset);
     if (_progress.drill.tracking) {
       _waitForTracking();
     } else {
@@ -437,8 +436,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   Future<void> _finishPractice() async {
-    await _player.setAsset('assets/triple_cowbell.mp3');
-    await _playUntilDone();
+    await _playUntilDone('assets/triple_cowbell.mp3');
     _finishTime = Duration.zero;
   }
 
