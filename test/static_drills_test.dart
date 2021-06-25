@@ -6,12 +6,8 @@ void main() {
 
   test('Loads', () async {
     StaticDrills drills = await StaticDrills.load();
-    expect(drills.types, containsAll([
-      'Pass',
-      'Rollover',
-      'Pull',
-      'Push'
-    ]));
+    expect(drills.types,
+        containsAll(['Brush Pass', 'Stick Pass', 'Rollover', 'Pull', 'Push']));
   });
 
   test('All types have at least two drills', () async {

@@ -29,8 +29,8 @@ void main() async {
 }
 
 class MainApp extends StatelessWidget {
-  static final _analytics = FirebaseAnalytics();
-  static final _observer = FirebaseAnalyticsObserver(analytics: _analytics);
+  static final _observer =
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics());
   static final _barBackground = Colors.black87;
   static final _darkTheme = ThemeData.dark().copyWith(
     appBarTheme: AppBarTheme(backgroundColor: _barBackground),
@@ -38,6 +38,7 @@ class MainApp extends StatelessWidget {
         BottomNavigationBarThemeData(backgroundColor: _barBackground),
     bottomAppBarTheme: BottomAppBarTheme(color: _barBackground),
   );
+
   final ResultsDatabase resultsDb;
   final StaticDrills drills;
 
@@ -50,7 +51,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'FoosTrainer',
       theme: _darkTheme,
-      navigatorObservers: <NavigatorObserver>[_observer],
+      navigatorObservers: [_observer],
       initialRoute: HomeScreen.routeName,
       routes: {
         DailyDrillsScreen.routeName: (context) =>
