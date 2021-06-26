@@ -93,6 +93,13 @@ pub global activate screenshots
 ~/.pub-cache/bin/screenshots
 ```
 
+If screenshot updates fail, check a few things:
+
+* do the emulator images start up? Test them from XCode/Android Studio.
+* doing a clean boot or reset of the emulator images sometimes helps.
+* screenshots_test.dart might need edits for new navigation.
+* flutter_driver tests are a bundle of race conditions, and a single flaky
+  test can make everything much less reliable.
 
 ## Production Release
 

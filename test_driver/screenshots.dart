@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_driver/driver_extension.dart';
+import 'package:ft3/log.dart';
 import 'package:ft3/main.dart' as app;
 import 'package:flutter/widgets.dart';
 
@@ -11,6 +12,7 @@ import 'package:ft3/results_entities.dart';
 import 'package:ft3/screenshot_data.dart';
 import 'package:ft3/static_drills.dart';
 
+final _log = Log.get('screenshots');
 final _rand = Random(/*seed*/ 0xf005);
 
 int _randBetween(int min, int max) {
@@ -18,13 +20,19 @@ int _randBetween(int min, int max) {
 }
 
 void main() async {
+  _log.info('Enabling flutter driver extension');
   // Enable the flutter driver extension so that tests can control the app.
   enableFlutterDriverExtension();
-  // Remove the debug logo, so screenshots look better.
+  _log.info('Enabling widgets flutter binding');
+  WidgetsFlutterBinding.ensureInitialized();
   WidgetsApp.debugAllowBannerOverride = false;
+  _log.info('Initializing drills');
+  // Remove the debug logo, so screenshots look better.
   // Set up static data for screenshots.
   final drills = await StaticDrills.load();
+  _log.info('Initializing DB');
   final db = await ResultsDatabase.init();
+  _log.info('Creating drills for display');
   await db.deleteAll();
   final rolloverId = await _addRollover(db, drills);
   await _addBrush(db, drills);
@@ -32,6 +40,7 @@ void main() async {
   await _addPullProgress(db, drills);
   await _addCalendarDays(db, drills);
   ProgressChooserSheet.includeCloseButton = true;
+  _log.info('Running the main app.');
   runApp(app.MainApp(db, drills));
 }
 

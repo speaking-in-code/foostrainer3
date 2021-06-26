@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:ft3/keys.dart';
 import 'package:ft3/log.dart';
@@ -10,22 +8,23 @@ final _log = Log.get('screenshots_test');
 
 void main() {
   final config = screenshots.Config();
-  const kStartPractice = 'Start-Practice';
-  const kAccuracyChart = 'Accuracy-Chart';
-  const kDrillTypes = 'Drill-Types';
-  const kPassTypes = 'Passing-Types';
-  const kCalendar = 'Calendar';
-  const kRolloverDrill = 'Rollover-Drill';
-  const kConfigScreen = 'Config-Screen';
-  const kLog = 'Logs-Screen';
-  const kBreakdown = 'Drill-Breakdown';
+
+  Future<void> _spin(String where) async {
+    _log.info('Spinning at $where');
+    while (true) {
+      await Future.delayed(Duration(seconds: 1));
+    }
+  }
 
   group('FoosTrainer App Screenshots', () {
     FlutterDriver driver;
 
     // Connect to the Flutter driver before running any tests.
     setUpAll(() async {
-      driver = await FlutterDriver.connect();
+      _log.info('Connecting to flutter driver');
+      driver = await FlutterDriver.connect(printCommunication: true);
+      _log.info('Waiting for first frame');
+      await driver.waitUntilFirstFrameRasterized();
     });
 
     // Close the connection to the driver after the tests have completed.
@@ -33,11 +32,10 @@ void main() {
       driver?.close();
     });
 
-    // Get back to home screen before and after every test.
-    setUp(() async {});
-
-    // Get back to home screen before and after every test.
-    tearDown(() async {});
+    // Nav back to home screen before each screenshot.
+    setUp(() async {
+      await driver.tap(find.text('Practice'));
+    });
 
     Future<void> screenshot(String name) async {
       await screenshots.screenshot(driver, config, name);
@@ -48,65 +46,75 @@ void main() {
       _log.info('$label: ${tree.tree}');
     }
 
-    Future<void> _accuracyChart() async {
-      _log.info('Navigating to accuracy screen for Pull: Straight/Middle/Long');
+    test('start practice', () async {
+      await screenshot('Start-Practice');
+    });
+
+    test('accuracy chart', () async {
       await driver.tap(find.text('Progress'));
-      final accuracyLabel = await driver.getCenter(find.text('Accuracy'));
-      _log.info('Accuracy label location: $accuracyLabel');
-      _log.info('Tapping on accuracy');
       await driver.tap(find.text('Accuracy'));
-      _log.info('Tapping on all drills');
       await driver.tap(find.text('All Drills'));
-      _log.info('Tapping on weekly');
       await driver.tap(find.text('Weekly'));
-      _log.info('Tapping on drill selection key');
       await driver.tap(find.byValueKey(Keys.drillSelectionKey));
-      _log.info('Tapping on pull');
       await driver.tap(find.text('Pull'));
-      _log.info('Scrolling to straight/middle/long');
       await driver.scrollIntoView(find.byValueKey('Pull:Straight/Middle/Long'));
-      _log.info('Tapping straight/middle/long');
       await driver.tap(find.byValueKey('Pull:Straight/Middle/Long'));
       await driver
           .scrollIntoView(find.byValueKey(Keys.progressChooserCloseKey));
       await driver.tap(find.byValueKey(Keys.progressChooserCloseKey));
-      await screenshot(kAccuracyChart);
-    }
+      await screenshot('Accuracy-Chart');
+    });
 
-    test('collect screenshots', () async {
-      await driver.waitFor(find.text('Start Practice'));
-      await screenshot(kStartPractice);
-
-      await _accuracyChart();
-
+    test('drill logs', () async {
+      await driver.tap(find.text('Progress'));
       await driver.tap(find.text('Log'));
-      await screenshot(kLog);
+      await screenshot('Logs-Screen');
+    });
 
-      await driver.tap(find.text('Practice'));
+    test('drill detailed log', () async {
       await driver.tap(find.text('Progress'));
       await driver.tap(find.text('Log'));
       await driver.tap(find.text('Jun 13, 2020 8:45 AM'));
-      await screenshot(kBreakdown);
+      await screenshot('Drill-Detailed-Log');
+    });
 
-      await driver.tap(find.text('Practice'));
+    test('calendar', () async {
       await driver.tap(find.text('History'));
-      await screenshot(kCalendar);
+      await screenshot('Calendar');
+    });
 
-      await driver.tap(find.text('Practice'));
+    test('drill types', () async {
       await driver.tap(find.text('Start Practice'));
-      await screenshot(kDrillTypes);
+      await screenshot('Drill-Types');
+      await driver.tap(find.byTooltip('Back'));
+    });
 
+    test('pass types', () async {
+      await driver.tap(find.text('Start Practice'));
       await driver.tap(find.text('Stick Pass'));
-      await screenshot(kPassTypes);
+      await screenshot('Passing-Types');
+      await driver.tap(find.byTooltip('Back'));
+    });
 
+    test('config screen', () async {
+      await driver.tap(find.text('Start Practice'));
       await driver.scrollIntoView(find.text('Rollover'));
       await driver.tap(find.text('Rollover'));
       await driver.scrollIntoView(find.text('Up/Down/Middle'));
       await driver.tap(find.text('Up/Down/Middle'));
-      await screenshot(kConfigScreen);
+      await screenshot('Config-Screen');
+      await driver.tap(find.byTooltip('Back'));
+      await driver.tap(find.byTooltip('Back'));
+    });
 
+    test('rollover drill', () async {
+      await driver.tap(find.text('Start Practice'));
+      await driver.scrollIntoView(find.text('Rollover'));
+      await driver.tap(find.text('Rollover'));
+      await driver.scrollIntoView(find.text('Up/Down/Middle'));
+      await driver.tap(find.text('Up/Down/Middle'));
       await driver.tap(find.byValueKey(Keys.playKey));
-      await screenshot(kRolloverDrill);
+      await screenshot('Rollover-Drill');
     });
   });
 }
