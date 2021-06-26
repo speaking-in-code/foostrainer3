@@ -3,7 +3,7 @@ description: FoosTrainer
 
 publish_to: 'none' 
 
-version: 2.0.43+43
+version: 2.0.44+44
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
