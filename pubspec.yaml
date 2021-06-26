@@ -48,8 +48,8 @@ dev_dependencies:
   json_serializable: ^3.4.1
   mockito: ^4.1.1
   #screenshots: ^2.1.1
-  #screenshots:
-  #  path: ../screenshots
+  screenshots:
+    path: ../screenshots
   test:
 
 flutter:

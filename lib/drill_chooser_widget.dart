@@ -118,9 +118,9 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
 
   Widget _buildDrill(DrillData drillData) {
     return ListTile(
+        key: Key(drillData.fullName),
         title: Text(drillData.name, style: drillStyle),
-        trailing: Icon(Icons.arrow_right,
-            key: Key(drillData.fullName), color: drillStyle.color),
+        trailing: Icon(Icons.arrow_right, color: drillStyle.color),
         onTap: () {
           widget.onDrillChosen(drillData);
         });

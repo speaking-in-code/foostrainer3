@@ -5,6 +5,7 @@ import 'package:ft3/drill_list_widget.dart';
 import 'accuracy_over_time_chart.dart';
 import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
+import 'keys.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'no_drills_widget.dart';
@@ -172,7 +173,9 @@ class _DrillTabsState extends State<_DrillTabs> {
     }
     final tabs = [
       _MyTab(tab: Tab(text: 'Reps'), child: reps),
-      _MyTab(tab: Tab(text: 'Accuracy'), child: accuracy),
+      _MyTab(
+          tab: Tab(key: Key(Keys.accuracyTabKey), text: 'Accuracy'),
+          child: accuracy),
       _MyTab(tab: Tab(text: 'Log'), child: log),
     ];
     final tabBar = TabBar(

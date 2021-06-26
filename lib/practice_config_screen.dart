@@ -59,8 +59,10 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     super.initState();
     // Start the background process early, so that when the user clicks to
     // play it's already running.
-    _log.info('Starting practice in background');
-    PracticeBackground.startInBackground();
+    if (ScreenshotData.progress == null) {
+      _log.info('Starting practice in background');
+      PracticeBackground.startInBackground();
+    }
   }
 
   @override

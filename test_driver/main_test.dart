@@ -35,9 +35,25 @@ void main() {
 
     FlutterDriver driver;
 
+    Future<bool> isPresent(SerializableFinder finder) async {
+      try {
+        await driver.waitFor(finder);
+        return true;
+      } catch (exception) {
+        return false;
+      }
+    }
+
     // Connect to the Flutter driver before running any tests.
     setUpAll(() async {
       driver = await FlutterDriver.connect();
+      await isPresent(find.text('Start Practice'));
+      //expect(find.text('Start Practice'), is
+      await driver.tap(find.byValueKey(Keys.moreKey));
+      for (int i = 0; i < 3; ++i) {
+        print('Tapping on version: $i');
+        await driver.tap(find.text('Version: '));
+      }
     });
 
     // Close the connection to the driver after the tests have completed.
@@ -50,6 +66,8 @@ void main() {
 
     // Get back to home screen before and after every test.
     tearDown(() async {});
+
+    test('does nothing', () async {});
 
     Future<void> waitForReps(String expected) {
       return driver.waitFor(
@@ -74,6 +92,7 @@ void main() {
           seconds: int.parse(match.group(3)));
     }
 
+    /*
     Future<void> navigatePracticeToHome() async {
       await driver.tap(find.byType('BackButton'));
       await driver.tap(find.byType('BackButton'));
@@ -140,5 +159,7 @@ void main() {
       expect(afterPlay.inSeconds, greaterThan(orig.inSeconds));
       await navigatePracticeToHome();
     });
+
+     */
   });
 }

@@ -70,6 +70,9 @@ class ProgressSelectionChipState extends State<ProgressSelectionChip> {
   }
 
   void _onPressed(BuildContext context) async {
+    String dismissLabel =
+        MaterialLocalizations.of(context).modalBarrierDismissLabel;
+    _log.info('Found a dismissLabel of "$dismissLabel"');
     ProgressSelection chosen = await showModalBottomSheet(
         context: context,
         builder: (context) => ProgressChooserSheet(

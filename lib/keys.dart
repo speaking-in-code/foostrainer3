@@ -22,4 +22,9 @@ class Keys {
   static const trackingHeaderKey = 'drillTrackingHeaderKey';
   static const trackingAccuracyOnKey = 'drillTrackingAccuracyOn';
   static const trackingAccuracyOffKey = 'drillTrackingAccuracyOff';
+
+  // Progress screen
+  static const drillSelectionKey = 'drillSelectionKey';
+  static const accuracyTabKey = 'accuracyTabKey';
+  static const progressChooserCloseKey = 'progressChooserCloseKey';
 }

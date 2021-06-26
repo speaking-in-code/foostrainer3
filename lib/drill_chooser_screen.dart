@@ -19,7 +19,6 @@ class DrillChooserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Rendering drill chooser screen');
     return Scaffold(
       appBar: MyAppBar(title: 'Choose Drill').build(context),
       body: DrillChooserWidget(
@@ -31,7 +30,6 @@ class DrillChooserScreen extends StatelessWidget {
   }
 
   void _onDrillChosen(BuildContext context, DrillData drill) {
-    print('_onDrillChosen ${drill.fullName}');
     PracticeConfigScreen.navigate(context, drill);
   }
 }

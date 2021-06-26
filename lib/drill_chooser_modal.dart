@@ -6,7 +6,7 @@ import 'log.dart';
 import 'my_app_bar.dart';
 import 'static_drills.dart';
 
-final _log = Log.get('drill_chooser_screen');
+final _log = Log.get('drill_chooser_modal');
 
 /// Let's the user choose a drill, or all drills.
 /// This is intended to be shown with showDialog(), which returns the se
@@ -51,7 +51,7 @@ class DrillChooserModal extends StatelessWidget {
   }
 
   void _onDrillChosen(BuildContext context, DrillData drill) {
-    _log.info('Drill chosen: $drill');
+    _log.info('Drill chosen: ${drill.fullName}');
     Navigator.pop(context, drill);
   }
 

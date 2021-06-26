@@ -40,8 +40,8 @@ flutter drive --use-existing-app=http://127.0.0.1:8888/ --driver test_driver/mai
 Press 'R' in the app window to hot restart the app. Press '?' for additional commands.
 
 Note that the well-documented version of the 'flutter drive' command  
-does not work. For reasons I don't understand, the app fails to connect  
-to the background audio service and so drills don't execute.
+does not work for older versions of flutter, due to https://github.com/flutter/flutter/issues/24703.
+Newer versions of flutter have this fixed.
 
 ## Release Build - Android
 

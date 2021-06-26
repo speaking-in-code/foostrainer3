@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'drill_data.dart';
+import 'keys.dart';
 
 class DrillDescriptionTile extends StatelessWidget {
   final DrillData drillData;
   final Widget trailing;
   final GestureTapCallback onTap;
 
-  DrillDescriptionTile({this.drillData, this.trailing, this.onTap});
+  DrillDescriptionTile({this.drillData, this.trailing, this.onTap})
+      : super(key: Key(Keys.drillSelectionKey));
 
   @override
   Widget build(BuildContext context) {
