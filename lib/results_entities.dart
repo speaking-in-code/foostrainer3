@@ -140,9 +140,11 @@ class AggregatedDrillSummary extends Equatable {
   final int reps;
   final double accuracy;
 
+  // End of day is tricky during the fall time change, adding a day leaves
+  // the hour at 23:00:00!
   AggregatedDrillSummary(this.startDay, DateTime endDay, this.elapsedSeconds,
       this.reps, this.accuracy)
-      : endDay = endDay.add(Duration(days: 1));
+      : endDay = DateTime(endDay.year, endDay.month, endDay.day, 24, 0, 0);
 
   @override
   List<Object> get props => [startDay, endDay, elapsedSeconds, reps, accuracy];

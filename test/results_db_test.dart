@@ -120,6 +120,15 @@ void main() {
       expect(found[0].drill.drill, equals('Pass:Passing'));
     }
 
+    test('2021 fall time change', () async {
+      await _tryDate(1636356073);
+    });
+
+    test('2021 spring time change', () async {
+      await _tryDate(
+          DateTime(2021, 3, 14, 12, 0, 0).millisecondsSinceEpoch ~/ 1000);
+    });
+
     test('summary and drill load dates align', () async {
       for (int i = 0; i < 100; ++i) {
         final randomSeconds =

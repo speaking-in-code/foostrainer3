@@ -304,10 +304,10 @@ abstract class SummariesDao {
         action: action,
         numWeeks: numWeeks,
         offset: offset);
-    return _mergeAggegate(await times, await reps);
+    return _mergeAggregate(await times, await reps);
   }
 
-  List<AggregatedDrillSummary> _mergeAggegate(
+  List<AggregatedDrillSummary> _mergeAggregate(
       List<_AggregatedDrillTime> times, List<_AggregatedDrillReps> reps) {
     final builders = Map<String, _AggregateDrillSummaryBuilder>();
     times.forEach((time) {
