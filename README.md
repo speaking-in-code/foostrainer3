@@ -97,6 +97,10 @@ If screenshot updates fail, check a few things:
 
 * do the emulator images start up? Test them from XCode/Android Studio.
 * doing a clean boot or reset of the emulator images sometimes helps.
+* for Android, make sure that there is a Quickboot snapshot configured for
+  each virtual device, but that the devices are not configured to save new
+  snapshots.  This is controlled via the Snapshot settings, and needs to be
+  set separately for each device.
 * screenshots_test.dart might need edits for new navigation.
 * flutter_driver tests are a bundle of race conditions, and a single flaky
   test can make everything much less reliable.
