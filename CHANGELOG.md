@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [M6]
+### Added
+- Accuracy tracking
+- Practice logs
+- Brush pass options
+
 ## [M5]
 ### Added
 - LED flash now supported on Android devices.
