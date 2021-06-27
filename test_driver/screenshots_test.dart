@@ -46,10 +46,6 @@ void main() {
       _log.info('$label: ${tree.tree}');
     }
 
-    test('start practice', () async {
-      await screenshot('Start-Practice');
-    });
-
     test('accuracy chart', () async {
       await driver.tap(find.text('Progress'));
       await driver.tap(find.text('Accuracy'));
@@ -65,56 +61,11 @@ void main() {
       await screenshot('Accuracy-Chart');
     });
 
-    test('drill logs', () async {
-      await driver.tap(find.text('Progress'));
-      await driver.tap(find.text('Log'));
-      await screenshot('Logs-Screen');
-    });
-
     test('drill detailed log', () async {
       await driver.tap(find.text('Progress'));
       await driver.tap(find.text('Log'));
       await driver.tap(find.text('Jun 13, 2020 8:45 AM'));
       await screenshot('Drill-Detailed-Log');
-    });
-
-    test('calendar', () async {
-      await driver.tap(find.text('History'));
-      await screenshot('Calendar');
-    });
-
-    test('drill types', () async {
-      await driver.tap(find.text('Start Practice'));
-      await screenshot('Drill-Types');
-      await driver.tap(find.byTooltip('Back'));
-    });
-
-    test('pass types', () async {
-      await driver.tap(find.text('Start Practice'));
-      await driver.tap(find.text('Stick Pass'));
-      await screenshot('Passing-Types');
-      await driver.tap(find.byTooltip('Back'));
-    });
-
-    test('config screen', () async {
-      await driver.tap(find.text('Start Practice'));
-      await driver.scrollIntoView(find.text('Rollover'));
-      await driver.tap(find.text('Rollover'));
-      await driver.scrollIntoView(find.text('Up/Down/Middle'));
-      await driver.tap(find.text('Up/Down/Middle'));
-      await screenshot('Config-Screen');
-      await driver.tap(find.byTooltip('Back'));
-      await driver.tap(find.byTooltip('Back'));
-    });
-
-    test('rollover drill', () async {
-      await driver.tap(find.text('Start Practice'));
-      await driver.scrollIntoView(find.text('Rollover'));
-      await driver.tap(find.text('Rollover'));
-      await driver.scrollIntoView(find.text('Up/Down/Middle'));
-      await driver.tap(find.text('Up/Down/Middle'));
-      await driver.tap(find.byValueKey(Keys.playKey));
-      await screenshot('Rollover-Drill');
     });
   });
 }
