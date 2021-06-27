@@ -26,12 +26,12 @@ class AlbumArt {
   static final _base = 'A'.codeUnitAt(0);
   static const _asset = 'assets/web_hi_res_512.jpg';
   static final _rand = Random.secure();
-  static String _uri;
+  static Uri _uri;
   static bool _loading = false;
 
   /// Return a file:// url to the album art for the app. Returns null if the
   /// art is not yet available.
-  static String getUri() {
+  static Uri getUri() {
     if (_uri != null) {
       return _uri;
     }
@@ -53,7 +53,7 @@ class AlbumArt {
     if (cache.existsSync()) {
       // Previous isolate already did the work.
       _log.info('Cache file found, reusing.');
-      _uri = 'file://${cache.path}';
+      _uri = Uri.file(cache.path);
       return;
     }
     final File tmpFile = File('$cacheDir/${_randomString()}.jpg');
@@ -62,7 +62,7 @@ class AlbumArt {
     tmpFile.writeAsBytesSync(bytes.buffer.asInt8List());
     tmpFile.renameSync(cache.path);
     _log.info('Created ${cache.path}');
-    _uri = 'file://${cache.path}';
+    _uri = Uri.file(cache.path);
   }
 
   // Returns a random string with about 94 bits of entropy that is suitable for
