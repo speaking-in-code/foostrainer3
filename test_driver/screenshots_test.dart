@@ -1,13 +1,13 @@
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:ft3/keys.dart';
 import 'package:ft3/log.dart';
-import 'package:screenshots/screenshots.dart' as screenshots;
+// import 'package:screenshots/screenshots.dart' as screenshots;
 import 'package:test/test.dart';
 
 final _log = Log.get('screenshots_test');
 
 void main() {
-  final config = screenshots.Config();
+  // final config = screenshots.Config();
 
   Future<void> _spin(String where) async {
     _log.info('Spinning at $where');
@@ -17,6 +17,8 @@ void main() {
   }
 
   group('FoosTrainer App Screenshots', () {
+    test('do nothing', () async {});
+  /*
     FlutterDriver driver;
 
     // Connect to the Flutter driver before running any tests.
@@ -67,5 +69,6 @@ void main() {
       await driver.tap(find.text('Jun 13, 2020 8:45 AM'));
       await screenshot('Drill-Detailed-Log');
     });
+    */
   });
 }

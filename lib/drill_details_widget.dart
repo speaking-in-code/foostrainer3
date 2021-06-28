@@ -1,7 +1,7 @@
 // TODO: add tap targets to lead to per-drill and per-action stats over time.
 
 import 'package:flutter/material.dart';
-import 'package:ft3/stats_grid_widget.dart';
+import 'stats_grid_widget.dart';
 
 import 'aggregated_drill_summary.dart';
 import 'drill_data.dart';

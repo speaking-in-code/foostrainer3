@@ -1,7 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:ft3/daily_drills_screen.dart';
+import 'daily_drills_screen.dart';
 
 import 'log.dart';
 import 'no_drills_widget.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ft3/drill_list_widget.dart';
+import 'drill_list_widget.dart';
 
 import 'accuracy_over_time_chart.dart';
 import 'chart_utils.dart' as chart_utils;
