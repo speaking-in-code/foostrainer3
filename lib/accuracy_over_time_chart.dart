@@ -1,4 +1,4 @@
-import 'package:charts_flutter/flutter.dart' as charts;
+//import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
 import 'chart_utils.dart' as chart_utils;
@@ -17,10 +17,12 @@ class AccuracyOverTimeChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final series = _toRepsSeries(drillHistory);
-    return chart_utils.paddedChart(_chart(series));
+    return Text('Chart Disabled: $title');
+    //final series = _toRepsSeries(drillHistory);
+    //return chart_utils.paddedChart(_chart(series));
   }
 
+/*
   charts.Series<AggregatedDrillSummary, DateTime> _toRepsSeries(
       List<AggregatedDrillSummary> data) {
     return charts.Series<AggregatedDrillSummary, DateTime>(
@@ -44,4 +46,5 @@ class AccuracyOverTimeChart extends StatelessWidget {
         primaryMeasureAxis: chart_utils.percentAxisSpec,
         domainAxis: chart_utils.dateTimeAxis(aggLevel, series));
   }
+  */
 }

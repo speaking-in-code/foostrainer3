@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+// import 'package:charts_flutter/flutter.dart' as charts;
 
 import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
@@ -56,6 +56,10 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
     ]));
   }
 
+  Widget _buildAccuracyChart(BuildContext context, List<AggregatedActionReps> data) {
+    return Text('Chart disabled: accuracy chart');
+  }
+  /*
   Widget _buildAccuracyChart(
       BuildContext context, List<AggregatedActionReps> data) {
     final split = _splitByAction(data);
@@ -112,4 +116,5 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
         measureFn: (AggregatedActionReps reps, _) => reps.accuracy,
         data: weeks);
   }
+  */
 }

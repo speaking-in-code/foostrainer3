@@ -9,7 +9,6 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:torch_compat/torch_compat.dart';
 // import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -410,9 +409,9 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   Future<void> _flashTorch() async {
-    await TorchCompat.turnOn();
+    //await TorchCompat.turnOn();
     await Future.delayed(_flashTime);
-    await TorchCompat.turnOff();
+    //await TorchCompat.turnOff();
   }
 
   // Calling this too frequently makes the notifications UI unresponsive, so
