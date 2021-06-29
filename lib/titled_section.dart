@@ -5,7 +5,7 @@ class TitledSection extends StatelessWidget {
   final String title;
   final Widget child;
 
-  TitledSection({@required this.title, @required this.child})
+  TitledSection({required this.title, required this.child})
       : assert(title != null),
         assert(child != null);
 

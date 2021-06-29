@@ -8,8 +8,8 @@ part of 'debug_info.dart';
 
 DebugInfoResponse _$DebugInfoResponseFromJson(Map<String, dynamic> json) {
   return DebugInfoResponse(
-    meanDelayMillis: (json['meanDelayMillis'] as num)?.toDouble(),
-    stdDevDelayMillis: (json['stdDevDelayMillis'] as num)?.toDouble(),
+    meanDelayMillis: (json['meanDelayMillis'] as num?)?.toDouble(),
+    stdDevDelayMillis: (json['stdDevDelayMillis'] as num?)?.toDouble(),
   );
 }
 

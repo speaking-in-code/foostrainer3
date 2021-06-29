@@ -1,17 +1,18 @@
-import 'dart:io';
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ft3/results_db.dart';
 import 'package:ft3/results_entities.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 void main() {
   group('database tests', () {
     const START_SECONDS = 1500000000;
-    ResultsDatabase db;
-    DrillsDao drills;
-    ActionsDao actions;
-    SummariesDao summaries;
+    late ResultsDatabase db;
+    late DrillsDao drills;
+    late ActionsDao actions;
+    late SummariesDao summaries;
 
     setUp(() async {
       db = await $FloorResultsDatabase.inMemoryDatabaseBuilder().build();
@@ -25,7 +26,7 @@ void main() {
     });
 
     Future<List<AggregatedDrillSummary>> _summary(
-        {String drill, String action}) async {
+        {String? drill, String? action}) async {
       const MAX_WEEKS = 4;
       return summaries.loadAggregateDrills(
           aggLevel: AggregationLevel.WEEKLY,
@@ -105,7 +106,7 @@ void main() {
           tracking: false,
           startSeconds: secsSinceEpoch,
           elapsedSeconds: 60));
-      await actions.incrementAction(drillId, 'Lane', false);
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.MISSED);
 
       List<AggregatedDrillSummary> summaryList =
           await summaries.loadAggregateDrills(
@@ -191,8 +192,8 @@ void main() {
             ActionSummary('Lane', 5, 3),
             ActionSummary('Wall', 2, 2),
           ]);
-      StoredDrill same = await db.drillsDao.loadDrill(drillId);
-      final repeated = await db.drillsDao.insertDrill(same);
+      StoredDrill? same = await (db.drillsDao.loadDrill(drillId));
+      final repeated = await db.drillsDao.insertDrill(same!);
       expect(repeated, equals(drillId));
     });
 
@@ -206,10 +207,10 @@ void main() {
           actionList: [
             ActionSummary('Lane', 5, 3),
           ]);
-      StoredDrill found = await db.drillsDao.loadDrill(drillId);
-      expect(found.drill, equals('Pass:Brush Pass'));
+      StoredDrill? found = await (db.drillsDao.loadDrill(drillId));
+      expect(found!.drill, equals('Pass:Brush Pass'));
       await db.drillsDao.removeDrill(drillId);
-      found = await db.drillsDao.loadDrill(drillId);
+      found = await (db.drillsDao.loadDrill(drillId));
       expect(found, isNull);
     });
 
@@ -221,10 +222,10 @@ void main() {
             tracking: true,
             elapsedSeconds: 60),
       );
-      StoredDrill found = await db.drillsDao.loadDrill(drillId);
-      expect(found.drill, equals('Pass:Brush Pass'));
+      StoredDrill? found = await (db.drillsDao.loadDrill(drillId));
+      expect(found!.drill, equals('Pass:Brush Pass'));
       await db.drillsDao.removeDrill(drillId);
-      found = await db.drillsDao.loadDrill(drillId);
+      found = await (db.drillsDao.loadDrill(drillId));
       expect(found, isNull);
     });
 
@@ -236,11 +237,11 @@ void main() {
             tracking: true,
             elapsedSeconds: 60),
       );
-      StoredDrill found = await db.drillsDao.loadDrill(drillId);
-      expect(found.drill, equals('Pass:Brush Pass'));
+      StoredDrill? found = await (db.drillsDao.loadDrill(drillId));
+      expect(found!.drill, equals('Pass:Brush Pass'));
       await db.drillsDao.removeDrill(drillId + 1);
-      found = await db.drillsDao.loadDrill(drillId);
-      expect(found.drill, equals('Pass:Brush Pass'));
+      found = await (db.drillsDao.loadDrill(drillId));
+      expect(found!.drill, equals('Pass:Brush Pass'));
     });
 
     test('summary no tracking', () async {
@@ -385,28 +386,28 @@ void main() {
           weeks,
           equals([
             AggregatedDrillSummary(
-                DateTime(2017, 7, 10), DateTime(2017, 7, 16), null, 50, 0.8),
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), 0, 50, 0.8),
           ]));
       weeks = await _summary(action: 'Wall');
       expect(
           weeks,
           equals([
             AggregatedDrillSummary(
-                DateTime(2017, 7, 10), DateTime(2017, 7, 16), null, 100, 0.7),
+                DateTime(2017, 7, 10), DateTime(2017, 7, 16), 0, 100, 0.7),
           ]));
     });
 
     test('start drill', () async {
       final id = await drills.insertDrill(
           StoredDrill.newDrill(drill: 'Shot:Drill', tracking: false));
-      final results = await drills.loadDrill(id);
-      expect(results.drill, equals('Shot:Drill'));
+      final results = await (drills.loadDrill(id));
+      expect(results!.drill, equals('Shot:Drill'));
       expect(results.startSeconds, greaterThan(0));
       expect(results.tracking, equals(false));
       expect(results.elapsedSeconds, equals(0));
 
-      final summary = await summaries.loadDrill(db, id);
-      expect(summary.drill.drill, equals('Shot:Drill'));
+      DrillSummary? summary = await summaries.loadDrill(db, id);
+      expect(summary!.drill.drill, equals('Shot:Drill'));
       expect(summary.drill.elapsedSeconds, equals(0));
       expect(summary.good, equals(null));
       expect(summary.accuracy, equals(null));
@@ -417,22 +418,22 @@ void main() {
     test('add action no accuracy', () async {
       final drillId = await drills.insertDrill(
           StoredDrill.newDrill(drill: 'Pass:Passing', tracking: false));
-      await actions.incrementAction(drillId, 'Lane', null);
-      StoredAction lane = await actions.loadAction(drillId, 'Lane');
-      expect(lane.action, equals('Lane'));
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.NONE);
+      StoredAction? lane = await (actions.loadAction(drillId, 'Lane'));
+      expect(lane!.action, equals('Lane'));
       expect(lane.reps, equals(1));
       expect(lane.good, equals(null));
 
-      await actions.incrementAction(drillId, 'Lane', null);
-      await actions.incrementAction(drillId, 'Lane', null);
-      await actions.incrementAction(drillId, 'Lane', null);
-      lane = await actions.loadAction(drillId, 'Lane');
-      expect(lane.action, equals('Lane'));
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.NONE);
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.NONE);
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.NONE);
+      lane = await (actions.loadAction(drillId, 'Lane'));
+      expect(lane!.action, equals('Lane'));
       expect(lane.reps, equals(4));
       expect(lane.good, equals(null));
 
       final summary = await summaries.loadDrill(db, drillId);
-      expect(summary.drill.drill, equals('Pass:Passing'));
+      expect(summary!.drill.drill, equals('Pass:Passing'));
       expect(summary.drill.elapsedSeconds, equals(0));
       expect(summary.good, equals(null));
       expect(summary.accuracy, equals(null));
@@ -440,7 +441,7 @@ void main() {
       // This is annoying to write because of
       // https://github.com/dart-lang/sdk/issues/32559.
       expect(summary.actions.entries.length, equals(1));
-      final action = summary.actions['Lane'];
+      final action = summary.actions['Lane']!;
       expect(action.reps, equals(4));
       expect(action.good, equals(null));
       expect(action.action, equals('Lane'));
@@ -449,22 +450,22 @@ void main() {
     test('add action with accuracy', () async {
       final drillId = await drills.insertDrill(
           StoredDrill.newDrill(drill: 'Pass:Passing', tracking: true));
-      await actions.incrementAction(drillId, 'Lane', false);
-      StoredAction lane = await actions.loadAction(drillId, 'Lane');
-      expect(lane.action, equals('Lane'));
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.MISSED);
+      StoredAction? lane = await (actions.loadAction(drillId, 'Lane'));
+      expect(lane!.action, equals('Lane'));
       expect(lane.reps, equals(1));
       expect(lane.good, equals(0));
 
-      await actions.incrementAction(drillId, 'Lane', true);
-      await actions.incrementAction(drillId, 'Lane', true);
-      await actions.incrementAction(drillId, 'Lane', true);
-      lane = await actions.loadAction(drillId, 'Lane');
-      expect(lane.action, equals('Lane'));
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.GOOD);
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.GOOD);
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.GOOD);
+      lane = await (actions.loadAction(drillId, 'Lane'));
+      expect(lane!.action, equals('Lane'));
       expect(lane.reps, equals(4));
       expect(lane.good, equals(3));
 
       final summary = await summaries.loadDrill(db, drillId);
-      expect(summary.drill.drill, equals('Pass:Passing'));
+      expect(summary!.drill.drill, equals('Pass:Passing'));
       expect(summary.drill.elapsedSeconds, equals(0));
       expect(summary.good, equals(3));
       expect(summary.accuracy, equals(0.75));
@@ -476,10 +477,11 @@ void main() {
       final drill = StoredDrill(
           startSeconds: drillStart.millisecondsSinceEpoch ~/ 1000,
           drill: 'Shot:Drill $drillCount',
+          elapsedSeconds: 0,
           tracking: false);
       final drillId = await drills.insertDrill(drill);
       for (int action = 0; action < 50; ++action) {
-        await actions.incrementAction(drillId, 'Lane', false);
+        await actions.incrementAction(drillId, 'Lane', ActionUpdate.MISSED);
       }
     }
 
@@ -510,7 +512,7 @@ void main() {
     test('delete all works', () async {
       final drillId = await drills.insertDrill(
           StoredDrill.newDrill(drill: 'Pass:Passing', tracking: true));
-      await actions.incrementAction(drillId, 'Lane', false);
+      await actions.incrementAction(drillId, 'Lane', ActionUpdate.MISSED);
       final found = await drills.loadDrill(drillId);
       expect(found, isNotNull);
       await db.deleteAll();
@@ -521,22 +523,23 @@ void main() {
       expect(summary, isEmpty);
     });
 
-    int _secondsSinceEpoch(DateTime when) =>
+    int? _secondsSinceEpoch(DateTime? when) =>
         when != null ? when.millisecondsSinceEpoch ~/ 1000 : null;
 
     test('date range works', () async {
-      final empty = await drills.dateRange();
-      expect(empty.earliest, isNull);
+      final empty = await (drills.dateRange());
+      expect(empty!.earliest, isNull);
       expect(empty.latest, isNull);
 
       final now = DateTime.now();
       await drills.insertDrill(StoredDrill(
           drill: 'Pass:Passing',
           tracking: true,
-          startSeconds: _secondsSinceEpoch(now)));
-      final single = await drills.dateRange();
-      expect(
-          _secondsSinceEpoch(single.earliest), equals(_secondsSinceEpoch(now)));
+          elapsedSeconds: 0,
+          startSeconds: _secondsSinceEpoch(now)!));
+      final single = await (drills.dateRange());
+      expect(_secondsSinceEpoch(single!.earliest),
+          equals(_secondsSinceEpoch(now)));
       expect(
           _secondsSinceEpoch(single.latest), equals(_secondsSinceEpoch(now)));
 
@@ -544,9 +547,10 @@ void main() {
       await drills.insertDrill(StoredDrill(
           drill: 'Pass:Passing',
           tracking: true,
-          startSeconds: _secondsSinceEpoch(lastMonth)));
-      final both = await drills.dateRange();
-      expect(_secondsSinceEpoch(both.earliest),
+          elapsedSeconds: 0,
+          startSeconds: _secondsSinceEpoch(lastMonth)!));
+      final both = await (drills.dateRange());
+      expect(_secondsSinceEpoch(both!.earliest),
           equals(_secondsSinceEpoch(lastMonth)));
       expect(_secondsSinceEpoch(both.latest), equals(_secondsSinceEpoch(now)));
 
@@ -554,9 +558,10 @@ void main() {
       await drills.insertDrill(StoredDrill(
           drill: 'Pass:Passing',
           tracking: true,
-          startSeconds: _secondsSinceEpoch(manyMonthsAgo)));
-      final all = await drills.dateRange();
-      expect(_secondsSinceEpoch(all.earliest),
+          elapsedSeconds: 0,
+          startSeconds: _secondsSinceEpoch(manyMonthsAgo)!));
+      final all = await (drills.dateRange());
+      expect(_secondsSinceEpoch(all!.earliest),
           equals(_secondsSinceEpoch(manyMonthsAgo)));
       expect(_secondsSinceEpoch(both.latest), equals(_secondsSinceEpoch(now)));
     });
@@ -575,7 +580,7 @@ void main() {
           startSeconds: START_SECONDS,
           elapsedSeconds: 60));
       for (int i = 0; i < 10; ++i) {
-        await actions.incrementAction(drillId, 'Lane', false);
+        await actions.incrementAction(drillId, 'Lane', ActionUpdate.MISSED);
       }
       final summary = await summaries.loadWeeklyActionReps('Pass:Lane', 10, 0);
       expect(
@@ -592,10 +597,10 @@ void main() {
           startSeconds: START_SECONDS,
           elapsedSeconds: 60));
       for (int i = 0; i < 10; ++i) {
-        await actions.incrementAction(drillId, 'Lane', true);
+        await actions.incrementAction(drillId, 'Lane', ActionUpdate.GOOD);
       }
       for (int i = 0; i < 10; ++i) {
-        await actions.incrementAction(drillId, 'Wall', false);
+        await actions.incrementAction(drillId, 'Wall', ActionUpdate.MISSED);
       }
       final summary =
           await summaries.loadWeeklyActionReps('Pass:Lane/Wall', 10, 0);
@@ -614,10 +619,10 @@ void main() {
           startSeconds: START_SECONDS,
           elapsedSeconds: 60));
       for (int i = 0; i < 10; ++i) {
-        await actions.incrementAction(drillId, 'Lane', true);
+        await actions.incrementAction(drillId, 'Lane', ActionUpdate.GOOD);
       }
       for (int i = 0; i < 10; ++i) {
-        await actions.incrementAction(drillId, 'Wall', false);
+        await actions.incrementAction(drillId, 'Wall', ActionUpdate.MISSED);
       }
       final summary =
           await summaries.loadWeeklyActionReps('Pass:Lane/Wall', 10, 0);
@@ -636,18 +641,18 @@ void main() {
           StoredDrill.newDrill(drill: 'Pass:Lane', tracking: false));
       final otherDrill = await db.drillsDao.insertDrill(
           StoredDrill.newDrill(drill: 'Pull:Straight', tracking: false));
-      await renameStickPassMigration.migrate(db.database);
+      await renameStickPassMigration.migrate(db.database as sqflite.Database);
 
-      final migrated1 = await db.drillsDao.loadDrill(id1);
-      expect(migrated1.drill, equals('Stick Pass:Wall'));
+      final migrated1 = await (db.drillsDao.loadDrill(id1));
+      expect(migrated1!.drill, equals('Stick Pass:Wall'));
       expect(migrated1.tracking, isTrue);
 
-      final migrated2 = await db.drillsDao.loadDrill(id2);
-      expect(migrated2.drill, equals('Stick Pass:Lane'));
+      final migrated2 = await (db.drillsDao.loadDrill(id2));
+      expect(migrated2!.drill, equals('Stick Pass:Lane'));
       expect(migrated2.tracking, isFalse);
 
-      final unmodified = await db.drillsDao.loadDrill(otherDrill);
-      expect(unmodified.drill, equals('Pull:Straight'));
+      final unmodified = await (db.drillsDao.loadDrill(otherDrill));
+      expect(unmodified!.drill, equals('Pull:Straight'));
       expect(unmodified.tracking, isFalse);
     });
   });

@@ -8,9 +8,9 @@ import 'static_drills.dart';
 
 class PlayButtonWidget extends StatelessWidget {
   final StaticDrills staticDrills;
-  final DrillData drillData;
+  final DrillData? drillData;
 
-  PlayButtonWidget({@required this.staticDrills, this.drillData})
+  PlayButtonWidget({required this.staticDrills, this.drillData})
       : assert(staticDrills != null);
 
   @override

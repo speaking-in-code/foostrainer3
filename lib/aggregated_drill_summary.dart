@@ -28,7 +28,7 @@ Map<String, List<AggregatedActionReps>> aggregateAndSort(
     builder.reps += item.reps;
     if (item.accuracy != null) {
       builder.trackedReps += item.reps;
-      builder.trackedGood += (item.reps * item.accuracy).round();
+      builder.trackedGood += (item.reps * item.accuracy!).round();
     }
   });
   final Map<String, List<AggregatedActionReps>> out = {};

@@ -9,7 +9,6 @@ import 'keys.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
 import 'no_drills_widget.dart';
-import 'play_button_widget.dart';
 import 'reps_over_time_chart.dart';
 import 'results_db.dart';
 import 'results_entities.dart';
@@ -35,22 +34,21 @@ class ProgressScreen extends StatefulWidget {
     Navigator.pushNamed(context, routeName, arguments: drillData);
   }
 
-  ProgressScreen({@required this.staticDrills, @required this.resultsDb})
-      : assert(staticDrills != null),
-        assert(resultsDb != null);
+  ProgressScreen({required this.staticDrills, required this.resultsDb});
 
   @override
   State<StatefulWidget> createState() => ProgressScreenState();
 }
 
 class ProgressScreenState extends State<ProgressScreen> {
-  Future<List<AggregatedDrillSummary>> drillHistory;
-  ProgressSelection selected;
+  late Future<List<AggregatedDrillSummary>> drillHistory;
+  late ProgressSelection selected;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    DrillData drillData = ModalRoute.of(context).settings.arguments;
+    DrillData? drillData =
+        ModalRoute.of(context)!.settings.arguments as DrillData?;
     selected = ProgressSelection(
         drillData: drillData, aggLevel: AggregationLevel.DAILY);
     _initFuture();
@@ -87,9 +85,9 @@ class ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  void _onProgressChange(ProgressSelection newSelected) {
+  void _onProgressChange(ProgressSelection? newSelected) {
     setState(() {
-      selected = newSelected;
+      selected = newSelected!;
       _initFuture();
     });
   }
@@ -109,28 +107,24 @@ class ProgressScreenState extends State<ProgressScreen> {
 class _DrillTabs extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final StaticDrills staticDrills;
-  final DrillData drillData;
+  final DrillData? drillData;
   final Future<List<AggregatedDrillSummary>> drillHistory;
   final AggregationLevel aggLevel;
 
   _DrillTabs(
-      {this.resultsDb,
-      this.staticDrills,
+      {required this.resultsDb,
+      required this.staticDrills,
       this.drillData,
-      @required this.drillHistory,
-      @required this.aggLevel})
-      : assert(resultsDb != null),
-        assert(staticDrills != null),
-        assert(drillHistory != null),
-        assert(aggLevel != null);
+      required this.drillHistory,
+      required this.aggLevel});
 
   @override
   State<StatefulWidget> createState() => _DrillTabsState();
 }
 
 class _MyTab {
-  final Tab tab;
-  final Widget child;
+  final Tab? tab;
+  final Widget? child;
 
   _MyTab({this.tab, this.child});
 }
@@ -153,13 +147,13 @@ class _DrillTabsState extends State<_DrillTabs> {
     Widget reps;
     Widget accuracy;
     Widget log;
-    if (snapshot.data.isNotEmpty) {
+    if (snapshot.data!.isNotEmpty) {
       reps = SingleChildScrollView(
           child: RepsOverTimeChart(
-              aggLevel: widget.aggLevel, drillHistory: snapshot.data));
+              aggLevel: widget.aggLevel, drillHistory: snapshot.data!));
       accuracy = SingleChildScrollView(
           child: AccuracyOverTimeChart(
-              aggLevel: widget.aggLevel, drillHistory: snapshot.data));
+              aggLevel: widget.aggLevel, drillHistory: snapshot.data!));
       log = DrillListWidget(
           key: UniqueKey(),
           resultsDb: widget.resultsDb,
@@ -179,12 +173,12 @@ class _DrillTabsState extends State<_DrillTabs> {
       _MyTab(tab: Tab(text: 'Log'), child: log),
     ];
     final tabBar = TabBar(
-      tabs: tabs.map((e) => e.tab).toList(),
+      tabs: tabs.map((e) => e.tab).toList() as List<Widget>,
       physics: NeverScrollableScrollPhysics(),
     );
     final tabBarView = Expanded(
         child: TabBarView(
-      children: tabs.map((e) => e.child).toList(),
+      children: tabs.map((e) => e.child).toList() as List<Widget>,
       physics: NeverScrollableScrollPhysics(),
     ));
     return Expanded(

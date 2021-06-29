@@ -15,7 +15,7 @@ class TrackingDialog extends StatelessWidget {
 
   final TrackingDialogCallback callback;
 
-  const TrackingDialog({Key key, this.callback}) : super(key: key);
+  const TrackingDialog({Key? key, required this.callback}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -9,7 +9,7 @@ class RepsOverTimeChart extends StatelessWidget {
   final AggregationLevel aggLevel;
   final List<AggregatedDrillSummary> drillHistory;
 
-  RepsOverTimeChart({@required this.aggLevel, @required this.drillHistory})
+  RepsOverTimeChart({required this.aggLevel, required this.drillHistory})
       : assert(aggLevel != null),
         assert(drillHistory != null);
 

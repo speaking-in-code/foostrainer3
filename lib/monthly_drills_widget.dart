@@ -15,7 +15,7 @@ class MonthlyDrillsWidget extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final StaticDrills staticDrills;
 
-  MonthlyDrillsWidget({@required this.resultsDb, @required this.staticDrills})
+  MonthlyDrillsWidget({required this.resultsDb, required this.staticDrills})
       : assert(resultsDb != null),
         assert(staticDrills != null);
 
@@ -28,14 +28,14 @@ class MonthlyDrillsWidget extends StatefulWidget {
 class _MonthlyDrills {
   final AllDrillDateRange allTime;
   final Set<DateTime> days;
-  final DateTime monthMin;
-  final DateTime monthMax;
+  final DateTime? monthMin;
+  final DateTime? monthMax;
 
   _MonthlyDrills(this.allTime, this.days, this.monthMin, this.monthMax);
 }
 
 class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
-  Future<_MonthlyDrills> _drills;
+  Future<_MonthlyDrills>? _drills;
 
   @override
   void initState() {
@@ -46,10 +46,10 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
   // Loads drills for a given month. If range or month is not specified, uses
   // most recent month.
   Future<_MonthlyDrills> _loadDrills(
-      {AllDrillDateRange range, DateTime month}) async {
+      {AllDrillDateRange? range, DateTime? month}) async {
     _log.info('Loading drills for $range, $month');
     range ??= await widget.resultsDb.drillsDao.dateRange();
-    _log.info('All time ${range.earliest} to ${range.latest}');
+    _log.info('All time ${range!.earliest} to ${range.latest}');
     month ??= range.latest;
     if (month == null) {
       // No drills at all.
@@ -61,16 +61,16 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
     final drills = await widget.resultsDb.summariesDao
         .loadDrillsByDate(widget.resultsDb, start: monthStart, end: monthEnd);
     final drillDays = Set<DateTime>();
-    DateTime min;
-    DateTime max;
+    DateTime? min;
+    DateTime? max;
     drills.forEach((drill) {
       final startTime = drill.drill.startTime;
       final day = DateTime(startTime.year, startTime.month, startTime.day);
       drillDays.add(day);
-      if (min == null || day.isBefore(min)) {
+      if (min == null || day.isBefore(min!)) {
         min = day;
       }
-      if (max == null || day.isAfter(max)) {
+      if (max == null || day.isAfter(max!)) {
         max = day;
       }
     });
@@ -90,14 +90,14 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
     if (!snapshot.hasData) {
       return Spinner();
     }
-    final _MonthlyDrills drills = snapshot.data;
+    final _MonthlyDrills drills = snapshot.data!;
     if (drills.allTime.latest == null) {
       return NoDrillsWidget(staticDrills: widget.staticDrills);
     }
     return CalendarDatePicker(
-        initialDate: drills.monthMax,
-        firstDate: drills.allTime.earliest,
-        lastDate: drills.allTime.latest,
+        initialDate: drills.monthMax!,
+        firstDate: drills.allTime.earliest!,
+        lastDate: drills.allTime.latest!,
         onDisplayedMonthChanged: (DateTime month) =>
             _onDisplayedMonthChanged(drills, month),
         onDateChanged: _onDateChanged,

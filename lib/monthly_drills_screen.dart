@@ -15,7 +15,7 @@ class MonthlyDrillsScreen extends StatelessWidget {
   final ResultsDatabase resultsDb;
   final StaticDrills staticDrills;
 
-  MonthlyDrillsScreen({@required this.resultsDb, @required this.staticDrills});
+  MonthlyDrillsScreen({required this.resultsDb, required this.staticDrills});
 
   @override
   Widget build(BuildContext context) {

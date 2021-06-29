@@ -3,22 +3,21 @@ import 'package:flutter/material.dart';
 import 'drill_data.dart';
 import 'static_drills.dart';
 
-typedef void OnDrillChosen(DrillData selected);
+typedef void OnDrillChosen(DrillData? selected);
 
 class DrillChooserWidget extends StatefulWidget {
   final StaticDrills staticDrills;
   final OnDrillChosen onDrillChosen;
-  final DrillData selected;
+  final DrillData? selected;
   final bool allowAll;
 
   /// Creates a drill chooser widget. onSelected is notified when the user has
   /// made a selection.
   DrillChooserWidget(
-      {@required this.staticDrills,
-      @required this.onDrillChosen,
+      {required this.staticDrills,
+      required this.onDrillChosen,
       this.selected,
-      this.allowAll = false})
-      : assert(staticDrills != null);
+      this.allowAll = false});
 
   @override
   State<StatefulWidget> createState() => _DrillChooserWidgetState();
@@ -26,10 +25,10 @@ class DrillChooserWidget extends StatefulWidget {
 
 class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   static const _allType = 'all';
-  List<String> choices;
-  String selectedType;
-  TextStyle typeStyle;
-  TextStyle drillStyle;
+  late List<String> choices;
+  String? selectedType;
+  TextStyle? typeStyle;
+  TextStyle? drillStyle;
 
   @override
   void initState() {
@@ -48,7 +47,7 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   @override
   Widget build(BuildContext context) {
     typeStyle = Theme.of(context).textTheme.bodyText1;
-    typeStyle = typeStyle.copyWith(color: typeStyle.color.withOpacity(0.8));
+    typeStyle = typeStyle!.copyWith(color: typeStyle!.color!.withOpacity(0.8));
     drillStyle = Theme.of(context).textTheme.bodyText1;
     final children =
         choices.map((drillType) => _buildPanel(drillType)).toList();
@@ -101,7 +100,7 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   Widget _buildAllTileBody() {
     return ListTile(
       title: Text('Show All Drills', style: drillStyle),
-      trailing: Icon(Icons.arrow_right, color: drillStyle.color),
+      trailing: Icon(Icons.arrow_right, color: drillStyle!.color),
       onTap: () => widget.onDrillChosen(null),
     );
   }
@@ -120,7 +119,7 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
     return ListTile(
         key: Key(drillData.fullName),
         title: Text(drillData.name, style: drillStyle),
-        trailing: Icon(Icons.arrow_right, color: drillStyle.color),
+        trailing: Icon(Icons.arrow_right, color: drillStyle!.color),
         onTap: () {
           widget.onDrillChosen(drillData);
         });

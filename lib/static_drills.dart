@@ -5,7 +5,7 @@ import 'drill_data.dart';
 /// Holds information about static drills in our app.
 /// Usage: StaticDrills drills = await StaticDrills.load();
 class StaticDrills {
-  static Future<StaticDrills> _allDrills;
+  static Future<StaticDrills>? _allDrills;
 
   static Future<StaticDrills> load() async {
     if (_allDrills == null) {
@@ -13,14 +13,14 @@ class StaticDrills {
           .loadString('assets/drills.json')
           .then((value) => StaticDrills._create(value));
     }
-    return _allDrills;
+    return _allDrills!;
   }
 
   Map<String, DrillData> _name2drills = {};
   Map<String, List<DrillData>> _type2drills = {};
 
   /// List of types of drills supported.
-  List<String> types;
+  late final List<String> types;
 
   StaticDrills._create(String json) {
     final drillListData = DrillListData.decode(json);
@@ -40,7 +40,7 @@ class StaticDrills {
   }
 
   /// Get the drill with the specified name.
-  DrillData getDrill(String fullName) {
+  DrillData? getDrill(String fullName) {
     return _name2drills[fullName];
   }
 }

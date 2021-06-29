@@ -8,7 +8,7 @@ import 'package:ft3/static_drills.dart';
 // are open all the time. =(
 void main() {
   group('drill chooser screen tests', () {
-    MainApp mainApp;
+    late MainApp mainApp;
 
     setUp(() async {
       TestWidgetsFlutterBinding.ensureInitialized();

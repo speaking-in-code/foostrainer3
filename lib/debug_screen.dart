@@ -25,7 +25,7 @@ class DebugScreen extends StatelessWidget {
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
 
-  DebugScreen({this.staticDrills, this.resultsDb});
+  DebugScreen({/*required*/ required this.staticDrills, /*required*/ required this.resultsDb});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class DebugScreen extends StatelessWidget {
   Widget _pauseDelays(
       BuildContext context, final AsyncSnapshot<DebugInfoResponse> info) {
     final String subtitle =
-        info.hasData ? _formatData(info.data) : info.error?.toString();
+        (info.hasData ? _formatData(info.data!) : info.error?.toString())!;
     return Card(
         child: ListTile(
       title: Text('Pause Delay'),
@@ -82,8 +82,8 @@ class DebugScreen extends StatelessWidget {
   }
 
   String _formatData(DebugInfoResponse data) {
-    String mean = data.meanDelayMillis?.toStringAsFixed(1);
-    String stdDev = data.stdDevDelayMillis?.toStringAsFixed(1);
+    String? mean = data.meanDelayMillis?.toStringAsFixed(1);
+    String? stdDev = data.stdDevDelayMillis?.toStringAsFixed(1);
     return 'Mean: $mean ms. StdDev: $stdDev ms';
   }
 
@@ -158,7 +158,7 @@ class DebugScreen extends StatelessWidget {
       if (reps == 0) {
         continue;
       }
-      int good = tracking ? _rand.nextInt(reps) : null;
+      int? good = tracking ? _rand.nextInt(reps) : null;
       await resultsDb.actionsDao.insertAction(StoredAction(
           drillId: drillId, action: action.label, reps: reps, good: good));
     }
@@ -189,7 +189,7 @@ class _CreationProgress extends StatefulWidget {
   final ValueNotifier<int> progress;
   final int target;
 
-  _CreationProgress({this.progress, this.target});
+  _CreationProgress({/*required*/ required this.progress, /*required*/ required this.target});
 
   @override
   State<StatefulWidget> createState() => _CreationProgressState();

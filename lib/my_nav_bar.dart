@@ -10,10 +10,10 @@ import 'progress_screen.dart';
 class MyNavBarLocation {
   final BottomNavigationBarItem item;
   final String route;
-  final Object arguments;
+  final Object? arguments;
 
   const MyNavBarLocation._create(
-      {@required this.item, @required this.route, this.arguments})
+      {required this.item, required this.route, this.arguments})
       : assert(item != null),
         assert(route != null);
 
@@ -44,7 +44,7 @@ class MyNavBar extends StatelessWidget {
     return MyNavBar._(location: location);
   }
 
-  static MyNavBar forDrillNav(MyNavBarLocation location, DrillData drillData) {
+  static MyNavBar forDrillNav(MyNavBarLocation location, DrillData? drillData) {
     return MyNavBar._(location: location, drillData: drillData);
   }
 
@@ -60,10 +60,10 @@ class MyNavBar extends StatelessWidget {
 
   final MyNavBarLocation location;
   final int currentIndex;
-  final DrillData drillData;
+  final DrillData? drillData;
 
-  MyNavBar._({@required this.location, this.drillData})
-      : currentIndex = _locationToIndex[location] {
+  MyNavBar._({required this.location, this.drillData})
+      : currentIndex = _locationToIndex[location]! {
     assert(currentIndex >= 0);
   }
 

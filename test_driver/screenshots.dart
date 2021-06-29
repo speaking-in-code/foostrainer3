@@ -45,7 +45,7 @@ void main() async {
 }
 
 Future<int> _addRollover(ResultsDatabase db, StaticDrills drills) async {
-  final rollover = drills.getDrill('Rollover:Up/Down/Middle');
+  final rollover = drills.getDrill('Rollover:Up/Down/Middle')!;
   final results = StoredDrill(
     startSeconds:
         DateTime(2020, 6, 13, 8, 45, 0).millisecondsSinceEpoch ~/ 1000,
@@ -64,7 +64,7 @@ Future<int> _addRollover(ResultsDatabase db, StaticDrills drills) async {
 }
 
 Future<int> _addBrush(ResultsDatabase db, StaticDrills drills) async {
-  final brush = drills.getDrill('Brush Pass:Lane/Wall');
+  final brush = drills.getDrill('Brush Pass:Lane/Wall')!;
   final results = StoredDrill(
     startSeconds:
         DateTime(2020, 6, 12, 15, 12, 0).millisecondsSinceEpoch ~/ 1000,
@@ -84,7 +84,7 @@ Future<void> _addCalendarDays(ResultsDatabase db, StaticDrills drills) async {
   DateTime date = DateTime(2020, 5, 1, 12, 00, 00);
   for (int i = 0; i < 10; ++i) {
     date = date.add(Duration(days: _randBetween(1, 3)));
-    final pass = drills.getDrill('Stick Pass:Wall');
+    final pass = drills.getDrill('Stick Pass:Wall')!;
     final results = StoredDrill(
       startSeconds: date.millisecondsSinceEpoch ~/ 1000,
       drill: pass.fullName,
@@ -107,7 +107,7 @@ Future<void> _addPullProgress(ResultsDatabase db, StaticDrills drills) async {
         _randBetween(0, 60), 0);
     final results = StoredDrill(
       startSeconds: date.millisecondsSinceEpoch ~/ 1000,
-      drill: pull.fullName,
+      drill: pull!.fullName,
       tracking: true,
       elapsedSeconds: _randBetween(600, 1800),
     );
@@ -128,7 +128,7 @@ Future<void> _addPullProgress(ResultsDatabase db, StaticDrills drills) async {
 Future<void> _initActiveDrill(
     ResultsDatabase db, StaticDrills staticDrills, int drillId) async {
   final summary = await db.summariesDao.loadDrill(db, drillId);
-  final drillConfig = staticDrills.getDrill(summary.drill.drill);
+  final drillConfig = staticDrills.getDrill(summary.drill.drill)!;
   drillConfig.practiceMinutes = 20;
   ScreenshotData.progress = PracticeProgress()
     ..drill = drillConfig

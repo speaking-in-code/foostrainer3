@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class InsetDivider extends StatelessWidget {
   static const _inset = 16.0;
-  final double thickness;
+  final double? thickness;
 
   InsetDivider({this.thickness});
 

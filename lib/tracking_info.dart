@@ -15,7 +15,7 @@ enum TrackingResult {
 class SetTrackingRequest {
   static const action = 'SetTrackingResult';
 
-  TrackingResult trackingResult;
+  TrackingResult? trackingResult;
 
   SetTrackingRequest({this.trackingResult});
 

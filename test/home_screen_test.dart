@@ -5,7 +5,7 @@ import 'package:ft3/static_drills.dart';
 
 void main() {
   group('home screen tests', () {
-    MainApp mainApp;
+    late MainApp mainApp;
 
     setUp(() async {
       TestWidgetsFlutterBinding.ensureInitialized();

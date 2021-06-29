@@ -19,15 +19,15 @@ final _log = Log.get('drill_list_widget');
 class DrillListWidget extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final StaticDrills staticDrills;
-  final String drillFullName;
+  final String? drillFullName;
   //final DateTime date;
-  final DateTime startDate;
-  final DateTime endDate;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   DrillListWidget(
-      {Key key,
-      @required this.resultsDb,
-      @required this.staticDrills,
+      {Key? key,
+      required this.resultsDb,
+      required this.staticDrills,
       this.drillFullName,
       this.startDate,
       this.endDate})
@@ -44,8 +44,8 @@ class DrillListWidget extends StatefulWidget {
 class DrillListWidgetState extends State<DrillListWidget> {
   static const _pageSize = 20;
   static const _rowSpace = SizedBox(height: 6);
-  final String drillFullName;
-  PagingController<int, DrillSummary> _controller;
+  final String? drillFullName;
+  PagingController<int, DrillSummary>? _controller;
 
   DrillListWidgetState(this.drillFullName) {
     _log.info('Creating new drill list widget state for drill $drillFullName');
@@ -54,12 +54,12 @@ class DrillListWidgetState extends State<DrillListWidget> {
   void initState() {
     super.initState();
     _controller = PagingController(firstPageKey: 0);
-    _controller.addPageRequestListener((pageKey) => _fetchPage(pageKey));
+    _controller!.addPageRequestListener((pageKey) => _fetchPage(pageKey));
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller!.dispose();
     _controller = null;
     super.dispose();
   }
@@ -78,21 +78,21 @@ class DrillListWidgetState extends State<DrillListWidget> {
         return;
       }
       if (drills.length < _pageSize) {
-        _controller.appendLastPage(drills);
+        _controller!.appendLastPage(drills);
       } else {
         final nextPageKey = pageKey + drills.length;
-        _controller.appendPage(drills, nextPageKey);
+        _controller!.appendPage(drills, nextPageKey);
       }
     } catch (error) {
       _log.info('Error loading drills: $error');
-      _controller.error = error;
+      _controller!.error = error;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return PagedListView.separated(
-        pagingController: _controller,
+        pagingController: _controller!,
         separatorBuilder: (context, index) => const Divider(),
         builderDelegate: PagedChildBuilderDelegate<DrillSummary>(
           itemBuilder: (context, summary, index) =>
@@ -101,7 +101,7 @@ class DrillListWidgetState extends State<DrillListWidget> {
   }
 
   Widget _summaryLine(BuildContext context, DrillSummary summary) {
-    final drillData = widget.staticDrills.getDrill(summary.drill.drill);
+    final drillData = widget.staticDrills.getDrill(summary.drill.drill)!;
     return Padding(
         padding: EdgeInsets.all(8),
         child: InkWell(
@@ -125,8 +125,8 @@ class DrillListWidgetState extends State<DrillListWidget> {
     }
     final duration =
         'Duration: ${DurationFormatter.format(summary.drill.elapsed)}';
-    final baseStyle = Theme.of(context).textTheme.bodyText2;
-    final shaded = baseStyle.copyWith(color: baseStyle.color.withOpacity(0.8));
+    final baseStyle = Theme.of(context).textTheme.bodyText2!;
+    final shaded = baseStyle.copyWith(color: baseStyle.color!.withOpacity(0.8));
     final children = [
       _leftAndRight(
           Text('${drillData.type}', style: shaded), Text(date, style: shaded)),
@@ -140,7 +140,7 @@ class DrillListWidgetState extends State<DrillListWidget> {
       children.addAll([
         _rowSpace,
         Text(
-            'Accuracy: ${PercentFormatter.format(summary.good / summary.reps)}',
+            'Accuracy: ${PercentFormatter.format(summary.good! / summary.reps)}',
             style: baseStyle),
       ]);
     }
@@ -156,6 +156,6 @@ class DrillListWidgetState extends State<DrillListWidget> {
 
   void _onPressed(
       BuildContext context, DrillSummary summary, DrillData drillData) {
-    ResultsScreen.push(context, summary.drill.id, drillData);
+    ResultsScreen.push(context, summary.drill.id!, drillData);
   }
 }

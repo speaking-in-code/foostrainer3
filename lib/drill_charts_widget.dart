@@ -18,14 +18,17 @@ class DrillChartsWidget extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final DrillData drillData;
 
-  DrillChartsWidget({this.staticDrills, this.resultsDb, this.drillData});
+  DrillChartsWidget(
+      {required this.staticDrills,
+      required this.resultsDb,
+      required this.drillData});
 
   @override
   State<StatefulWidget> createState() => DrillChartsWidgetState();
 }
 
 class DrillChartsWidgetState extends State<DrillChartsWidget> {
-  Future<List<AggregatedActionReps>> _actions;
+  late final Future<List<AggregatedActionReps>> _actions;
 
   @override
   void initState() {
@@ -47,7 +50,7 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
     if (!snapshot.hasData) {
       return Spinner();
     }
-    if (snapshot.data.isEmpty) {
+    if (snapshot.data!.isEmpty) {
       return Text('No data, go practice.');
     }
     return SingleChildScrollView(
@@ -56,7 +59,8 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
     ]));
   }
 
-  Widget _buildAccuracyChart(BuildContext context, List<AggregatedActionReps> data) {
+  Widget _buildAccuracyChart(
+      BuildContext context, List<AggregatedActionReps>? data) {
     return Text('Chart disabled: accuracy chart');
   }
   /*

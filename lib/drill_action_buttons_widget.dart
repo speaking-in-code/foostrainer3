@@ -7,8 +7,7 @@ import 'progress_screen.dart';
 class DrillActionButtonsWidget extends StatelessWidget {
   final DrillData drillData;
 
-  DrillActionButtonsWidget({@required this.drillData})
-      : assert(drillData != null);
+  DrillActionButtonsWidget({required this.drillData});
 
   Widget build(BuildContext context) {
     return ButtonBar(children: [

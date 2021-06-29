@@ -11,10 +11,11 @@ class DebugInfo {
 
 @JsonSerializable()
 class DebugInfoResponse {
-  double meanDelayMillis = 0;
-  double stdDevDelayMillis = 0;
+  double? meanDelayMillis = 0;
+  double? stdDevDelayMillis = 0;
 
-  DebugInfoResponse({this.meanDelayMillis, this.stdDevDelayMillis});
+  DebugInfoResponse(
+      {/*required*/ this.meanDelayMillis, /*required*/ this.stdDevDelayMillis});
 
   factory DebugInfoResponse.fromJson(Map<String, dynamic> json) =>
       _$DebugInfoResponseFromJson(json);

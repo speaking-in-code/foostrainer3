@@ -37,11 +37,12 @@ class ResultsScreen extends StatelessWidget {
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
 
-  ResultsScreen({@required this.staticDrills, @required this.resultsDb});
+  ResultsScreen({required this.staticDrills, required this.resultsDb});
 
   @override
   Widget build(BuildContext context) {
-    final ResultsScreenArgs args = ModalRoute.of(context).settings.arguments;
+    final ResultsScreenArgs args =
+        ModalRoute.of(context)!.settings.arguments as ResultsScreenArgs;
     return _LoadedResultsScreen(resultsDb, args);
   }
 }
@@ -57,7 +58,7 @@ class _LoadedResultsScreen extends StatefulWidget {
 }
 
 class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
-  Future<DrillSummary> _summary;
+  late Future<DrillSummary?> _summary;
 
   @override
   void initState() {
@@ -68,16 +69,16 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DrillSummary>(
+    return FutureBuilder<DrillSummary?>(
         future: _summary,
-        builder: (BuildContext context, AsyncSnapshot<DrillSummary> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<DrillSummary?> snapshot) {
           if (snapshot.hasError) {
             return Text('${snapshot.error}');
           }
           if (!snapshot.hasData) {
             return Spinner();
           }
-          return _buildScaffold(snapshot.data);
+          return _buildScaffold(snapshot.data!);
         });
   }
 

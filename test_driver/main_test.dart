@@ -33,11 +33,11 @@ void main() {
     // extra because emulators are slow sometimes.
     const maxShotTime = Duration(seconds: 20);
 
-    FlutterDriver driver;
+    FlutterDriver? driver;
 
     Future<bool> isPresent(SerializableFinder finder) async {
       try {
-        await driver.waitFor(finder);
+        await driver!.waitFor(finder);
         return true;
       } catch (exception) {
         return false;
@@ -49,10 +49,10 @@ void main() {
       driver = await FlutterDriver.connect();
       await isPresent(find.text('Start Practice'));
       //expect(find.text('Start Practice'), is
-      await driver.tap(find.byValueKey(Keys.moreKey));
+      await driver!.tap(find.byValueKey(Keys.moreKey));
       for (int i = 0; i < 3; ++i) {
         print('Tapping on version: $i');
-        await driver.tap(find.text('Version: '));
+        await driver!.tap(find.text('Version: '));
       }
     });
 
@@ -70,7 +70,7 @@ void main() {
     test('does nothing', () async {});
 
     Future<void> waitForReps(String expected) {
-      return driver.waitFor(
+      return driver!.waitFor(
           find.descendant(
               of: practiceRepsFinder,
               matching: find.text(expected),
@@ -79,17 +79,17 @@ void main() {
     }
 
     Future<String> getDuration() {
-      return driver.getText(durationFinder);
+      return driver!.getText(durationFinder);
     }
 
     Duration parseDuration(String duration) {
       final re = RegExp(r'^(\d\d):(\d\d):(\d\d)$');
-      var match = re.firstMatch(duration);
+      var match = re.firstMatch(duration)!;
       expect(match, isNotNull, reason: 'Duration "$duration" has bad format.');
       return Duration(
-          hours: int.parse(match.group(1)),
-          minutes: int.parse(match.group(2)),
-          seconds: int.parse(match.group(3)));
+          hours: int.parse(match.group(1)!),
+          minutes: int.parse(match.group(2)!),
+          seconds: int.parse(match.group(3)!));
     }
 
     /*

@@ -9,6 +9,7 @@ import 'package:equatable/equatable.dart';
 ///
 import 'package:floor/floor.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 
 part 'results_entities.g.dart';
 
@@ -16,7 +17,7 @@ part 'results_entities.g.dart';
 @Entity(tableName: 'Drills')
 class StoredDrill {
   @PrimaryKey(autoGenerate: true)
-  final int id;
+  final int? id;
 
   final int startSeconds;
   final String drill;
@@ -29,13 +30,13 @@ class StoredDrill {
 
   StoredDrill({
     this.id,
-    this.startSeconds,
-    this.drill,
-    this.tracking,
-    this.elapsedSeconds,
+    required this.startSeconds,
+    required this.drill,
+    required this.tracking,
+    required this.elapsedSeconds,
   }) : assert(drill.contains(':'), 'Stored drills must have format type:name');
 
-  StoredDrill copyWith({int id, int elapsedSeconds}) {
+  StoredDrill copyWith({int? id, int? elapsedSeconds}) {
     return StoredDrill(
         id: id ?? this.id,
         startSeconds: startSeconds,
@@ -44,7 +45,7 @@ class StoredDrill {
         elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds);
   }
 
-  factory StoredDrill.newDrill({String drill, bool tracking}) {
+  factory StoredDrill.newDrill({required String drill, required bool tracking}) {
     return StoredDrill(
       startSeconds: (DateTime.now().millisecondsSinceEpoch ~/ 1000),
       drill: drill,
@@ -77,17 +78,22 @@ class StoredDrill {
 ])
 class StoredAction {
   @primaryKey
-  final int id;
+  final int? id;
 
   final int drillId;
   final String action;
   final int reps;
   // null means not counted
-  final int good;
+  final int? good;
 
-  double get accuracy => _computeAccuracy(good, reps);
+  double? get accuracy => _computeAccuracy(good, reps);
 
-  StoredAction({this.id, this.drillId, this.action, int reps, this.good})
+  StoredAction(
+      {this.id,
+      required this.drillId,
+      required this.action,
+      int? reps,
+      this.good})
       : this.reps = reps ?? 0;
 
   Map<String, dynamic> toJson() => _$StoredActionToJson(this);
@@ -96,7 +102,7 @@ class StoredAction {
       _$StoredActionFromJson(json);
 }
 
-double _computeAccuracy(int good, int reps) {
+double? _computeAccuracy(int? good, int reps) {
   return (good == null || reps == 0) ? null : good / reps;
 }
 
@@ -105,14 +111,18 @@ double _computeAccuracy(int good, int reps) {
 class DrillSummary {
   final StoredDrill drill;
   final int reps;
-  final int good; // nullable
+  final int? good; // nullable
   final Map<String, StoredAction> actions;
 
-  DrillSummary({this.drill, this.reps, this.good, this.actions});
+  DrillSummary(
+      {required this.drill,
+      required this.reps,
+      this.good,
+      required this.actions});
 
-  double get accuracy => _computeAccuracy(good, reps);
+  double? get accuracy => _computeAccuracy(good, reps);
 
-  DrillSummary copyWith({StoredDrill drill, int reps, int good}) {
+  DrillSummary copyWith({StoredDrill? drill, int? reps, int? good}) {
     return DrillSummary(
         drill: drill ?? this.drill,
         reps: reps ?? this.reps,
@@ -138,14 +148,14 @@ class AggregatedDrillSummary extends Equatable {
   final DateTime endDay;
   final int elapsedSeconds;
   final int reps;
-  final double accuracy;
+  final double? accuracy;
 
   // End of day is tricky during the fall time change, adding a day leaves
   // the hour at 23:00:00!
-  AggregatedDrillSummary(this.startDay, DateTime endDay, this.elapsedSeconds,
-      this.reps, this.accuracy)
+  AggregatedDrillSummary(@required this.startDay, @required DateTime endDay,
+      @required this.elapsedSeconds, @required this.reps, this.accuracy)
       : endDay = DateTime(endDay.year, endDay.month, endDay.day, 24, 0, 0);
 
   @override
-  List<Object> get props => [startDay, endDay, elapsedSeconds, reps, accuracy];
+  List<Object?> get props => [startDay, endDay, elapsedSeconds, reps, accuracy];
 }

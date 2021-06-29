@@ -13,7 +13,7 @@ class DrillDetailsWidget extends StatelessWidget {
   final DrillSummary summary;
   final DrillData drillData;
 
-  DrillDetailsWidget({this.summary, this.drillData});
+  DrillDetailsWidget({required this.summary, required this.drillData});
 
   @override
   Widget build(BuildContext context) {

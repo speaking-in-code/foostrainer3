@@ -1,17 +1,14 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
 
-import 'drill_data.dart';
 import 'keys.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'practice_background.dart';
-import 'results_entities.dart';
 import 'results_screen.dart';
 import 'practice_status_widget.dart';
 import 'screenshot_data.dart';
@@ -34,7 +31,7 @@ class PracticeScreen extends StatefulWidget {
 
   final StaticDrills staticDrills;
 
-  PracticeScreen({Key key, @required this.staticDrills}) : super(key: key);
+  PracticeScreen({Key? key, required this.staticDrills}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -60,8 +57,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
   int _lastRenderedConfirm = 0;
   bool _pauseForDrillComplete = false;
   PracticeState _practiceState = PracticeState.stopped;
-  Stream<PracticeProgress> _progressStream;
-  PracticeProgress _progress;
+  late final Stream<PracticeProgress> _progressStream;
+  PracticeProgress? _progress;
 
   @override
   void initState() {
@@ -70,7 +67,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _progressStream = PracticeBackground.progressStream;
     } else {
       // Override the practice screen for screenshots.
-      _progressStream = Stream.fromIterable([ScreenshotData.progress]);
+      _progressStream = Stream.fromIterable([ScreenshotData.progress!]);
     }
     super.initState();
   }
@@ -99,32 +96,32 @@ class _PracticeScreenState extends State<PracticeScreen> {
       return _loadingWidget(context);
     }
     _progress = snapshot.data;
-    if (_progress.practiceState == PracticeState.stopped) {
+    if (_progress!.practiceState == PracticeState.stopped) {
       // Drill was stopped via notification media controls.
-      WidgetsBinding.instance.addPostFrameCallback((_) => _onStop());
+      WidgetsBinding.instance!.addPostFrameCallback((_) => _onStop());
       return Scaffold();
     }
-    if (_progress.drill == null) {
+    if (_progress!.drill == null) {
       return _loadingWidget(context);
     }
     // Sometimes we stop after the drill has reached time. For that
     // case, wait for an explicit 'play' action from the user instead
     // of automatically resuming.
     _pauseForDrillComplete =
-        Duration(minutes: _progress.drill.practiceMinutes).inSeconds ==
-            _progress.results?.drill?.elapsedSeconds;
-    _practiceState = _progress.practiceState;
+        Duration(minutes: _progress!.drill!.practiceMinutes!).inSeconds ==
+            _progress!.results?.drill.elapsedSeconds;
+    _practiceState = _progress!.practiceState;
     // StreamBuilder will redeliver progress messages, but we only
     // want to show the dialog once per shot.
-    if (_progress.confirm > this._lastRenderedConfirm) {
-      this._lastRenderedConfirm = _progress.confirm;
+    if (_progress!.confirm > this._lastRenderedConfirm) {
+      this._lastRenderedConfirm = _progress!.confirm;
       Future.delayed(Duration.zero, () => _showTrackingDialog(context));
     }
     return Scaffold(
-      appBar: MyAppBar.drillTitle(drillData: _progress.drill).build(context),
+      appBar: MyAppBar.drillTitle(drillData: _progress!.drill).build(context),
       body: PracticeStatusWidget(
           staticDrills: widget.staticDrills,
-          progress: _progress,
+          progress: _progress!,
           onStop: _onStop),
     );
   }
@@ -140,7 +137,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       PracticeBackground.pause();
       shouldResume = true;
     }
-    bool allowBack = await showDialog(
+    bool? allowBack = await showDialog(
       context: context,
       builder: (context) => SimpleDialog(
         title: Text('Cancel Drill'),
@@ -189,7 +186,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     int reps = _progress?.results?.reps ?? 0;
     if (reps > 0) {
       ResultsScreen.pushReplacement(
-          context, _progress.results.drill.id, _progress.drill);
+          context, _progress!.results!.drill.id!, _progress!.drill!);
     } else {
       // Early stop to drill, before drill id is set. Go back to config screen.
       Navigator.pop(context);

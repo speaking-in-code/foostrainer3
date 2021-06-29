@@ -21,13 +21,13 @@ class DailyDrillsScreen extends StatelessWidget {
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
 
-  DailyDrillsScreen({this.staticDrills, this.resultsDb})
+  DailyDrillsScreen({required this.staticDrills, required this.resultsDb})
       : assert(staticDrills != null),
         assert(resultsDb != null);
 
   @override
   Widget build(BuildContext context) {
-    DateTime day = ModalRoute.of(context).settings.arguments;
+    DateTime day = ModalRoute.of(context)!.settings.arguments as DateTime;
     final startDate = DateTime(day.year, day.month, day.day);
     final endDate =
         DateTime(startDate.year, startDate.month, startDate.day + 1);
@@ -48,14 +48,17 @@ class _DailyDrillList extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final DateTime day;
 
-  _DailyDrillList({this.staticDrills, this.resultsDb, this.day});
+  _DailyDrillList(
+      {/*required*/ required this.staticDrills,
+      /*required*/ required this.resultsDb,
+      /*required*/ required this.day});
 
   @override
   State<StatefulWidget> createState() => _DailyDrillListState();
 }
 
 class _DailyDrillListState extends State<_DailyDrillList> {
-  Future<List<DrillSummary>> _panelFuture;
+  late final Future<List<DrillSummary>> _panelFuture;
 
   @override
   void initState() {
@@ -83,15 +86,15 @@ class _DailyDrillListState extends State<_DailyDrillList> {
     if (!snapshot.hasData) {
       return Spinner();
     }
-    if (snapshot.data.isEmpty) {
+    if (snapshot.data!.isEmpty) {
       return Center(child: Text('No drills, go practice!'));
     }
-    return ListView(children: snapshot.data.map((e) => _toTile(e)).toList());
+    return ListView(children: snapshot.data!.map((e) => _toTile(e)).toList());
   }
 
   Widget _toTile(DrillSummary drill) {
-    final DrillData data = widget.staticDrills.getDrill(drill.drill.drill);
-    final onTap = () => _onDrillSelect(drill.drill.id, data);
+    final DrillData data = widget.staticDrills.getDrill(drill.drill.drill)!;
+    final onTap = () => _onDrillSelect(drill.drill.id!, data);
     return ListTile(
       title: Text(data.type),
       subtitle: Text(data.name),

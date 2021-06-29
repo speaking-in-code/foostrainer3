@@ -11,7 +11,7 @@ class AccuracyOverTimeChart extends StatelessWidget {
   final AggregationLevel aggLevel;
   final List<AggregatedDrillSummary> drillHistory;
 
-  AccuracyOverTimeChart({@required this.aggLevel, @required this.drillHistory})
+  AccuracyOverTimeChart({required this.aggLevel, required this.drillHistory})
       : assert(aggLevel != null),
         assert(drillHistory != null);
 

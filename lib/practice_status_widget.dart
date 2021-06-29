@@ -18,22 +18,23 @@ class PracticeStatusWidget extends StatelessWidget {
   final VoidCallback onStop;
 
   PracticeStatusWidget(
-      {Key key,
-      @required this.staticDrills,
-      @required this.progress,
-      @required this.onStop})
-      : summary = progress.results,
+      {Key? key,
+      required this.staticDrills,
+      required this.progress,
+      required this.onStop})
+      : summary = progress.results!,
         assert(progress != null),
         assert(progress.results != null),
         assert(onStop != null);
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = Theme.of(context).textTheme.headline5;
-    labelStyle = labelStyle.copyWith(color: labelStyle.color.withOpacity(0.75));
-    TextStyle dataStyle = Theme.of(context).textTheme.headline4;
+    TextStyle labelStyle = Theme.of(context).textTheme.headline5!;
+    labelStyle =
+        labelStyle.copyWith(color: labelStyle.color!.withOpacity(0.75));
+    TextStyle dataStyle = Theme.of(context).textTheme.headline4!;
     dataStyle = dataStyle.copyWith(
-        color: dataStyle.color.withOpacity(1.0),
+        color: dataStyle.color!.withOpacity(1.0),
         fontFeatures: [FontFeature.tabularFigures()]);
     if (MediaQuery.of(context).orientation == Orientation.portrait) {
       return _buildPortrait(context, labelStyle, dataStyle);
@@ -81,7 +82,7 @@ class PracticeStatusWidget extends StatelessWidget {
     return Row(children: [
       Expanded(
         child: Text(
-          progress.action,
+          progress.action!,
           textAlign: TextAlign.center,
           style: dataStyle,
         ),
@@ -125,7 +126,8 @@ class PracticeStatusWidget extends StatelessWidget {
     return Padding(padding: EdgeInsets.only(bottom: 16), child: child);
   }
 
-  Widget _firstColumn({TextStyle labelStyle, TextStyle dataStyle}) {
+  Widget _firstColumn(
+      {required TextStyle labelStyle, required TextStyle /*!*/ dataStyle}) {
     String successText = '--';
     if (summary.drill.tracking) {
       if (summary.good != null) {
@@ -134,7 +136,7 @@ class PracticeStatusWidget extends StatelessWidget {
         successText = '0';
       }
     }
-    int reps = summary.reps ?? 0;
+    int reps = summary.reps;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -146,7 +148,8 @@ class PracticeStatusWidget extends StatelessWidget {
     );
   }
 
-  Widget _secondColumn({TextStyle labelStyle, TextStyle dataStyle}) {
+  Widget _secondColumn(
+      {required TextStyle labelStyle, required TextStyle dataStyle}) {
     final durationText = DurationFormatter.format(
         Duration(seconds: summary.drill.elapsedSeconds));
     final accuracyText = PercentFormatter.formatAccuracy(

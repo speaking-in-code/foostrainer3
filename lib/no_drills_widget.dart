@@ -6,9 +6,9 @@ import 'static_drills.dart';
 
 class NoDrillsWidget extends StatelessWidget {
   final StaticDrills staticDrills;
-  final DrillData drillData;
+  final DrillData? drillData;
 
-  const NoDrillsWidget({Key key, @required this.staticDrills, this.drillData})
+  const NoDrillsWidget({Key? key, required this.staticDrills, this.drillData})
       : assert(staticDrills != null),
         super(key: key);
 
@@ -22,9 +22,9 @@ class NoDrillsWidget extends StatelessWidget {
       children.add(bigErrorText);
     } else {
       children.add(Column(children: [
-        Text('${drillData.type}', style: medium),
+        Text('${drillData!.type}', style: medium),
         SizedBox(height: 6),
-        Text('${drillData.name}', style: medium),
+        Text('${drillData!.name}', style: medium),
         SizedBox(height: 12),
         bigErrorText,
       ]));

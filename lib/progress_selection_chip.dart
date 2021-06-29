@@ -10,10 +10,10 @@ import 'static_drills.dart';
 final _log = Log.get('time_window_chip');
 
 class ProgressSelection {
-  final DrillData drillData;
+  final DrillData? drillData;
   final AggregationLevel aggLevel;
 
-  ProgressSelection({this.drillData, @required this.aggLevel})
+  ProgressSelection({this.drillData, required this.aggLevel})
       : assert(aggLevel != null);
 
   ProgressSelection withAggLevel(AggregationLevel aggLevel) {
@@ -25,7 +25,7 @@ class ProgressSelection {
   }
 }
 
-typedef OnProgressSelectionChange = void Function(ProgressSelection);
+typedef OnProgressSelectionChange = void Function(ProgressSelection?);
 
 class ProgressSelectionChip extends StatefulWidget {
   final StaticDrills staticDrills;
@@ -33,9 +33,9 @@ class ProgressSelectionChip extends StatefulWidget {
   final OnProgressSelectionChange onProgressChange;
 
   ProgressSelectionChip(
-      {@required this.staticDrills,
-      @required this.selected,
-      this.onProgressChange})
+      {required this.staticDrills,
+      required this.selected,
+      required this.onProgressChange})
       : assert(staticDrills != null),
         assert(selected != null);
 
@@ -61,9 +61,9 @@ class ProgressSelectionChipState extends State<ProgressSelectionChip> {
     // Consider switching to subtitle2/caption here.
     return Column(
       children: [
-        Text(selected.drillData.type,
+        Text(selected.drillData!.type,
             style: Theme.of(context).textTheme.subtitle1),
-        Text(selected.drillData.name,
+        Text(selected.drillData!.name,
             style: Theme.of(context).textTheme.bodyText2),
       ],
     );
@@ -73,13 +73,13 @@ class ProgressSelectionChipState extends State<ProgressSelectionChip> {
     String dismissLabel =
         MaterialLocalizations.of(context).modalBarrierDismissLabel;
     _log.info('Found a dismissLabel of "$dismissLabel"');
-    ProgressSelection chosen = await showModalBottomSheet(
+    ProgressSelection? chosen = await showModalBottomSheet(
         context: context,
         builder: (context) => ProgressChooserSheet(
             staticDrills: widget.staticDrills, initialSelection: selected));
     widget.onProgressChange(chosen);
     setState(() {
-      selected = chosen;
+      selected = chosen!;
     });
   }
 }

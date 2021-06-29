@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'drill_chooser_modal.dart';
@@ -20,9 +22,7 @@ class ProgressChooserSheet extends StatefulWidget {
   final ProgressSelection initialSelection;
 
   ProgressChooserSheet(
-      {@required this.staticDrills, @required this.initialSelection})
-      : assert(staticDrills != null),
-        assert(initialSelection != null);
+      {required this.staticDrills, required this.initialSelection});
 
   @override
   State<StatefulWidget> createState() =>
@@ -51,7 +51,7 @@ class ProgressChooserSheetState extends State<ProgressChooserSheet> {
     ];
     tiles.addAll(AggregationLevel.values.map((AggregationLevel option) {
       return RadioListTile<AggregationLevel>(
-        title: Text(_levelToString[option]),
+        title: Text(_levelToString[option]!),
         value: option,
         groupValue: selected.aggLevel,
         onChanged: (selected) => _onAggLevelSelected(context, selected),
@@ -72,17 +72,17 @@ class ProgressChooserSheetState extends State<ProgressChooserSheet> {
     return true;
   }
 
-  void _onAggLevelSelected(BuildContext context, AggregationLevel aggLevel) {
+  void _onAggLevelSelected(BuildContext context, AggregationLevel? aggLevel) {
     setState(() {
-      selected = selected.withAggLevel(aggLevel);
+      selected = selected.withAggLevel(aggLevel!);
     });
   }
 
   void _onDrillTap(BuildContext context) async {
-    DrillData chosen = await DrillChooserModal.startDialog(context,
+    DrillData chosen = await (DrillChooserModal.startDialog(context,
         staticDrills: widget.staticDrills,
         selected: selected.drillData,
-        allowAll: true);
+        allowAll: true) as FutureOr<DrillData>);
     _log.info('Got drill ${chosen.fullName}');
     setState(() {
       selected = selected.withDrillData(chosen);

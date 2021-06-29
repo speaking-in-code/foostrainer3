@@ -5,7 +5,7 @@ class TitledCard extends StatelessWidget {
   final String title;
   final Widget child;
 
-  TitledCard({@required this.title, @required this.child})
+  TitledCard({required this.title, required this.child})
       : assert(title != null),
         assert(child != null);
 

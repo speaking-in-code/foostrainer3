@@ -23,9 +23,15 @@ DrillData _makeDrill(
     default:
       throw ArgumentError('Unknown prefix: $prefixType');
   }
+  if (actions.isEmpty) {
+    throw ArgumentError('No actions for $prefixType $type');
+  }
   final nameRegexp = RegExp(r'[^A-Za-z0-9_/.]');
-  var drill = DrillData(type: type, possessionSeconds: maxSeconds);
-  drill.name = actions.join('/');
+  final drill = DrillData(
+      type: type,
+      name: actions.join('/'),
+      possessionSeconds: maxSeconds,
+      actions: []);
   for (String action in actions) {
     String asset = 'assets/${prefix}_$action.mp3';
     asset = asset.toLowerCase().replaceAll(nameRegexp, '_');
@@ -47,7 +53,7 @@ DrillData _makeShot(String type, AudioPrefix prefix, List<String> actions) {
 }
 
 int main() {
-  var drills = DrillListData();
+  final drills = DrillListData();
   try {
     // Stick pass
     drills.drills.add(_makePass('Stick Pass', AudioPrefix.pass, ['Lane']));
@@ -110,7 +116,7 @@ int main() {
   return 0;
 }
 
-String _errorToString(Object error) {
+String _errorToString(Object? error) {
   String msg = '$error';
   while (error.runtimeType == JsonUnsupportedObjectError) {
     error = (error as JsonUnsupportedObjectError).cause;

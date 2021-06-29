@@ -7,7 +7,7 @@ import 'keys.dart';
 
 class MoreOptionsSheet extends StatelessWidget {
   static final Key versionKey = Key(Keys.versionKey);
-  final Key key;
+  final Key? key;
 
   MoreOptionsSheet({this.key}) : super(key: key);
 
@@ -26,7 +26,7 @@ class MoreOptionsSheet extends StatelessWidget {
 
 class _FeedbackWidget extends StatelessWidget {
   final _feedbackSender = FeedbackSender();
-  _FeedbackWidget({Key key}) : super(key: key);
+  _FeedbackWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _FeedbackWidget extends StatelessWidget {
 }
 
 class _AboutWidget extends StatefulWidget {
-  _AboutWidget({Key key}) : super(key: key);
+  _AboutWidget({Key? key}) : super(key: key);
 
   _AboutWidgetState createState() => _AboutWidgetState();
 }
@@ -47,7 +47,7 @@ class _AboutWidgetState extends State<_AboutWidget> {
   static const kMaxClickDelay = Duration(seconds: 1);
   static const kClicksToEnter = 3;
 
-  DateTime lastClick;
+  DateTime? lastClick;
   int numClicks = 0;
 
   @override
@@ -65,7 +65,7 @@ class _AboutWidgetState extends State<_AboutWidget> {
   // Enter debug screen if there are three clicks on the version info tag.
   void _onTap() {
     final now = DateTime.now();
-    if (lastClick == null || now.difference(lastClick) > kMaxClickDelay) {
+    if (lastClick == null || now.difference(lastClick!) > kMaxClickDelay) {
       numClicks = 1;
     } else {
       ++numClicks;
@@ -80,7 +80,7 @@ class _AboutWidgetState extends State<_AboutWidget> {
 
 String _getVersion(AsyncSnapshot<PackageInfo> packageInfo) {
   if (packageInfo.hasData) {
-    return 'Version: ${packageInfo.data.version}+${packageInfo.data.buildNumber}';
+    return 'Version: ${packageInfo.data!.version}+${packageInfo.data!.buildNumber}';
   }
   if (packageInfo.hasError) {
     return 'Version: Error. ${packageInfo.error}';

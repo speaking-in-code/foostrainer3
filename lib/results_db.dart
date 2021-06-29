@@ -4,7 +4,6 @@ import 'dart:core';
 
 import 'package:equatable/equatable.dart';
 import 'package:floor/floor.dart';
-import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'log.dart';
@@ -20,7 +19,7 @@ abstract class DrillsDao {
   Future<int> insertDrill(StoredDrill results);
 
   @Query('SELECT * FROM Drills WHERE id = :id')
-  Future<StoredDrill> loadDrill(int id);
+  Future<StoredDrill?> loadDrill(int id);
 
   // Remove the drill with specified id.
   @transaction
@@ -44,7 +43,13 @@ abstract class DrillsDao {
     MAX(startSeconds) latestSeconds
   FROM Drills
   ''')
-  Future<AllDrillDateRange> dateRange();
+  Future<AllDrillDateRange?> dateRange();
+}
+
+enum ActionUpdate {
+  NONE,
+  GOOD,
+  MISSED,
 }
 
 @dao
@@ -56,26 +61,30 @@ abstract class ActionsDao {
   Future<int> insertAction(StoredAction results);
 
   @Query('SELECT * from Actions WHERE drillId = :drillId AND action = :action')
-  Future<StoredAction> loadAction(int drillId, String action);
+  Future<StoredAction?> loadAction(
+      /*!*/ int drillId,
+      /*!*/ String action);
 
   @Query('SELECT * from Actions WHERE drillId = :drillId')
-  Future<List<StoredAction>> loadActions(int drillId);
+  Future<List<StoredAction>> loadActions(/*!*/ int drillId);
 
   @transaction
-  Future<void> incrementAction(int drillId, String action, bool good) async {
-    final actionInfo = await loadAction(drillId, action);
-    int id = actionInfo?.id;
+  Future<void> incrementAction(
+      int drillId, String action, ActionUpdate trackingResult) async {
+    StoredAction? actionInfo = await loadAction(drillId, action);
+    int? id = actionInfo?.id;
     int reps = (actionInfo?.reps ?? 0) + 1;
-    int goodCount;
-    if (actionInfo == null) {
-      if (good != null) {
-        goodCount = good ? 1 : 0;
-      }
-    } else if (actionInfo.good != null) {
-      goodCount = actionInfo.good;
-      if (good) {
-        ++goodCount;
-      }
+    int? goodCount = actionInfo?.good;
+    switch (trackingResult) {
+      case ActionUpdate.GOOD:
+        goodCount = (goodCount ?? 0) + 1;
+        break;
+      case ActionUpdate.MISSED:
+        goodCount = (goodCount ?? 0);
+        break;
+      case ActionUpdate.NONE:
+      default:
+        break;
     }
     await insertAction(StoredAction(
         id: id, drillId: drillId, action: action, reps: reps, good: goodCount));
@@ -83,11 +92,11 @@ abstract class ActionsDao {
 }
 
 class _AggregateDrillSummaryBuilder {
-  DateTime startDay;
-  DateTime endDay;
-  int elapsedSeconds;
-  int reps;
-  double accuracy;
+  late DateTime startDay;
+  late DateTime endDay;
+  late int elapsedSeconds;
+  late int reps;
+  double? accuracy;
 
   AggregatedDrillSummary build() {
     return AggregatedDrillSummary(
@@ -111,7 +120,7 @@ class _AggregatedDrillReps {
   final String startDay;
   final String endDay;
   final int reps;
-  final double accuracy;
+  final double? accuracy;
 
   _AggregatedDrillReps(this.startDay, this.endDay, this.reps, this.accuracy);
 }
@@ -127,7 +136,7 @@ class AggregatedActionReps extends Equatable {
   final DateTime endDay;
   final String action;
   final int reps;
-  final double accuracy;
+  final double? accuracy;
 
   AggregatedActionReps(
       this.startDayStr, this.endDayStr, this.action, this.reps, this.accuracy)
@@ -135,19 +144,19 @@ class AggregatedActionReps extends Equatable {
         endDay = DateTime.parse(endDayStr);
 
   @override
-  List<Object> get props => [startDay, endDay, action, reps, accuracy];
+  List<Object?> get props => [startDay, endDay, action, reps, accuracy];
 }
 
 class AggregatedActionRepsBuilder {
-  String startDayStr;
-  String endDayStr;
-  String action;
+  late String startDayStr;
+  late String endDayStr;
+  late String action;
   int reps = 0;
   int trackedReps = 0;
   int trackedGood = 0;
 
   AggregatedActionReps build() {
-    double accuracy;
+    double? accuracy;
     if (trackedReps > 0) {
       accuracy = trackedGood / trackedReps;
     }
@@ -159,18 +168,18 @@ int _secondsSinceEpoch(DateTime dt) {
   return dt.millisecondsSinceEpoch ~/ 1000;
 }
 
-DateTime _epochSecondsToDateTime(int seconds) {
+DateTime? _epochSecondsToDateTime(int? seconds) {
   if (seconds == null) return null;
   return DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
 }
 
 @DatabaseView('SELECT NULL')
 class AllDrillDateRange {
-  final int earliestSeconds;
-  final int latestSeconds;
+  final int? earliestSeconds;
+  final int? latestSeconds;
 
-  DateTime get earliest => _epochSecondsToDateTime(earliestSeconds);
-  DateTime get latest => _epochSecondsToDateTime(latestSeconds);
+  DateTime? get earliest => _epochSecondsToDateTime(earliestSeconds);
+  DateTime? get latest => _epochSecondsToDateTime(latestSeconds);
 
   AllDrillDateRange(this.earliestSeconds, this.latestSeconds);
 }
@@ -198,21 +207,25 @@ enum AggregationLevel {
 //   you're unlucky, your query will just do the wrong thing.
 @dao
 abstract class SummariesDao {
-  Future<DrillSummary> loadDrill(ResultsDatabase db, int drillId) async {
-    Future<StoredDrill> drill = db.drillsDao.loadDrill(drillId);
+  Future<DrillSummary?> loadDrill(ResultsDatabase db, int drillId) async {
+    Future<StoredDrill?> drill = db.drillsDao.loadDrill(drillId);
     Future<List<StoredAction>> actions = db.actionsDao.loadActions(drillId);
-    return _buildDrillSummary(await drill, await actions);
+    final resolved = await drill;
+    if (resolved == null) {
+      return null;
+    }
+    return _buildDrillSummary(resolved, await actions);
   }
 
   // Load drills for a range. Must specify either limit and offset, or start
   // and end dates.
   Future<List<DrillSummary>> loadDrillsByDate(
     ResultsDatabase db, {
-    int limit,
-    int offset,
-    DateTime start,
-    DateTime end,
-    String fullName,
+    int? limit,
+    int? offset,
+    DateTime? start,
+    DateTime? end,
+    String? fullName,
   }) async {
     assert(limit != null || start != null);
     assert(
@@ -223,7 +236,7 @@ abstract class SummariesDao {
     List<StoredDrill> drills;
     if (limit != null) {
       drills = await _loadDrillsByDate(start != null, startSeconds, endSeconds,
-          fullName != null, fullName ?? '', limit, offset);
+          fullName != null, fullName ?? '', limit, offset!);
     } else {
       drills = await _loadDrillsByDateNoLimit(
         start != null,
@@ -239,7 +252,7 @@ abstract class SummariesDao {
   Future<List<DrillSummary>> _summarizeDrills(
       ResultsDatabase db, List<StoredDrill> drills) async {
     Iterable<Future<DrillSummary>> summaries = drills.map((drill) async {
-      Future<List<StoredAction>> actions = db.actionsDao.loadActions(drill.id);
+      Future<List<StoredAction>> actions = db.actionsDao.loadActions(drill.id!);
       return _buildDrillSummary(drill, await actions);
     });
     return Future.wait(summaries);
@@ -270,13 +283,13 @@ abstract class SummariesDao {
   static DrillSummary _buildDrillSummary(
       StoredDrill drill, List<StoredAction> actions) {
     final actionMap = SplayTreeMap<String, StoredAction>();
-    int good = drill.tracking ? 0 : null;
+    int? good = drill.tracking ? 0 : null;
     int reps = 0;
     actions.forEach((action) {
       actionMap[action.action] = action;
       reps += action.reps;
       if (good != null) {
-        good += action.good;
+        good = good! + action.good!;
       }
     });
     return DrillSummary(
@@ -285,11 +298,11 @@ abstract class SummariesDao {
 
   // Return an aggregation of drill progress at the specified aggregation evel.
   Future<List<AggregatedDrillSummary>> loadAggregateDrills(
-      {@required AggregationLevel aggLevel,
-      @required int numWeeks,
-      @required int offset,
-      String drill,
-      String action}) async {
+      {required AggregationLevel aggLevel,
+      required int numWeeks,
+      required int offset,
+      String? drill,
+      String? action}) async {
     drill ??= '';
     action ??= '';
     Future<List<_AggregatedDrillTime>> times = Future.value([]);
@@ -335,15 +348,16 @@ abstract class SummariesDao {
     return builders.putIfAbsent(
         startDay,
         () => _AggregateDrillSummaryBuilder()
+          ..elapsedSeconds = 0
           ..startDay = DateTime.parse(startDay)
           ..endDay = DateTime.parse(endDay));
   }
 
   Future<List<_AggregatedDrillTime>> _drillTime(
-      {@required AggregationLevel aggLevel,
-      @required int numWeeks,
-      @required int offset,
-      String drill}) {
+      {required AggregationLevel aggLevel,
+      required int numWeeks,
+      required int offset,
+      required String drill}) {
     switch (aggLevel) {
       case AggregationLevel.DAILY:
         return _dailyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
@@ -357,11 +371,11 @@ abstract class SummariesDao {
   }
 
   Future<List<_AggregatedDrillReps>> _drillReps(
-      {@required AggregationLevel aggLevel,
-      @required int numWeeks,
-      @required int offset,
-      String drill,
-      String action}) {
+      {required AggregationLevel aggLevel,
+      required int numWeeks,
+      required int offset,
+      required String drill,
+      required String action}) {
     switch (aggLevel) {
       case AggregationLevel.DAILY:
         return _dailyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
@@ -511,7 +525,7 @@ abstract class SummariesDao {
 class ActionSummary {
   final String action;
   final int reps;
-  final int goodCount;
+  final int? goodCount;
 
   ActionSummary(this.action, this.reps, this.goodCount);
 }
@@ -548,16 +562,17 @@ abstract class ResultsDatabase extends FloorDatabase {
   }
 
   Future<int> addData(StoredDrill results,
-      {List<ActionSummary> actionList}) async {
+      {List<ActionSummary>? actionList}) async {
     final id = await drillsDao.insertDrill(results);
     actionList ??= [];
-    await Future.forEach(actionList, (action) async {
+    await Future.forEach(actionList, (dynamic action) async {
       for (int i = 0; i < action.reps; ++i) {
-        bool isGood;
+        ActionUpdate update = ActionUpdate.NONE;
         if (results.tracking) {
-          isGood = (i < action.goodCount);
+          update =
+              (i < action.goodCount) ? ActionUpdate.GOOD : ActionUpdate.MISSED;
         }
-        await actionsDao.incrementAction(id, action.action, isGood);
+        await actionsDao.incrementAction(id, action.action, update);
       }
     });
     return id;

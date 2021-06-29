@@ -4,9 +4,9 @@ import 'drill_data.dart';
 import 'keys.dart';
 
 class DrillDescriptionTile extends StatelessWidget {
-  final DrillData drillData;
-  final Widget trailing;
-  final GestureTapCallback onTap;
+  final DrillData? drillData;
+  final Widget? trailing;
+  final GestureTapCallback? onTap;
 
   DrillDescriptionTile({this.drillData, this.trailing, this.onTap})
       : super(key: Key(Keys.drillSelectionKey));
@@ -14,12 +14,12 @@ class DrillDescriptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget title;
-    Widget subtitle;
+    Widget? subtitle;
     if (drillData == null) {
       title = Text('All Drills');
     } else {
-      title = Text(drillData.type);
-      subtitle = Text(drillData.name);
+      title = Text(drillData!.type);
+      subtitle = Text(drillData!.name);
     }
     return ListTile(
       title: title,

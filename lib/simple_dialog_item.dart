@@ -5,10 +5,10 @@ class SimpleDialogItem extends StatelessWidget {
   static const _insets = const EdgeInsetsDirectional.only(start: 16.0);
 
   const SimpleDialogItem(
-      {Key key,
-      this.icon,
-      this.color,
-      this.text,
+      {Key? key,
+      required this.icon,
+      required this.color,
+      required this.text,
       this.onPressed,
       this.iconSize = 48})
       : super(key: key);
@@ -16,12 +16,12 @@ class SimpleDialogItem extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final double iconSize;
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.headline6;
+    TextStyle textStyle = Theme.of(context).textTheme.headline6!;
     // For portrait mode, text goes next to icon.
     // For landsacpe, text goes under icon.
     final child = MediaQuery.of(context).orientation == Orientation.portrait

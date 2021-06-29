@@ -6,7 +6,7 @@ import 'results_entities.dart';
 class DrillPerformanceTable extends StatelessWidget {
   final DrillSummary summary;
 
-  DrillPerformanceTable({this.summary});
+  DrillPerformanceTable({required this.summary});
 
   Widget build(BuildContext context) {
     final List<DataColumn> columns = [
@@ -26,14 +26,15 @@ class DrillPerformanceTable extends StatelessWidget {
 
   DataRow _buildTotal() {
     int totalReps = 0;
-    int totalGood = summary.drill.tracking ? 0 : null;
+    int? totalGood = summary.drill.tracking ? 0 : null;
     summary.actions.values.forEach((StoredAction action) {
       totalReps += action.reps;
       if (totalGood != null) {
-        totalGood += action.good;
+        totalGood = totalGood! + action.good!;
       }
     });
-    final total = StoredAction(action: 'All', reps: totalReps, good: totalGood);
+    final total = StoredAction(
+        drillId: 0, action: 'All', reps: totalReps, good: totalGood);
     return _buildRow(total);
   }
 

@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
   final StaticDrills staticDrills;
 
-  HomeScreen({@required this.staticDrills});
+  HomeScreen({required this.staticDrills});
 
   @override
   State<StatefulWidget> createState() => HomeScreenState();

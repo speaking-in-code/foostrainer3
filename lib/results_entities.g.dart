@@ -8,7 +8,7 @@ part of 'results_entities.dart';
 
 StoredDrill _$StoredDrillFromJson(Map<String, dynamic> json) {
   return StoredDrill(
-    id: json['id'] as int,
+    id: json['id'] as int?,
     startSeconds: json['startSeconds'] as int,
     drill: json['drill'] as String,
     tracking: json['tracking'] as bool,
@@ -27,11 +27,11 @@ Map<String, dynamic> _$StoredDrillToJson(StoredDrill instance) =>
 
 StoredAction _$StoredActionFromJson(Map<String, dynamic> json) {
   return StoredAction(
-    id: json['id'] as int,
+    id: json['id'] as int?,
     drillId: json['drillId'] as int,
     action: json['action'] as String,
-    reps: json['reps'] as int,
-    good: json['good'] as int,
+    reps: json['reps'] as int?,
+    good: json['good'] as int?,
   );
 }
 
@@ -46,14 +46,11 @@ Map<String, dynamic> _$StoredActionToJson(StoredAction instance) =>
 
 DrillSummary _$DrillSummaryFromJson(Map<String, dynamic> json) {
   return DrillSummary(
-    drill: json['drill'] == null
-        ? null
-        : StoredDrill.fromJson(json['drill'] as Map<String, dynamic>),
+    drill: StoredDrill.fromJson(json['drill'] as Map<String, dynamic>),
     reps: json['reps'] as int,
-    good: json['good'] as int,
-    actions: (json['actions'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(k,
-          e == null ? null : StoredAction.fromJson(e as Map<String, dynamic>)),
+    good: json['good'] as int?,
+    actions: (json['actions'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, StoredAction.fromJson(e as Map<String, dynamic>)),
     ),
   );
 }

@@ -4,7 +4,7 @@ class AppBarChip extends StatelessWidget {
   final Widget label;
   final VoidCallback onPressed;
 
-  AppBarChip({this.label, this.onPressed});
+  AppBarChip({/*required*/ required this.label, /*required*/ required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

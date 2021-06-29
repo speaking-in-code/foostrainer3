@@ -4,13 +4,14 @@ import 'dart:convert';
 /// To regenerate json serialization:
 ///   flutter pub run build_runner build
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 
 part 'drill_data.g.dart'; // Allows private access to generated code.
 
 // A single action, e.g. "Long", "Middle".
 @JsonSerializable()
 class ActionData {
-  ActionData({this.label, this.audioAsset});
+  ActionData({required this.label, required this.audioAsset});
 
   String label;
   String audioAsset;
@@ -33,27 +34,30 @@ enum Signal {
 }
 
 // A set of actions with a name make up a drill.
+// TODO: split into two types
+// - static drill configuration
+// - per-practice session configuration
 @JsonSerializable()
 class DrillData {
-  DrillData(
-      {this.name,
-      this.type,
-      this.possessionSeconds,
-      this.tempo,
-      this.signal,
-      this.practiceMinutes,
-      this.tracking,
-      List<ActionData> actions})
-      : actions = (actions ?? []);
+  DrillData({
+    required this.name,
+    required this.type,
+    required this.possessionSeconds,
+    required this.actions,
+    this.tempo,
+    this.signal,
+    this.practiceMinutes,
+    this.tracking,
+  });
 
   String name;
   String type;
   int possessionSeconds;
-  Tempo tempo;
-  Signal signal;
-  int practiceMinutes;
-  bool tracking;
   List<ActionData> actions;
+  Tempo? tempo;
+  Signal? signal;
+  int? practiceMinutes;
+  bool? tracking;
 
   String get fullName => '$type:$name';
 
@@ -69,7 +73,7 @@ class DrillData {
 
 @JsonSerializable()
 class DrillListData {
-  DrillListData({List<DrillData> drills}) : drills = drills ?? [];
+  DrillListData({List<DrillData>? drills}) : drills = drills ?? [];
 
   List<DrillData> drills;
 

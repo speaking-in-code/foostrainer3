@@ -12,9 +12,9 @@ final _log = Log.get('drill_chooser_modal');
 /// This is intended to be shown with showDialog(), which returns the se
 /// selected node as Future<DrillData>.
 class DrillChooserModal extends StatelessWidget {
-  static Future<DrillData> startDialog(BuildContext context,
-      {@required StaticDrills staticDrills,
-      DrillData selected,
+  static Future<DrillData?> startDialog(BuildContext context,
+      {required StaticDrills staticDrills,
+      DrillData? selected,
       bool allowAll = false}) async {
     return Navigator.push(
         context,
@@ -28,12 +28,11 @@ class DrillChooserModal extends StatelessWidget {
   }
 
   final StaticDrills staticDrills;
-  final DrillData selected;
+  final DrillData? selected;
   final bool allowAll;
 
   DrillChooserModal(
-      {@required this.staticDrills, this.selected, this.allowAll = false})
-      : assert(staticDrills != null);
+      {required this.staticDrills, this.selected, this.allowAll = false});
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +42,15 @@ class DrillChooserModal extends StatelessWidget {
           appBar: MyAppBar(title: 'Choose Drill').build(context),
           body: DrillChooserWidget(
               staticDrills: staticDrills,
-              onDrillChosen: (DrillData drill) =>
+              onDrillChosen: (DrillData? drill) =>
                   _onDrillChosen(context, drill),
               selected: selected,
               allowAll: allowAll),
         ));
   }
 
-  void _onDrillChosen(BuildContext context, DrillData drill) {
-    _log.info('Drill chosen: ${drill.fullName}');
+  void _onDrillChosen(BuildContext context, DrillData? drill) {
+    _log.info('Drill chosen: ${drill?.fullName}');
     Navigator.pop(context, drill);
   }
 

@@ -6,16 +6,16 @@ import 'more_options_sheet.dart';
 
 class MyAppBar {
   static final Key moreKey = Key(Keys.moreKey);
-  final Key key;
-  final String title;
-  final DrillData drillData;
-  final Widget titleWidget;
+  final Key? key;
+  final String? title;
+  final DrillData? drillData;
+  final Widget? titleWidget;
   final bool includeMoreAction;
   final List<IconButton> actions;
 
   factory MyAppBar(
-      {Key key,
-      String title,
+      {Key? key,
+      required String title,
       bool includeMoreAction = true,
       List<IconButton> actions = const []}) {
     return MyAppBar._internal(
@@ -26,8 +26,8 @@ class MyAppBar {
   }
 
   factory MyAppBar.drillTitle(
-      {Key key,
-      @required DrillData drillData,
+      {Key? key,
+      required DrillData? drillData,
       bool includeMoreAction = true,
       List<IconButton> actions = const []}) {
     return MyAppBar._internal(
@@ -38,8 +38,8 @@ class MyAppBar {
   }
 
   factory MyAppBar.titleWidget(
-      {Key key,
-      @required Widget titleWidget,
+      {Key? key,
+      required Widget titleWidget,
       bool includeMoreAction = true,
       List<IconButton> actions = const []}) {
     return MyAppBar._internal(
@@ -63,16 +63,16 @@ class MyAppBar {
   }
 
   PreferredSizeWidget _appBar(BuildContext context) {
-    Widget titleWidget;
+    Widget? titleWidget;
     if (this.titleWidget != null) {
       titleWidget = this.titleWidget;
     } else if (title != null) {
-      titleWidget = Text(title);
+      titleWidget = Text(title!);
     } else {
       titleWidget = Column(
         children: [
-          Text(drillData.type, style: Theme.of(context).textTheme.subtitle1),
-          Text(drillData.name, style: Theme.of(context).textTheme.bodyText2),
+          Text(drillData!.type, style: Theme.of(context).textTheme.subtitle1),
+          Text(drillData!.name, style: Theme.of(context).textTheme.bodyText2),
         ],
       );
     }
