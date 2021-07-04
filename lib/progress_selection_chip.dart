@@ -13,14 +13,12 @@ class ProgressSelection {
   final DrillData? drillData;
   final AggregationLevel aggLevel;
 
-  ProgressSelection({this.drillData, required this.aggLevel})
-      : assert(aggLevel != null);
-
+  ProgressSelection({this.drillData, required this.aggLevel});
   ProgressSelection withAggLevel(AggregationLevel aggLevel) {
     return ProgressSelection(drillData: drillData, aggLevel: aggLevel);
   }
 
-  ProgressSelection withDrillData(DrillData drillData) {
+  ProgressSelection withDrillData(DrillData? drillData) {
     return ProgressSelection(drillData: drillData, aggLevel: aggLevel);
   }
 }

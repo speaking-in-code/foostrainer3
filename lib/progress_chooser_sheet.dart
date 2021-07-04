@@ -79,11 +79,11 @@ class ProgressChooserSheetState extends State<ProgressChooserSheet> {
   }
 
   void _onDrillTap(BuildContext context) async {
-    DrillData chosen = await (DrillChooserModal.startDialog(context,
+    DrillData? chosen = await (DrillChooserModal.startDialog(context,
         staticDrills: widget.staticDrills,
         selected: selected.drillData,
-        allowAll: true) as FutureOr<DrillData>);
-    _log.info('Got drill ${chosen.fullName}');
+        allowAll: true));
+    _log.info('Got drill ${chosen?.fullName}');
     setState(() {
       selected = selected.withDrillData(chosen);
     });

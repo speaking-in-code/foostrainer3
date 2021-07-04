@@ -45,8 +45,8 @@ class PauseTimer {
   }
 
   Future<void> _pauseWithPlay(final Duration length) async {
-    final Duration loaded = await (_player!.setAsset('assets/silence_30s.mp3')
-        as FutureOr<Duration>);
+    final Duration loaded =
+        (await (_player!.setAsset('assets/silence_30s.mp3')))!;
     Duration targetEnd = length;
     if (loaded < targetEnd) {
       targetEnd = loaded;

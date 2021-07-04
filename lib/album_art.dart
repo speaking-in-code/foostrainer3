@@ -26,7 +26,7 @@ class AlbumArt {
   static final _base = 'A'.codeUnitAt(0);
   static const _asset = 'assets/web_hi_res_512.jpg';
   static final _rand = Random.secure();
-  static late final Uri _uri;
+  static Uri? _uri;
   static bool _loading = false;
 
   /// Return a file:// url to the album art for the app. Returns null if the

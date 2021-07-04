@@ -123,10 +123,10 @@ class _DrillTabs extends StatefulWidget {
 }
 
 class _MyTab {
-  final Tab? tab;
-  final Widget? child;
+  final Tab tab;
+  final Widget child;
 
-  _MyTab({this.tab, this.child});
+  _MyTab({required this.tab, required this.child});
 }
 
 class _DrillTabsState extends State<_DrillTabs> {
@@ -173,12 +173,12 @@ class _DrillTabsState extends State<_DrillTabs> {
       _MyTab(tab: Tab(text: 'Log'), child: log),
     ];
     final tabBar = TabBar(
-      tabs: tabs.map((e) => e.tab).toList() as List<Widget>,
+      tabs: tabs.map((e) => e.tab).toList(),
       physics: NeverScrollableScrollPhysics(),
     );
     final tabBarView = Expanded(
         child: TabBarView(
-      children: tabs.map((e) => e.child).toList() as List<Widget>,
+      children: tabs.map((e) => e.child).toList(),
       physics: NeverScrollableScrollPhysics(),
     ));
     return Expanded(

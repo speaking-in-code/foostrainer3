@@ -72,7 +72,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _practiceMinutes = (_drill!.practiceMinutes ?? kDefaultMinutes).toDouble();
     Color? fabColor =
         Theme.of(context).floatingActionButtonTheme.backgroundColor;
-    Function? fabClicked = _startPractice;
+    VoidCallback? fabClicked = _startPractice;
     if (_transitioning) {
       fabColor = Theme.of(context).disabledColor;
       fabClicked = null;
@@ -84,7 +84,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
           body: _expansionPanels(),
           floatingActionButton: FloatingActionButton(
             backgroundColor: fabColor,
-            onPressed: fabClicked as void Function()?,
+            onPressed: fabClicked,
             child: Icon(Icons.play_arrow, key: PracticeConfigScreen.playKey),
           ),
         ));
@@ -228,11 +228,11 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       title: Text(_formatSignal(value)),
       value: value,
       groupValue: _drill!.signal,
-      onChanged: _onSignalChanged as void Function(Signal?)?,
+      onChanged: _onSignalChanged,
     );
   }
 
-  void _onSignalChanged(Signal signal) async {
+  void _onSignalChanged(Signal? signal) async {
     // iOS just lets us use the camera flash, no on-demand prompt for
     // permissions.
     if (signal == Signal.AUDIO_AND_FLASH && Platform.isAndroid) {
@@ -277,13 +277,13 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
       title: Text(_formatTracking(value)),
       value: value,
       groupValue: _drill!.tracking,
-      onChanged: _onTrackingChanged as void Function(bool?)?,
+      onChanged: _onTrackingChanged,
     );
   }
 
-  void _onTrackingChanged(bool tracking) async {
+  void _onTrackingChanged(bool? tracking) async {
     setState(() {
-      _drill!.tracking = tracking;
+      _drill!.tracking = tracking!;
     });
   }
 
