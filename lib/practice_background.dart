@@ -353,9 +353,13 @@ class _BackgroundTask extends BackgroundAudioTask {
   // Plays audio until complete.
   Future<void> _playUntilDone(String asset) async {
     // Pause first, since otherwise play() might return immediately.
-    await _player.pause();
-    await _player.setAsset(asset);
-    await _player.play();
+    try {
+      await _player.stop();
+      await _player.setAsset(asset);
+      await _player.play();
+    } catch (e, stack) {
+      _log.warning('Unexpected exception $e: $stack', e, stack);
+    }
   }
 
   void _waitForSetup() async {

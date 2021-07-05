@@ -45,16 +45,20 @@ class PauseTimer {
   }
 
   Future<void> _pauseWithPlay(final Duration length) async {
-    final Duration loaded =
-        (await (_player!.setAsset('assets/silence_30s.mp3')))!;
-    Duration targetEnd = length;
-    if (loaded < targetEnd) {
-      targetEnd = loaded;
-      _log.warning('Could not pause for $targetEnd, clipping to $loaded.');
+    try {
+      await _player!.stop();
+      final Duration loaded =
+          (await (_player!.setAsset('assets/silence_30s.mp3')))!;
+      Duration targetEnd = length;
+      if (loaded < targetEnd) {
+        targetEnd = loaded;
+        _log.warning('Could not pause for $targetEnd, clipping to $loaded.');
+      }
+      await _player!.setClip(start: Duration.zero, end: targetEnd);
+      await _player!.play();
+    } catch (e, stack) {
+      _log.warning('Unexpected exception $e: $stack', e, stack);
     }
-    await _player!.setClip(start: Duration.zero, end: targetEnd);
-    await _player!.pause();
-    await _player!.play();
   }
 
   @visibleForTesting

@@ -33,9 +33,7 @@ class ProgressSelectionChip extends StatefulWidget {
   ProgressSelectionChip(
       {required this.staticDrills,
       required this.selected,
-      required this.onProgressChange})
-      : assert(staticDrills != null),
-        assert(selected != null);
+      required this.onProgressChange});
 
   @override
   State<StatefulWidget> createState() => ProgressSelectionChipState(selected);
