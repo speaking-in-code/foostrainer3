@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'drill_chooser_widget.dart';
 import 'drill_data.dart';
 import 'my_app_bar.dart';
@@ -13,13 +14,15 @@ class DrillChooserScreen extends StatelessWidget {
       Navigator.pushNamed(context, routeName, arguments: selected);
 
   final StaticDrills staticDrills;
+  final AppRater appRater;
 
-  DrillChooserScreen({required this.staticDrills});
+  DrillChooserScreen({required this.staticDrills, required this.appRater});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(title: 'Choose Drill').build(context),
+      appBar:
+          MyAppBar(title: 'Choose Drill', appRater: appRater).build(context),
       body: DrillChooserWidget(
           staticDrills: staticDrills,
           onDrillChosen: (DrillData? drill) => _onDrillChosen(context, drill!),

@@ -5,6 +5,7 @@ import 'package:audio_service/audio_service.dart';
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'keys.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
@@ -30,8 +31,10 @@ class PracticeScreen extends StatefulWidget {
   }
 
   final StaticDrills staticDrills;
+  final AppRater appRater;
 
-  PracticeScreen({Key? key, required this.staticDrills}) : super(key: key);
+  PracticeScreen({Key? key, required this.staticDrills, required this.appRater})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -82,14 +85,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   Widget _loadingWidget(BuildContext context) {
     return Scaffold(
-        appBar: MyAppBar(title: 'Practice').build(context), body: Spinner());
+        appBar: MyAppBar(title: 'Practice', appRater: widget.appRater)
+            .build(context),
+        body: Spinner());
   }
 
   Widget _buildSnapshot(
       BuildContext context, AsyncSnapshot<PracticeProgress> snapshot) {
     if (snapshot.hasError) {
       return Scaffold(
-          appBar: MyAppBar(title: 'Practice').build(context),
+          appBar: MyAppBar(title: 'Practice', appRater: widget.appRater)
+              .build(context),
           body: Text('Error: ${snapshot.error}'));
     }
     if (!snapshot.hasData) {
@@ -118,7 +124,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       Future.delayed(Duration.zero, () => _showTrackingDialog(context));
     }
     return Scaffold(
-      appBar: MyAppBar.drillTitle(drillData: _progress!.drill).build(context),
+      appBar: MyAppBar.drillTitle(
+              drillData: _progress!.drill, appRater: widget.appRater)
+          .build(context),
       body: PracticeStatusWidget(
           staticDrills: widget.staticDrills,
           progress: _progress!,

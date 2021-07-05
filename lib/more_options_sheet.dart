@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 
+import 'app_rater.dart';
 import 'debug_screen.dart';
 import 'feedback_sender.dart';
 import 'keys.dart';
@@ -8,8 +9,9 @@ import 'keys.dart';
 class MoreOptionsSheet extends StatelessWidget {
   static final Key versionKey = Key(Keys.versionKey);
   final Key? key;
+  final AppRater appRater;
 
-  MoreOptionsSheet({this.key}) : super(key: key);
+  MoreOptionsSheet({this.key, required this.appRater}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class MoreOptionsSheet extends StatelessWidget {
         child: ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
-        _FeedbackWidget(),
+        _FeedbackWidget(appRater: appRater),
         _AboutWidget(),
       ],
     ));
@@ -26,13 +28,20 @@ class MoreOptionsSheet extends StatelessWidget {
 
 class _FeedbackWidget extends StatelessWidget {
   final _feedbackSender = FeedbackSender();
-  _FeedbackWidget({Key? key}) : super(key: key);
+  final AppRater appRater;
+  _FeedbackWidget({Key? key, required this.appRater}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text('Send Feedback'),
-      onTap: () => _feedbackSender.send(),
+      onTap: () {
+        if (appRater.available) {
+          appRater.requestReview();
+        } else {
+          _feedbackSender.requestFeedback();
+        }
+      },
     );
   }
 }

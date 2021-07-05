@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'drill_chooser_widget.dart';
 import 'drill_data.dart';
 import 'log.dart';
@@ -14,6 +15,7 @@ final _log = Log.get('drill_chooser_modal');
 class DrillChooserModal extends StatelessWidget {
   static Future<DrillData?> startDialog(BuildContext context,
       {required StaticDrills staticDrills,
+      required AppRater appRater,
       DrillData? selected,
       bool allowAll = false}) async {
     return Navigator.push(
@@ -22,24 +24,30 @@ class DrillChooserModal extends StatelessWidget {
             fullscreenDialog: true,
             builder: (context) => DrillChooserModal(
                   staticDrills: staticDrills,
+                  appRater: appRater,
                   selected: selected,
                   allowAll: allowAll,
                 )));
   }
 
   final StaticDrills staticDrills;
+  final AppRater appRater;
   final DrillData? selected;
   final bool allowAll;
 
   DrillChooserModal(
-      {required this.staticDrills, this.selected, this.allowAll = false});
+      {required this.staticDrills,
+      required this.appRater,
+      this.selected,
+      this.allowAll = false});
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () => _onWillPop(context),
         child: Scaffold(
-          appBar: MyAppBar(title: 'Choose Drill').build(context),
+          appBar: MyAppBar(title: 'Choose Drill', appRater: appRater)
+              .build(context),
           body: DrillChooserWidget(
               staticDrills: staticDrills,
               onDrillChosen: (DrillData? drill) =>

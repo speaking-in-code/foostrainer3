@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'date_formatter.dart';
 import 'drill_data.dart';
 import 'drill_list_widget.dart';
@@ -20,10 +21,12 @@ class DailyDrillsScreen extends StatelessWidget {
 
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
+  final AppRater appRater;
 
-  DailyDrillsScreen({required this.staticDrills, required this.resultsDb})
-      : assert(staticDrills != null),
-        assert(resultsDb != null);
+  DailyDrillsScreen(
+      {required this.staticDrills,
+      required this.resultsDb,
+      required this.appRater});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,9 @@ class DailyDrillsScreen extends StatelessWidget {
     final endDate =
         DateTime(startDate.year, startDate.month, startDate.day + 1);
     return Scaffold(
-      appBar: MyAppBar(title: '${DateFormatter.formatDay(day)}').build(context),
+      appBar:
+          MyAppBar(title: '${DateFormatter.formatDay(day)}', appRater: appRater)
+              .build(context),
       body: DrillListWidget(
           staticDrills: staticDrills,
           resultsDb: resultsDb,
@@ -49,9 +54,7 @@ class _DailyDrillList extends StatefulWidget {
   final DateTime day;
 
   _DailyDrillList(
-      {/*required*/ required this.staticDrills,
-      /*required*/ required this.resultsDb,
-      /*required*/ required this.day});
+      {required this.staticDrills, required this.resultsDb, required this.day});
 
   @override
   State<StatefulWidget> createState() => _DailyDrillListState();

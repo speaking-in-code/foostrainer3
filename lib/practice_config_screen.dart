@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'app_rater.dart';
 import 'drill_data.dart';
 import 'keys.dart';
 import 'log.dart';
@@ -34,7 +35,9 @@ class PracticeConfigScreen extends StatefulWidget {
     Navigator.pushNamed(context, routeName, arguments: drill);
   }
 
-  PracticeConfigScreen({Key? key}) : super(key: key);
+  final AppRater appRater;
+
+  PracticeConfigScreen({Key? key, required this.appRater}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PracticeConfigScreenState();
@@ -80,7 +83,9 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-          appBar: MyAppBar.drillTitle(drillData: _drill!).build(context),
+          appBar:
+              MyAppBar.drillTitle(drillData: _drill!, appRater: widget.appRater)
+                  .build(context),
           body: _expansionPanels(),
           floatingActionButton: FloatingActionButton(
             backgroundColor: fabColor,

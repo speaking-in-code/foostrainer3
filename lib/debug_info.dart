@@ -15,7 +15,7 @@ class DebugInfoResponse {
   double? stdDevDelayMillis = 0;
 
   DebugInfoResponse(
-      {/*required*/ this.meanDelayMillis, /*required*/ this.stdDevDelayMillis});
+      {this.meanDelayMillis, this.stdDevDelayMillis});
 
   factory DebugInfoResponse.fromJson(Map<String, dynamic> json) =>
       _$DebugInfoResponseFromJson(json);

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 // import 'package:torch_compat/torch_compat.dart';
 
+import 'app_rater.dart';
 import 'debug_info.dart';
 import 'drill_data.dart';
 import 'log.dart';
@@ -24,8 +25,12 @@ class DebugScreen extends StatelessWidget {
 
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
+  final AppRater appRater;
 
-  DebugScreen({/*required*/ required this.staticDrills, /*required*/ required this.resultsDb});
+  DebugScreen(
+      {required this.staticDrills,
+      required this.resultsDb,
+      required this.appRater});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class DebugScreen extends StatelessWidget {
       return DebugInfoResponse.fromJson(jsonDecode(value));
     });
     return Scaffold(
-        appBar: MyAppBar(title: 'Debug').build(context),
+        appBar: MyAppBar(title: 'Debug', appRater: appRater).build(context),
         bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.practice),
         body: ListView(children: [
           Card(
@@ -189,7 +194,7 @@ class _CreationProgress extends StatefulWidget {
   final ValueNotifier<int> progress;
   final int target;
 
-  _CreationProgress({/*required*/ required this.progress, /*required*/ required this.target});
+  _CreationProgress({required this.progress, required this.target});
 
   @override
   State<StatefulWidget> createState() => _CreationProgressState();

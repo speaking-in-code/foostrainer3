@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_bar_chip.dart';
+import 'app_rater.dart';
 import 'drill_data.dart';
 import 'log.dart';
 import 'progress_chooser_sheet.dart';
@@ -27,11 +28,13 @@ typedef OnProgressSelectionChange = void Function(ProgressSelection?);
 
 class ProgressSelectionChip extends StatefulWidget {
   final StaticDrills staticDrills;
+  final AppRater appRater;
   final ProgressSelection selected;
   final OnProgressSelectionChange onProgressChange;
 
   ProgressSelectionChip(
       {required this.staticDrills,
+      required this.appRater,
       required this.selected,
       required this.onProgressChange});
 
@@ -72,7 +75,9 @@ class ProgressSelectionChipState extends State<ProgressSelectionChip> {
     ProgressSelection? chosen = await showModalBottomSheet(
         context: context,
         builder: (context) => ProgressChooserSheet(
-            staticDrills: widget.staticDrills, initialSelection: selected));
+            staticDrills: widget.staticDrills,
+            appRater: widget.appRater,
+            initialSelection: selected));
     widget.onProgressChange(chosen);
     setState(() {
       selected = chosen!;

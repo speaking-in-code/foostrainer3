@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'drill_data.dart';
 import 'drill_performance_table.dart';
 import 'log.dart';
@@ -36,22 +37,27 @@ class ResultsScreen extends StatelessWidget {
 
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
+  final AppRater appRater;
 
-  ResultsScreen({required this.staticDrills, required this.resultsDb});
+  ResultsScreen(
+      {required this.staticDrills,
+      required this.resultsDb,
+      required this.appRater});
 
   @override
   Widget build(BuildContext context) {
     final ResultsScreenArgs args =
         ModalRoute.of(context)!.settings.arguments as ResultsScreenArgs;
-    return _LoadedResultsScreen(resultsDb, args);
+    return _LoadedResultsScreen(resultsDb, args, appRater);
   }
 }
 
 class _LoadedResultsScreen extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final ResultsScreenArgs args;
+  final AppRater appRater;
 
-  _LoadedResultsScreen(this.resultsDb, this.args);
+  _LoadedResultsScreen(this.resultsDb, this.args, this.appRater);
 
   @override
   State<StatefulWidget> createState() => _LoadedResultsScreenState();
@@ -65,6 +71,11 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
     super.initState();
     _summary = widget.resultsDb.summariesDao
         .loadDrill(widget.resultsDb, widget.args.drillId);
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      if (mounted && widget.appRater.shouldRequestReview) {
+        widget.appRater.requestReview();
+      }
+    });
   }
 
   @override
@@ -84,8 +95,9 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
 
   Widget _buildScaffold(DrillSummary summary) {
     return Scaffold(
-      appBar:
-          MyAppBar.drillTitle(drillData: widget.args.drillData).build(context),
+      appBar: MyAppBar.drillTitle(
+              drillData: widget.args.drillData, appRater: widget.appRater)
+          .build(context),
       body: _summaryCard(summary),
       floatingActionButton: _playButton(),
       bottomNavigationBar:

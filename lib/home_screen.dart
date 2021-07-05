@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'log.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
@@ -14,8 +15,9 @@ final _log = Log.get('home_screen');
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
   final StaticDrills staticDrills;
+  final AppRater appRater;
 
-  HomeScreen({required this.staticDrills});
+  HomeScreen({required this.staticDrills, required this.appRater});
 
   @override
   State<StatefulWidget> createState() => HomeScreenState();
@@ -38,7 +40,8 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(title: 'FoosTrainer').build(context),
+      appBar: MyAppBar(title: 'FoosTrainer', appRater: widget.appRater)
+          .build(context),
       body: PlayButtonWidget(staticDrills: widget.staticDrills),
       bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.practice),
     );

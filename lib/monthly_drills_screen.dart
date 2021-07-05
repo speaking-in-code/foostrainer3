@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'monthly_drills_widget.dart';
 import 'my_app_bar.dart';
 import 'my_nav_bar.dart';
@@ -14,13 +15,17 @@ class MonthlyDrillsScreen extends StatelessWidget {
 
   final ResultsDatabase resultsDb;
   final StaticDrills staticDrills;
+  final AppRater appRater;
 
-  MonthlyDrillsScreen({required this.resultsDb, required this.staticDrills});
+  MonthlyDrillsScreen(
+      {required this.resultsDb,
+      required this.staticDrills,
+      required this.appRater});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(title: 'History').build(context),
+      appBar: MyAppBar(title: 'History', appRater: appRater).build(context),
       body:
           MonthlyDrillsWidget(resultsDb: resultsDb, staticDrills: staticDrills),
       bottomNavigationBar: MyNavBar.forNormalNav(MyNavBarLocation.monthly),

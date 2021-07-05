@@ -4,6 +4,7 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 
 import 'album_art.dart';
+import 'app_rater.dart';
 import 'daily_drills_screen.dart';
 import 'debug_screen.dart';
 import 'drill_chooser_screen.dart';
@@ -25,7 +26,8 @@ void main() async {
   AlbumArt.load();
   final db = ResultsDatabase.init();
   final drills = StaticDrills.load();
-  runApp(MainApp(await db, await drills));
+  final appRater = AppRater.create();
+  runApp(MainApp(await db, await drills, await appRater));
 }
 
 class MainApp extends StatelessWidget {
@@ -41,8 +43,9 @@ class MainApp extends StatelessWidget {
 
   final ResultsDatabase resultsDb;
   final StaticDrills drills;
+  final AppRater appRater;
 
-  const MainApp(this.resultsDb, this.drills);
+  const MainApp(this.resultsDb, this.drills, this.appRater);
 
   // Audio service wraps the entire application, so all routes can maintain a
   // connection to the service.
@@ -54,23 +57,24 @@ class MainApp extends StatelessWidget {
       navigatorObservers: [_observer],
       initialRoute: HomeScreen.routeName,
       routes: {
-        DailyDrillsScreen.routeName: (context) =>
-            DailyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
+        DailyDrillsScreen.routeName: (context) => DailyDrillsScreen(
+            staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
         DrillChooserScreen.routeName: (context) =>
-            DrillChooserScreen(staticDrills: drills),
-        HomeScreen.routeName: (context) =>
-            AudioServiceWidget(child: HomeScreen(staticDrills: drills)),
-        MonthlyDrillsScreen.routeName: (context) =>
-            MonthlyDrillsScreen(staticDrills: drills, resultsDb: resultsDb),
-        PracticeConfigScreen.routeName: (context) => PracticeConfigScreen(),
+            DrillChooserScreen(staticDrills: drills, appRater: appRater),
+        HomeScreen.routeName: (context) => AudioServiceWidget(
+            child: HomeScreen(staticDrills: drills, appRater: appRater)),
+        MonthlyDrillsScreen.routeName: (context) => MonthlyDrillsScreen(
+            staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
+        PracticeConfigScreen.routeName: (context) =>
+            PracticeConfigScreen(appRater: appRater),
         PracticeScreen.routeName: (context) =>
-            PracticeScreen(staticDrills: drills),
-        ProgressScreen.routeName: (context) =>
-            ProgressScreen(staticDrills: drills, resultsDb: resultsDb),
-        ResultsScreen.routeName: (context) =>
-            ResultsScreen(staticDrills: drills, resultsDb: resultsDb),
-        DebugScreen.routeName: (context) =>
-            DebugScreen(staticDrills: drills, resultsDb: resultsDb),
+            PracticeScreen(staticDrills: drills, appRater: appRater),
+        ProgressScreen.routeName: (context) => ProgressScreen(
+            staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
+        ResultsScreen.routeName: (context) => ResultsScreen(
+            staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
+        DebugScreen.routeName: (context) => DebugScreen(
+            staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
       },
     );
   }

@@ -17,7 +17,7 @@ class FeedbackSender {
 
   // Send feedback via e-mail. Would be nice to figure out how to do this with
   // the screenshot attachment, but this is fine for now.
-  void send() async {
+  void requestFeedback() async {
     final String version = await _version;
     final String device = await _device;
     final String body = '''*** Please add suggestions here ***.

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'app_rater.dart';
 import 'drill_list_widget.dart';
 
 import 'accuracy_over_time_chart.dart';
@@ -29,12 +30,16 @@ class ProgressScreen extends StatefulWidget {
   static const routeName = '/progress';
   final StaticDrills staticDrills;
   final ResultsDatabase resultsDb;
+  final AppRater appRater;
 
   static void navigate(BuildContext context, DrillData drillData) {
     Navigator.pushNamed(context, routeName, arguments: drillData);
   }
 
-  ProgressScreen({required this.staticDrills, required this.resultsDb});
+  ProgressScreen(
+      {required this.staticDrills,
+      required this.resultsDb,
+      required this.appRater});
 
   @override
   State<StatefulWidget> createState() => ProgressScreenState();
@@ -68,9 +73,10 @@ class ProgressScreenState extends State<ProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _log.info('build called');
     return Scaffold(
-      appBar: MyAppBar.titleWidget(titleWidget: _titleWidget()).build(context),
+      appBar: MyAppBar.titleWidget(
+              titleWidget: _titleWidget(), appRater: widget.appRater)
+          .build(context),
       body: _buildBody(context),
       bottomNavigationBar:
           MyNavBar.forDrillNav(MyNavBarLocation.progress, selected.drillData),
@@ -80,6 +86,7 @@ class ProgressScreenState extends State<ProgressScreen> {
   Widget _titleWidget() {
     return ProgressSelectionChip(
       staticDrills: widget.staticDrills,
+      appRater: widget.appRater,
       selected: selected,
       onProgressChange: _onProgressChange,
     );

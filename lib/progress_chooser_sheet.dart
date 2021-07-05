@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'app_rater.dart';
 import 'drill_chooser_modal.dart';
 import 'drill_data.dart';
 import 'drill_description_tile.dart';
@@ -20,9 +21,12 @@ class ProgressChooserSheet extends StatefulWidget {
 
   final StaticDrills staticDrills;
   final ProgressSelection initialSelection;
+  final AppRater appRater;
 
   ProgressChooserSheet(
-      {required this.staticDrills, required this.initialSelection});
+      {required this.staticDrills,
+      required this.initialSelection,
+      required this.appRater});
 
   @override
   State<StatefulWidget> createState() =>
@@ -81,6 +85,7 @@ class ProgressChooserSheetState extends State<ProgressChooserSheet> {
   void _onDrillTap(BuildContext context) async {
     DrillData? chosen = await (DrillChooserModal.startDialog(context,
         staticDrills: widget.staticDrills,
+        appRater: widget.appRater,
         selected: selected.drillData,
         allowAll: true));
     _log.info('Got drill ${chosen?.fullName}');
