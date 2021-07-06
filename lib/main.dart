@@ -24,10 +24,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Start the album art load asynchronously.
   AlbumArt.load();
+  _log.info('Starting ResultsDatabase.init');
   final db = ResultsDatabase.init();
+  _log.info('Starting drill load');
   final drills = StaticDrills.load();
+  _log.info('Creating AppRater');
   final appRater = AppRater.create();
+  _log.info('Running App');
   runApp(MainApp(await db, await drills, await appRater));
+  _log.info('App Done');
 }
 
 class MainApp extends StatelessWidget {
@@ -45,12 +50,15 @@ class MainApp extends StatelessWidget {
   final StaticDrills drills;
   final AppRater appRater;
 
-  const MainApp(this.resultsDb, this.drills, this.appRater);
+  MainApp(this.resultsDb, this.drills, this.appRater) {
+    _log.info('MainApp constructor done');
+  }
 
   // Audio service wraps the entire application, so all routes can maintain a
   // connection to the service.
   @override
   Widget build(BuildContext context) {
+    _log.info('MainApp building');
     return MaterialApp(
       title: 'FoosTrainer',
       theme: _darkTheme,

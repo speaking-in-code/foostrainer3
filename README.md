@@ -9,7 +9,7 @@ The goals for the redesign:
 * Support custom drills and timings.
 * Prepare for an eventual iOS port.
 
-## Run Widget Tests
+## Run Unit Tests
 
 ```
 flutter test
@@ -20,21 +20,25 @@ flutter test
 Start a simulator, or attach a real device. Then run
 
 ```
-flutter drive --target=test_driver/main.dart
+flutter drive \
+    --driver=test_driver/integration_test.dart  \
+    --target=integration_test/all_test.dart
 ```
 
-For faster edit/test cycle, follow instructions from here:
+For faster edit/test cycle, maybe try instructions from here:
 
 https://medium.com/flutter-community/hot-reload-for-flutter-integration-tests-e0478b63bd54
 
 In one window, start the app
 ```
-flutter run --observatory-port 8888 --disable-service-auth-codes test_driver/main.dart
+flutter run --observatory-port 8888 --disable-service-auth-codes \
+    test_driver/integration_test.dart
 ```
 
 In another window, start the tests:
 ```
-flutter drive --use-existing-app=http://127.0.0.1:8888/ --driver test_driver/main_test.dart
+flutter drive --use-existing-app=http://127.0.0.1:8888/ \
+    --driver test_driver/all_test.dart
 ```
 
 Press 'R' in the app window to hot restart the app. Press '?' for additional commands.

@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'daily_drills_screen.dart';
 
+import 'keys.dart';
 import 'log.dart';
 import 'no_drills_widget.dart';
 import 'results_db.dart';
@@ -15,9 +16,7 @@ class MonthlyDrillsWidget extends StatefulWidget {
   final ResultsDatabase resultsDb;
   final StaticDrills staticDrills;
 
-  MonthlyDrillsWidget({required this.resultsDb, required this.staticDrills})
-      : assert(resultsDb != null),
-        assert(staticDrills != null);
+  MonthlyDrillsWidget({required this.resultsDb, required this.staticDrills});
 
   @override
   State<StatefulWidget> createState() {
@@ -95,6 +94,7 @@ class _MonthlyDrillsWidgetState extends State<MonthlyDrillsWidget> {
       return NoDrillsWidget(staticDrills: widget.staticDrills);
     }
     return CalendarDatePicker(
+        key: Keys.calendarDatePicker,
         initialDate: drills.monthMax!,
         firstDate: drills.allTime.earliest!,
         lastDate: drills.allTime.latest!,

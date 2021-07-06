@@ -6,7 +6,7 @@ import 'keys.dart';
 import 'more_options_sheet.dart';
 
 class MyAppBar {
-  static final Key moreKey = Key(Keys.moreKey);
+  static final Key moreKey = Keys.moreKey;
   final Key? key;
   final String? title;
   final DrillData? drillData;

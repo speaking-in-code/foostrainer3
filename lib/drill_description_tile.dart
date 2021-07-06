@@ -9,7 +9,7 @@ class DrillDescriptionTile extends StatelessWidget {
   final GestureTapCallback? onTap;
 
   DrillDescriptionTile({this.drillData, this.trailing, this.onTap})
-      : super(key: Key(Keys.drillSelectionKey));
+      : super(key: Keys.drillSelectionKey);
 
   @override
   Widget build(BuildContext context) {

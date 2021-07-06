@@ -541,6 +541,11 @@ final renameStickPassMigration =
   _log.info('Migrated $changed records');
 });
 
+enum DbStorage {
+  PERSISTENT,
+  IN_MEMORY,
+}
+
 @Database(version: 2, entities: [
   StoredDrill,
   StoredAction,
@@ -555,10 +560,15 @@ abstract class ResultsDatabase extends FloorDatabase {
   ActionsDao get actionsDao;
   SummariesDao get summariesDao;
 
-  static Future<ResultsDatabase> init() {
-    return $FloorResultsDatabase
-        .databaseBuilder('results3.db')
-        .addMigrations([renameStickPassMigration]).build();
+  static Future<ResultsDatabase> init(
+      {DbStorage storage = DbStorage.PERSISTENT}) {
+    var builder;
+    if (storage == DbStorage.PERSISTENT) {
+      builder = $FloorResultsDatabase.databaseBuilder('results3.db');
+    } else {
+      builder = $FloorResultsDatabase.inMemoryDatabaseBuilder();
+    }
+    return builder.addMigrations([renameStickPassMigration]).build();
   }
 
   Future<int> addData(StoredDrill results,

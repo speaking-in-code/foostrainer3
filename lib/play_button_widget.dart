@@ -10,8 +10,7 @@ class PlayButtonWidget extends StatelessWidget {
   final StaticDrills staticDrills;
   final DrillData? drillData;
 
-  PlayButtonWidget({required this.staticDrills, this.drillData})
-      : assert(staticDrills != null);
+  PlayButtonWidget({required this.staticDrills, this.drillData});
 
   @override
   Widget build(BuildContext context) {

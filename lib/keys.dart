@@ -1,12 +1,14 @@
 // Keys used in the app, exposed for testing. Do not add flutter dependencies
 // here, they break integration tests.
 
+import 'package:flutter/material.dart';
+
 class Keys {
   static const repsKey = 'repsKey';
   static const elapsedKey = 'elapsedKey';
   static const pauseKey = 'pauseKey';
   static const playKey = 'playKey';
-  static const moreKey = 'moreKey';
+  static const moreKey = Key('moreKey');
   static const versionKey = 'versionKey';
 
   // Practice Config Screen
@@ -24,7 +26,9 @@ class Keys {
   static const trackingAccuracyOffKey = 'drillTrackingAccuracyOff';
 
   // Progress screen
-  static const drillSelectionKey = 'drillSelectionKey';
+  static const drillSelectionKey = Key('drillSelectionKey');
   static const accuracyTabKey = 'accuracyTabKey';
   static const progressChooserCloseKey = 'progressChooserCloseKey';
+
+  static const calendarDatePicker = Key('calendarDatePicker');
 }
