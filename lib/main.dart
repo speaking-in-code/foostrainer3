@@ -37,7 +37,7 @@ void main() async {
 
 class MainApp extends StatelessWidget {
   static final _observer =
-      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics());
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
   static final _barBackground = Colors.black87;
   static final _darkTheme = ThemeData.dark().copyWith(
     appBarTheme: AppBarTheme(backgroundColor: _barBackground),

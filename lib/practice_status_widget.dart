@@ -113,7 +113,7 @@ class PracticeStatusWidget extends StatelessWidget {
       BuildContext context, IconData iconData, VoidCallback onPressed) {
     return Ink(
         decoration: ShapeDecoration(
-          color: Theme.of(context).accentColor,
+          color: Theme.of(context).colorScheme.secondary,
           shape: CircleBorder(),
         ),
         child: IconButton(

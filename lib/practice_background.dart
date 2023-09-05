@@ -220,7 +220,7 @@ class _BackgroundTask extends BackgroundAudioTask {
   // Time for flash signal.
   static const _flashTime = Duration(milliseconds: 500);
 
-  static final _analytics = FirebaseAnalytics();
+  static final _analytics = FirebaseAnalytics.instance;
   static final _rand = Random.secure();
 
   final AudioPlayer _player;

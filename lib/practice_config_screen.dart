@@ -143,7 +143,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   RadioListTile _makeTempo(Key key, Tempo tempo) {
     return RadioListTile<Tempo>(
       key: key,
-      activeColor: Theme.of(context).buttonColor,
+      activeColor: Theme.of(context).colorScheme.primary,
       title: Text(_formatTempo(tempo)!),
       value: tempo,
       groupValue: _drill!.tempo,
@@ -184,7 +184,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
 
   Widget _makeDurationSlider() {
     return Slider(
-        activeColor: Theme.of(context).buttonColor,
+        activeColor: Theme.of(context).colorScheme.primary,
         key: PracticeConfigScreen.drillTimeSliderKey,
         value: _practiceMinutes!,
         min: 5,
@@ -229,7 +229,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   RadioListTile _makeSignal(Key key, Signal value) {
     return RadioListTile<Signal>(
       key: key,
-      activeColor: Theme.of(context).buttonColor,
+      activeColor: Theme.of(context).colorScheme.primary,
       title: Text(_formatSignal(value)),
       value: value,
       groupValue: _drill!.signal,
@@ -278,7 +278,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   RadioListTile _makeTracking(Key key, bool value) {
     return RadioListTile<bool>(
       key: key,
-      activeColor: Theme.of(context).buttonColor,
+      activeColor: Theme.of(context).colorScheme.primary,
       title: Text(_formatTracking(value)),
       value: value,
       groupValue: _drill!.tracking,

@@ -1,11 +1,12 @@
-import 'package:rate_my_app/rate_my_app.dart';
-import 'package:in_app_review/in_app_review.dart';
+// import 'package:rate_my_app/rate_my_app.dart';
+// import 'package:in_app_review/in_app_review.dart';
 
 class AppRater {
   // Same on Android and iOS
   static const _appId = 'net.speakingincode.foostrainer';
 
   static Future<AppRater> create() async {
+/*
     final rater = RateMyApp(
       minDays: 7,
       minLaunches: 10,
@@ -16,8 +17,17 @@ class AppRater {
     Future<bool> available = inAppReview.isAvailable();
     await rater.init();
     return AppRater._create(rater, inAppReview, await available);
+*/
+    return AppRater();
   }
 
+  AppRater();
+
+  bool get available => false;
+  bool get shouldRequestReview => false;
+  void requestReview() {}
+
+/*
   final RateMyApp _rateMyApp;
   final InAppReview _inAppReview;
   final bool _available;
@@ -35,4 +45,5 @@ class AppRater {
   void openStoreListing() {
     _inAppReview.openStoreListing(appStoreId: _appId);
   }
+*/
 }

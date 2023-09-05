@@ -153,7 +153,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
           SimpleDialogItem(
               text: 'Continue',
               icon: Icons.play_arrow,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).colorScheme.primary,
               onPressed: () {
                 Navigator.pop(context, false);
               }),
