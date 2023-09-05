@@ -218,7 +218,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void _finishTracking(
       BuildContext context, TrackingResult result, bool shouldResume) {
     AudioService.customAction(SetTrackingRequest.action,
-        jsonEncode(SetTrackingRequest(trackingResult: result).toJson()));
+        {SetTrackingRequest.result: result});
     Navigator.pop(context);
     if (shouldResume) {
       PracticeBackground.play();

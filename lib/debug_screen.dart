@@ -35,7 +35,7 @@ class DebugScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future<DebugInfoResponse> pauseInfo =
-        AudioService.customAction(DebugInfo.action).then((value) {
+        AudioService.customAction(DebugInfo.action, {}).then((value) {
       return DebugInfoResponse.fromJson(jsonDecode(value));
     });
     return Scaffold(

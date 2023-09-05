@@ -34,12 +34,7 @@ class PracticeBackground {
   static const _practiceState = 'practiceState';
 
   static Future<void> startInBackground() async {
-    if (AudioService.connected && AudioService.running) {
-      return;
-    }
     _log.info('Starting audio service');
-    await AudioService.connect();
-    _log.info('Connected to audio service');
     await AudioService.start(
         backgroundTaskEntrypoint: _startBackgroundTask,
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
@@ -54,7 +49,6 @@ class PracticeBackground {
       Wakelock.enable();
     }
     await startInBackground();
-    _log.info('AudioService connected is ${AudioService.connected}');
     if (AudioService.running) {
       final progress = PracticeProgress()
         ..drill = drill
@@ -85,10 +79,6 @@ class PracticeBackground {
 
   // True if the audio service is running in the background.
   static Future<bool> running() async {
-    if (!(AudioService.connected)) {
-      _log.info('Checking if running, but not connected');
-      await AudioService.connect();
-    }
     _log.info('running is ${AudioService.running}');
     return AudioService.running;
   }
@@ -345,7 +335,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     await AudioServiceBackground.setState(
         controls: [],
         playing: false,
-        processingState: AudioProcessingState.none);
+        processingState: AudioProcessingState.idle);
     await super.onStop();
     _log.info('Finished stopping player');
   }
@@ -475,7 +465,8 @@ class _BackgroundTask extends BackgroundAudioTask {
       case DebugInfo.action:
         return _handleDebugInfo();
       case SetTrackingRequest.action:
-        return _handleSetTracking(arguments);
+        Map<String, dynamic>? extras = arguments;
+        return _handleSetTracking(extras!);
       default:
         break;
     }
@@ -490,9 +481,9 @@ class _BackgroundTask extends BackgroundAudioTask {
     return jsonEncode(resp.toJson());
   }
 
-  void _handleSetTracking(String arguments) async {
-    final request = SetTrackingRequest.fromJson(jsonDecode(arguments));
-    switch (request.trackingResult) {
+  void _handleSetTracking(Map<String, dynamic> extras) async {
+    final trackingResult = extras[SetTrackingRequest.result];
+    switch (trackingResult) {
       case TrackingResult.GOOD:
         await (await _resultsDatabase).actionsDao.incrementAction(
             _progress.results!.drill.id!,
