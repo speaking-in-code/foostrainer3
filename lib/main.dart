@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ import 'app_rater.dart';
 import 'daily_drills_screen.dart';
 import 'debug_screen.dart';
 import 'drill_chooser_screen.dart';
+import 'firebase_options.dart';
 import 'home_screen.dart';
 import 'log.dart';
 import 'monthly_drills_screen.dart';
@@ -30,6 +32,8 @@ void main() async {
   final drills = StaticDrills.load();
   _log.info('Creating AppRater');
   final appRater = AppRater.create();
+  _log.info('Initializing firebase');
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   _log.info('Running App');
   runApp(MainApp(await db, await drills, await appRater));
   _log.info('App Done');

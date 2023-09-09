@@ -30,6 +30,13 @@
             {
               "client_id": "145342491942-i3vqr2rubg6cj5ce9v66rqkcdag75ka0.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "145342491942-7247l09le0malrav66squs8klhfnn1qj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.speakingincode.foostrainer"
+              }
             }
           ]
         }
