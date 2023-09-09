@@ -464,13 +464,13 @@ abstract class SummariesDao {
      DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,
      DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,
      IFNULL(SUM(reps), 0) reps,
-     (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
+     (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /
       CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
    FROM Drills
    LEFT JOIN Actions ON Drills.id = Actions.drillId
    WHERE
-     (NOT :matchDrill OR drill = :drill) 
-     AND (NOT :matchAction OR action = :action)
+     (NOT :matchDrill OR drill = :drill)
+     AND (NOT :matchAction OR Actions.action = :action)
    GROUP BY startDay
    ORDER BY startDay DESC
    LIMIT :numWeeks
@@ -505,7 +505,7 @@ abstract class SummariesDao {
    SELECT
      DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDayStr,
      DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDayStr,
-     Actions.action action,
+     Actions.action,
      IFNULL(SUM(reps), 0) reps,
      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
       CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
@@ -513,8 +513,8 @@ abstract class SummariesDao {
    LEFT JOIN Actions ON Drills.id = Actions.drillId
    WHERE
      drill = :drill 
-   GROUP BY startDayStr, action
-   ORDER BY startDayStr DESC, action
+   GROUP BY startDayStr, Actions.action
+   ORDER BY startDayStr DESC, Actions.action
    LIMIT :numWeeks
    OFFSET :offset
   ''')
