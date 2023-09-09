@@ -46,7 +46,7 @@ class PracticeBackground {
   /// Start practicing the provided drill.
   static Future<void> startPractice(DrillData drill) async {
     if (drill.signal == Signal.AUDIO_AND_FLASH) {
-      Wakelock.enable();
+      WakelockPlus.enable();
     }
     await startInBackground();
     if (AudioService.running) {
@@ -100,7 +100,7 @@ class PracticeBackground {
 
   /// Stop practice.
   static Future<void> stopPractice() async {
-    Wakelock.disable();
+    WakelockPlus.disable();
     AudioService.stop();
     return;
   }
