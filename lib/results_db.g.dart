@@ -6,6 +6,7 @@ part of 'results_db.dart';
 // FloorGenerator
 // **************************************************************************
 
+// ignore: avoid_classes_with_only_static_members
 class $FloorResultsDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
@@ -66,8 +67,11 @@ class _$ResultsDatabase extends ResultsDatabase {
 
   SummariesDao? _summariesDaoInstance;
 
-  Future<sqflite.Database> open(String path, List<Migration> migrations,
-      [Callback? callback]) async {
+  Future<sqflite.Database> open(
+    String path,
+    List<Migration> migrations, [
+    Callback? callback,
+  ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
       version: 2,
       onConfigure: (database) async {
@@ -90,13 +94,13 @@ class _$ResultsDatabase extends ResultsDatabase {
             'CREATE TABLE IF NOT EXISTS `Actions` (`id` INTEGER, `drillId` INTEGER NOT NULL, `action` TEXT NOT NULL, `reps` INTEGER NOT NULL, `good` INTEGER, FOREIGN KEY (`drillId`) REFERENCES `Drills` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`id`))');
 
         await database.execute(
-            '''CREATE VIEW IF NOT EXISTS `AllDrillDateRange` AS SELECT NULL''');
+            'CREATE VIEW IF NOT EXISTS `AllDrillDateRange` AS SELECT NULL');
         await database.execute(
-            '''CREATE VIEW IF NOT EXISTS `_AggregatedDrillTime` AS SELECT NULL''');
+            'CREATE VIEW IF NOT EXISTS `_AggregatedDrillTime` AS SELECT NULL');
         await database.execute(
-            '''CREATE VIEW IF NOT EXISTS `_AggregatedDrillReps` AS SELECT NULL''');
+            'CREATE VIEW IF NOT EXISTS `_AggregatedDrillReps` AS SELECT NULL');
         await database.execute(
-            '''CREATE VIEW IF NOT EXISTS `AggregatedActionReps` AS SELECT NULL''');
+            'CREATE VIEW IF NOT EXISTS `AggregatedActionReps` AS SELECT NULL');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -121,8 +125,10 @@ class _$ResultsDatabase extends ResultsDatabase {
 }
 
 class _$DrillsDao extends DrillsDao {
-  _$DrillsDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database),
+  _$DrillsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
         _storedDrillInsertionAdapter = InsertionAdapter(
             database,
             'Drills',
@@ -201,8 +207,10 @@ class _$DrillsDao extends DrillsDao {
 }
 
 class _$ActionsDao extends ActionsDao {
-  _$ActionsDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database),
+  _$ActionsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
         _storedActionInsertionAdapter = InsertionAdapter(
             database,
             'Actions',
@@ -228,14 +236,17 @@ class _$ActionsDao extends ActionsDao {
   }
 
   @override
-  Future<StoredAction?> loadAction(int drillId, String action) async {
+  Future<StoredAction?> loadAction(
+    int drillId,
+    String action,
+  ) async {
     return _queryAdapter.query(
         'SELECT * from Actions WHERE drillId = ?1 AND action = ?2',
         mapper: (Map<String, Object?> row) => StoredAction(
             id: row['id'] as int?,
             drillId: row['drillId'] as int,
             action: row['action'] as String,
-            reps: row['reps'] as int,
+            reps: row['reps'] as int?,
             good: row['good'] as int?),
         arguments: [drillId, action]);
   }
@@ -247,7 +258,7 @@ class _$ActionsDao extends ActionsDao {
             id: row['id'] as int?,
             drillId: row['drillId'] as int,
             action: row['action'] as String,
-            reps: row['reps'] as int,
+            reps: row['reps'] as int?,
             good: row['good'] as int?),
         arguments: [drillId]);
   }
@@ -260,7 +271,10 @@ class _$ActionsDao extends ActionsDao {
 
   @override
   Future<void> incrementAction(
-      int drillId, String action, ActionUpdate trackingResult) async {
+    int drillId,
+    String action,
+    ActionUpdate trackingResult,
+  ) async {
     if (database is sqflite.Transaction) {
       await super.incrementAction(drillId, action, trackingResult);
     } else {
@@ -276,8 +290,10 @@ class _$ActionsDao extends ActionsDao {
 }
 
 class _$SummariesDao extends SummariesDao {
-  _$SummariesDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database);
+  _$SummariesDao(
+    this.database,
+    this.changeListener,
+  ) : _queryAdapter = QueryAdapter(database);
 
   final sqflite.DatabaseExecutor database;
 
@@ -287,13 +303,14 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<StoredDrill>> _loadDrillsByDate(
-      bool matchDate,
-      int startSeconds,
-      int endSeconds,
-      bool matchName,
-      String fullName,
-      int limit,
-      int offset) async {
+    bool matchDate,
+    int startSeconds,
+    int endSeconds,
+    bool matchName,
+    String fullName,
+    int limit,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM Drills   WHERE       (NOT ?1 OR (startSeconds >= ?2 AND startSeconds <= ?3))       AND (NOT ?4 OR drill = ?5)   ORDER BY startSeconds DESC   LIMIT ?6   OFFSET ?7',
         mapper: (Map<String, Object?> row) => StoredDrill(
@@ -314,8 +331,13 @@ class _$SummariesDao extends SummariesDao {
   }
 
   @override
-  Future<List<StoredDrill>> _loadDrillsByDateNoLimit(bool matchDate,
-      int startSeconds, int endSeconds, bool matchName, String fullName) async {
+  Future<List<StoredDrill>> _loadDrillsByDateNoLimit(
+    bool matchDate,
+    int startSeconds,
+    int endSeconds,
+    bool matchName,
+    String fullName,
+  ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM Drills   WHERE       (NOT ?1 OR (startSeconds >= ?2 AND startSeconds <= ?3))       AND (NOT ?4 OR drill = ?5)   ORDER BY startSeconds DESC',
         mapper: (Map<String, Object?> row) => StoredDrill(id: row['id'] as int?, startSeconds: row['startSeconds'] as int, drill: row['drill'] as String, tracking: (row['tracking'] as int) != 0, elapsedSeconds: row['elapsedSeconds'] as int),
@@ -330,41 +352,54 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<_AggregatedDrillTime>> _dailyDrillTime(
-      bool matchDrill, String drill, int numWeeks, int offset) async {
+    bool matchDrill,
+    String drill,
+    int numWeeks,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT      DATE(startSeconds, "unixepoch", "localtime", "start of day") startDay,      DATE(startSeconds, "unixepoch", "localtime", "start of day", "+1 day") endDay,      SUM(elapsedSeconds) elapsedSeconds    FROM Drills    WHERE      (NOT ?1 OR drill = ?2)     GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?3    OFFSET ?4',
+        'SELECT      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of day\") startDay,      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of day\", \"+1 day\") endDay,      SUM(elapsedSeconds) elapsedSeconds    FROM Drills    WHERE      (NOT ?1 OR drill = ?2)     GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?3    OFFSET ?4',
         mapper: (Map<String, Object?> row) => _AggregatedDrillTime(row['startDay'] as String, row['endDay'] as String, row['elapsedSeconds'] as int),
         arguments: [matchDrill ? 1 : 0, drill, numWeeks, offset]);
   }
 
   @override
   Future<List<_AggregatedDrillTime>> _weeklyDrillTime(
-      bool matchDrill, String drill, int numWeeks, int offset) async {
+    bool matchDrill,
+    String drill,
+    int numWeeks,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT      DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,      DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,      SUM(elapsedSeconds) elapsedSeconds    FROM Drills    WHERE      (NOT ?1 OR drill = ?2)     GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?3    OFFSET ?4',
+        'SELECT      DATE(startSeconds, \"unixepoch\", \"localtime\", \"weekday 0\", \"-6 days\") startDay,      DATE(startSeconds, \"unixepoch\", \"localtime\", \"weekday 0\") endDay,      SUM(elapsedSeconds) elapsedSeconds    FROM Drills    WHERE      (NOT ?1 OR drill = ?2)     GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?3    OFFSET ?4',
         mapper: (Map<String, Object?> row) => _AggregatedDrillTime(row['startDay'] as String, row['endDay'] as String, row['elapsedSeconds'] as int),
         arguments: [matchDrill ? 1 : 0, drill, numWeeks, offset]);
   }
 
   @override
   Future<List<_AggregatedDrillTime>> _monthlyDrillTime(
-      bool matchDrill, String drill, int numWeeks, int offset) async {
+    bool matchDrill,
+    String drill,
+    int numWeeks,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT      DATE(startSeconds, "unixepoch", "localtime", "start of month") startDay,      DATE(startSeconds, "unixepoch", "localtime", "start of month", "+1 month") endDay,      SUM(elapsedSeconds) elapsedSeconds    FROM Drills    WHERE      (NOT ?1 OR drill = ?2)     GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?3    OFFSET ?4',
+        'SELECT      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of month\") startDay,      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of month\", \"+1 month\") endDay,      SUM(elapsedSeconds) elapsedSeconds    FROM Drills    WHERE      (NOT ?1 OR drill = ?2)     GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?3    OFFSET ?4',
         mapper: (Map<String, Object?> row) => _AggregatedDrillTime(row['startDay'] as String, row['endDay'] as String, row['elapsedSeconds'] as int),
         arguments: [matchDrill ? 1 : 0, drill, numWeeks, offset]);
   }
 
   @override
   Future<List<_AggregatedDrillReps>> _dailyDrillReps(
-      bool matchDrill,
-      String drill,
-      bool matchAction,
-      String action,
-      int numWeeks,
-      int offset) async {
+    bool matchDrill,
+    String drill,
+    bool matchAction,
+    String action,
+    int numWeeks,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT      DATE(startSeconds, "unixepoch", "localtime", "start of day") startDay,      DATE(startSeconds, "unixepoch", "localtime", "start of day", "+1 day") endDay,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      (NOT ?1 OR drill = ?2)       AND (NOT ?3 OR action = ?4)    GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?5    OFFSET ?6',
+        'SELECT      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of day\") startDay,      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of day\", \"+1 day\") endDay,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      (NOT ?1 OR drill = ?2)       AND (NOT ?3 OR action = ?4)    GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?5    OFFSET ?6',
         mapper: (Map<String, Object?> row) => _AggregatedDrillReps(row['startDay'] as String, row['endDay'] as String, row['reps'] as int, row['accuracy'] as double?),
         arguments: [
           matchDrill ? 1 : 0,
@@ -378,14 +413,15 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<_AggregatedDrillReps>> _weeklyDrillReps(
-      bool matchDrill,
-      String drill,
-      bool matchAction,
-      String action,
-      int numWeeks,
-      int offset) async {
+    bool matchDrill,
+    String drill,
+    bool matchAction,
+    String action,
+    int numWeeks,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT      DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,      DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      (NOT ?1 OR drill = ?2)       AND (NOT ?3 OR action = ?4)    GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?5    OFFSET ?6',
+        'SELECT      DATE(startSeconds, \"unixepoch\", \"localtime\", \"weekday 0\", \"-6 days\") startDay,      DATE(startSeconds, \"unixepoch\", \"localtime\", \"weekday 0\") endDay,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      (NOT ?1 OR drill = ?2)       AND (NOT ?3 OR action = ?4)    GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?5    OFFSET ?6',
         mapper: (Map<String, Object?> row) => _AggregatedDrillReps(row['startDay'] as String, row['endDay'] as String, row['reps'] as int, row['accuracy'] as double?),
         arguments: [
           matchDrill ? 1 : 0,
@@ -399,14 +435,15 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<_AggregatedDrillReps>> _monthlyDrillReps(
-      bool matchDrill,
-      String drill,
-      bool matchAction,
-      String action,
-      int numWeeks,
-      int offset) async {
+    bool matchDrill,
+    String drill,
+    bool matchAction,
+    String action,
+    int numWeeks,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT      DATE(startSeconds, "unixepoch", "localtime", "start of month") startDay,      DATE(startSeconds, "unixepoch", "localtime", "start of month", "+1 month") endDay,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      (NOT ?1 OR drill = ?2)       AND (NOT ?3 OR action = ?4)    GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?5    OFFSET ?6',
+        'SELECT      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of month\") startDay,      DATE(startSeconds, \"unixepoch\", \"localtime\", \"start of month\", \"+1 month\") endDay,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      (NOT ?1 OR drill = ?2)       AND (NOT ?3 OR action = ?4)    GROUP BY startDay    ORDER BY startDay DESC    LIMIT ?5    OFFSET ?6',
         mapper: (Map<String, Object?> row) => _AggregatedDrillReps(row['startDay'] as String, row['endDay'] as String, row['reps'] as int, row['accuracy'] as double?),
         arguments: [
           matchDrill ? 1 : 0,
@@ -420,9 +457,12 @@ class _$SummariesDao extends SummariesDao {
 
   @override
   Future<List<AggregatedActionReps>> loadWeeklyActionReps(
-      String drill, int numWeeks, int offset) async {
+    String drill,
+    int numWeeks,
+    int offset,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT      DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDayStr,      DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDayStr,      Actions.action action,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      drill = ?1     GROUP BY startDayStr, action    ORDER BY startDayStr DESC, action    LIMIT ?2    OFFSET ?3',
+        'SELECT      DATE(startSeconds, \"unixepoch\", \"localtime\", \"weekday 0\", \"-6 days\") startDayStr,      DATE(startSeconds, \"unixepoch\", \"localtime\", \"weekday 0\") endDayStr,      Actions.action action,      IFNULL(SUM(reps), 0) reps,      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /        CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy    FROM Drills    LEFT JOIN Actions ON Drills.id = Actions.drillId    WHERE      drill = ?1     GROUP BY startDayStr, action    ORDER BY startDayStr DESC, action    LIMIT ?2    OFFSET ?3',
         mapper: (Map<String, Object?> row) => AggregatedActionReps(row['startDayStr'] as String, row['endDayStr'] as String, row['action'] as String, row['reps'] as int, row['accuracy'] as double?),
         arguments: [drill, numWeeks, offset]);
   }

@@ -6,15 +6,13 @@ part of 'results_entities.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-StoredDrill _$StoredDrillFromJson(Map<String, dynamic> json) {
-  return StoredDrill(
-    id: json['id'] as int?,
-    startSeconds: json['startSeconds'] as int,
-    drill: json['drill'] as String,
-    tracking: json['tracking'] as bool,
-    elapsedSeconds: json['elapsedSeconds'] as int,
-  );
-}
+StoredDrill _$StoredDrillFromJson(Map<String, dynamic> json) => StoredDrill(
+      id: json['id'] as int?,
+      startSeconds: json['startSeconds'] as int,
+      drill: json['drill'] as String,
+      tracking: json['tracking'] as bool,
+      elapsedSeconds: json['elapsedSeconds'] as int,
+    );
 
 Map<String, dynamic> _$StoredDrillToJson(StoredDrill instance) =>
     <String, dynamic>{
@@ -25,15 +23,13 @@ Map<String, dynamic> _$StoredDrillToJson(StoredDrill instance) =>
       'elapsedSeconds': instance.elapsedSeconds,
     };
 
-StoredAction _$StoredActionFromJson(Map<String, dynamic> json) {
-  return StoredAction(
-    id: json['id'] as int?,
-    drillId: json['drillId'] as int,
-    action: json['action'] as String,
-    reps: json['reps'] as int?,
-    good: json['good'] as int?,
-  );
-}
+StoredAction _$StoredActionFromJson(Map<String, dynamic> json) => StoredAction(
+      id: json['id'] as int?,
+      drillId: json['drillId'] as int,
+      action: json['action'] as String,
+      reps: json['reps'] as int?,
+      good: json['good'] as int?,
+    );
 
 Map<String, dynamic> _$StoredActionToJson(StoredAction instance) =>
     <String, dynamic>{
@@ -44,16 +40,14 @@ Map<String, dynamic> _$StoredActionToJson(StoredAction instance) =>
       'good': instance.good,
     };
 
-DrillSummary _$DrillSummaryFromJson(Map<String, dynamic> json) {
-  return DrillSummary(
-    drill: StoredDrill.fromJson(json['drill'] as Map<String, dynamic>),
-    reps: json['reps'] as int,
-    good: json['good'] as int?,
-    actions: (json['actions'] as Map<String, dynamic>).map(
-      (k, e) => MapEntry(k, StoredAction.fromJson(e as Map<String, dynamic>)),
-    ),
-  );
-}
+DrillSummary _$DrillSummaryFromJson(Map<String, dynamic> json) => DrillSummary(
+      drill: StoredDrill.fromJson(json['drill'] as Map<String, dynamic>),
+      reps: json['reps'] as int,
+      good: json['good'] as int?,
+      actions: (json['actions'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry(k, StoredAction.fromJson(e as Map<String, dynamic>)),
+      ),
+    );
 
 Map<String, dynamic> _$DrillSummaryToJson(DrillSummary instance) =>
     <String, dynamic>{
