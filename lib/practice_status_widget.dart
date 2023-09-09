@@ -127,7 +127,7 @@ class PracticeStatusWidget extends StatelessWidget {
   }
 
   Widget _firstColumn(
-      {required TextStyle labelStyle, required TextStyle /*!*/ dataStyle}) {
+      {required TextStyle labelStyle, required TextStyle dataStyle}) {
     String successText = '--';
     if (summary.drill.tracking) {
       if (summary.good != null) {

@@ -64,7 +64,7 @@ abstract class ActionsDao {
   Future<StoredAction?> loadAction(int drillId, String action);
 
   @Query('SELECT * from Actions WHERE drillId = :drillId')
-  Future<List<StoredAction>> loadActions(/*!*/ int drillId);
+  Future<List<StoredAction>> loadActions(int drillId);
 
   @transaction
   Future<void> incrementAction(
