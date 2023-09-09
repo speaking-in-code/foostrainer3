@@ -60,10 +60,8 @@ abstract class ActionsDao {
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<int> insertAction(StoredAction results);
 
-  @Query('SELECT * from Actions WHERE drillId = :drillId AND action = :action')
-  Future<StoredAction?> loadAction(
-      /*!*/ int drillId,
-      /*!*/ String action);
+  @Query('SELECT * from Actions WHERE drillId = :drillId AND Actions.action = :action')
+  Future<StoredAction?> loadAction(int drillId, String action);
 
   @Query('SELECT * from Actions WHERE drillId = :drillId')
   Future<List<StoredAction>> loadActions(/*!*/ int drillId);

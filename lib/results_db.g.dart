@@ -241,7 +241,7 @@ class _$ActionsDao extends ActionsDao {
     String action,
   ) async {
     return _queryAdapter.query(
-        'SELECT * from Actions WHERE drillId = ?1 AND action = ?2',
+        'SELECT * from Actions WHERE drillId = ?1 AND Actions.action = ?2',
         mapper: (Map<String, Object?> row) => StoredAction(
             id: row['id'] as int?,
             drillId: row['drillId'] as int,
