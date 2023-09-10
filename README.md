@@ -9,6 +9,17 @@ The goals for the redesign:
 * Support custom drills and timings.
 * Prepare for an eventual iOS port.
 
+## Generate Code
+
+Automatic code generation is used for SQL (via Floor library)
+and JSON (via JSON serialization library).
+
+This may prompt you to delete and recreate certain generated files.
+
+```
+flutter packages pub run build_runner build
+```
+
 ## Run Unit Tests
 
 ```

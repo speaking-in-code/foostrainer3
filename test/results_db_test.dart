@@ -25,19 +25,80 @@ void main() {
       await db.close();
     });
 
-    Future<List<AggregatedDrillSummary>> _summary(
-        {String? drill, String? action}) async {
-      const MAX_WEEKS = 4;
+    Future<List<AggregatedDrillSummary>> _summary(AggregationLevel aggLevel,
+        {required int limit, String? drill, String? action}) async {
       return summaries.loadAggregateDrills(
-          aggLevel: AggregationLevel.WEEKLY,
-          numWeeks: MAX_WEEKS,
+          aggLevel: aggLevel,
+          limit: limit,
           offset: 0,
           drill: drill,
           action: action);
     }
 
+    test('inserts and removes drills', () async {
+      int drill_id = await drills.insertDrill(StoredDrill(
+          startSeconds: 5,
+          drill: 'Pass:Something',
+          tracking: false,
+          elapsedSeconds: 60));
+      StoredDrill? loaded = await drills.loadDrill(drill_id);
+      expect(loaded!.drill, equals('Pass:Something'));
+
+      await drills.removeDrill(drill_id);
+      loaded = await drills.loadDrill(drill_id);
+      expect(loaded, isNull);
+    });
+
+    test('inserts actions', () async {
+      const DRILL_ID = 100;
+      await drills.insertDrill(StoredDrill(id: DRILL_ID,
+          startSeconds: 5,
+          drill: 'Pass:Something',
+          tracking: false,
+          elapsedSeconds: 60));
+      await actions.insertAction(StoredAction(
+          id: null,
+          drillId: DRILL_ID,
+          action: 'Lane',
+          reps: 5,
+          good: 4));
+      StoredAction? found = await actions.loadAction(DRILL_ID, 'Lane');
+      expect(found!.good, equals(4));
+    });
+
+    test('loads actions', () async {
+      const DRILL_ID = 100;
+      await drills.insertDrill(StoredDrill(id: DRILL_ID,
+          startSeconds: 5,
+          drill: 'Pass:Something',
+          tracking: false,
+          elapsedSeconds: 60));
+      await actions.insertAction(StoredAction(
+          id: null,
+          drillId: DRILL_ID,
+          action: 'Lane',
+          reps: 30,
+          good: 4));
+      await actions.insertAction(StoredAction(
+          id: null,
+          drillId: DRILL_ID,
+          action: 'Wall',
+          reps: 5,
+          good: 4));
+      List<StoredAction> found = await actions.loadActions(DRILL_ID);
+      expect(found.length, equals(2));
+      expect(found[0].action, equals('Lane'));
+      expect(found[0].reps, equals(30));
+      expect(found[1].action, equals('Wall'));
+      expect(found[1].reps, equals(5));
+    });
+
     test('summarizes empty table', () async {
-      final noDrills = await _summary();
+      var noDrills = await _summary(AggregationLevel.WEEKLY, limit: 10);
+      expect(noDrills, isEmpty);
+      noDrills = await _summary(AggregationLevel.DAILY, limit: 10);
+      expect(noDrills, isEmpty);
+      noDrills = await _summary(AggregationLevel.MONTHLY, limit: 10);
       expect(noDrills, isEmpty);
     });
 
@@ -47,7 +108,7 @@ void main() {
           drill: 'Pass:Lane Pass',
           tracking: true,
           elapsedSeconds: 60));
-      final oneDrill = await _summary();
+      final oneDrill = await _summary(AggregationLevel.WEEKLY, limit: 10);
       expect(
           oneDrill,
           equals([
@@ -62,7 +123,7 @@ void main() {
           drill: 'Pass:Lane Pass',
           tracking: true,
           elapsedSeconds: 60));
-      final summary = await _summary();
+      final summary = await _summary(AggregationLevel.WEEKLY, limit: 10);
       expect(
           summary,
           equals([
@@ -85,7 +146,7 @@ void main() {
           drill: 'Pass:Lane Pass',
           tracking: true,
           elapsedSeconds: 300));
-      final weeks = await _summary();
+      final weeks = await _summary(AggregationLevel.WEEKLY, limit: 10);
       expect(
           weeks,
           equals([
@@ -94,6 +155,42 @@ void main() {
             AggregatedDrillSummary(
                 DateTime(2017, 7, 17), DateTime(2017, 7, 23), 300, 0, null),
           ]));
+    });
+
+    test('summary groups by days', () async {
+      int currentSeconds = START_SECONDS;
+      for (int i = 0; i < 10; ++i) {
+        await db.addData(StoredDrill(startSeconds: currentSeconds,
+            drill: 'Pass:Lane Pass', tracking: true, elapsedSeconds: 60
+        ));
+        currentSeconds += 24 * 3600;
+      }
+      final weeks = await _summary(AggregationLevel.DAILY, limit: 5);
+      expect(weeks, equals([
+        AggregatedDrillSummary(DateTime(2017, 7, 18), DateTime(2017, 7, 19), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2017, 7, 19), DateTime(2017, 7, 20), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2017, 7, 20), DateTime(2017, 7, 21), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2017, 7, 21), DateTime(2017, 7, 22), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2017, 7, 22), DateTime(2017, 7, 23), 60, 0, null),
+      ]));
+    });
+
+    test('summary groups by months', () async {
+      int currentSeconds = START_SECONDS;
+      for (int i = 0; i < 10; ++i) {
+        await db.addData(StoredDrill(startSeconds: currentSeconds,
+            drill: 'Pass:Lane Pass', tracking: true, elapsedSeconds: 60
+        ));
+        currentSeconds += 30 * 24 * 3600;
+      }
+      final weeks = await _summary(AggregationLevel.MONTHLY, limit: 5);
+      expect(weeks, equals([
+        AggregatedDrillSummary(DateTime(2017, 12, 1), DateTime(2018, 1, 1), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2018, 1, 1), DateTime(2018, 2, 1), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2018, 2, 1), DateTime(2018, 3, 1), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2018, 3, 1), DateTime(2018, 4, 1), 60, 0, null),
+        AggregatedDrillSummary(DateTime(2018, 4, 1), DateTime(2018, 5, 1), 60, 0, null),
+      ]));
     });
 
     final _random = Random();
@@ -109,15 +206,16 @@ void main() {
       await actions.incrementAction(drillId, 'Lane', ActionUpdate.MISSED);
 
       List<AggregatedDrillSummary> summaryList =
-          await summaries.loadAggregateDrills(
-              aggLevel: AggregationLevel.WEEKLY, numWeeks: 10, offset: 0);
+      await summaries.loadAggregateDrills(
+          aggLevel: AggregationLevel.WEEKLY, limit: 10, offset: 0);
       expect(summaryList.length, equals(1));
       AggregatedDrillSummary weekly = summaryList.first;
       List<DrillSummary> found = await summaries.loadDrillsByDate(db,
-          start: weekly.startDay, end: weekly.endDay);
+          limit: 100, offset: 0, start: weekly.startDay, end: weekly.endDay);
       expect(found.length, equals(1),
           reason:
-              'Bad time $date, $secsSinceEpoch, should be in range ${weekly.startDay} - ${weekly.endDay}');
+          'Bad time $date, $secsSinceEpoch, should be in range ${weekly
+              .startDay} - ${weekly.endDay}');
       expect(found[0].drill.drill, equals('Pass:Passing'));
     }
 
@@ -152,7 +250,7 @@ void main() {
               tracking: true,
               elapsedSeconds: 60),
           actionList: []);
-      final weeks = await _summary();
+      final weeks = await _summary(AggregationLevel.WEEKLY, limit: 10);
       expect(
           weeks,
           equals([
@@ -172,7 +270,7 @@ void main() {
             ActionSummary('Lane', 150, 100),
             ActionSummary('Wall', 100, 20),
           ]);
-      final weeks = await _summary();
+      final weeks = await _summary(AggregationLevel.WEEKLY, limit: 10);
       expect(
           weeks,
           equals([
@@ -255,7 +353,7 @@ void main() {
             ActionSummary('Lane', 150, null),
             ActionSummary('Wall', 100, null),
           ]);
-      final weeks = await _summary();
+      final weeks = await _summary(AggregationLevel.WEEKLY, limit: 10);
       expect(
           weeks,
           equals([
@@ -285,7 +383,7 @@ void main() {
             ActionSummary('Lane', 50, null),
             ActionSummary('Wall', 50, null),
           ]);
-      final weeks = await _summary();
+      final weeks = await _summary(AggregationLevel.WEEKLY, limit: 10);
       expect(
           weeks,
           equals([
@@ -308,7 +406,7 @@ void main() {
               ActionSummary('Wall', 100, 0),
             ]);
       }
-      final weeks = await _summary();
+      final weeks = await _summary(AggregationLevel.WEEKLY, limit: 4);
       expect(
           weeks,
           equals([
@@ -344,14 +442,15 @@ void main() {
             ActionSummary('Lane', 50, 40),
             ActionSummary('Wall', 50, 40),
           ]);
-      var weeks = await _summary(drill: 'Pass:Stick Pass');
+      var weeks = await _summary(
+          AggregationLevel.WEEKLY, limit: 10, drill: 'Pass:Stick Pass');
       expect(
           weeks,
           equals([
             AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 600, 100, null),
           ]));
-      weeks = await _summary(drill: 'Pass:Brush Pass');
+      weeks = await _summary(AggregationLevel.WEEKLY, limit: 10, drill: 'Pass:Brush Pass');
       expect(
           weeks,
           equals([
@@ -381,14 +480,14 @@ void main() {
             ActionSummary('Lane', 50, 40),
             ActionSummary('Wall', 50, 40),
           ]);
-      var weeks = await _summary(action: 'Lane');
+      var weeks = await _summary(AggregationLevel.WEEKLY, limit: 10, action: 'Lane');
       expect(
           weeks,
           equals([
             AggregatedDrillSummary(
                 DateTime(2017, 7, 10), DateTime(2017, 7, 16), 0, 50, 0.8),
           ]));
-      weeks = await _summary(action: 'Wall');
+      weeks = await _summary(AggregationLevel.WEEKLY, limit: 10, action: 'Wall');
       expect(
           weeks,
           equals([
@@ -493,19 +592,19 @@ void main() {
       }
       await Future.wait(drills);
       List<DrillSummary> pageOne =
-          await summaries.loadDrillsByDate(db, limit: 10, offset: 0);
+      await summaries.loadDrillsByDate(db, limit: 10, offset: 0);
       expect(pageOne.length, equals(10));
       for (int i = 94, j = 0; i >= 85; --i, ++j) {
         expect(pageOne[j].drill.drill, equals('Shot:Drill $i'));
       }
       List<DrillSummary> lastPage =
-          await summaries.loadDrillsByDate(db, limit: 10, offset: 90);
+      await summaries.loadDrillsByDate(db, limit: 10, offset: 90);
       expect(lastPage.length, equals(5));
       for (int i = 4, j = 0; i >= 0; --i, ++j) {
         expect(lastPage[j].drill.drill, equals('Shot:Drill $i'));
       }
       List<DrillSummary> offPage =
-          await summaries.loadDrillsByDate(db, limit: 10, offset: 95);
+      await summaries.loadDrillsByDate(db, limit: 10, offset: 95);
       expect(offPage.length, equals(0));
     });
 
@@ -519,7 +618,7 @@ void main() {
       final gone = await drills.loadDrill(drillId);
       expect(gone, isNull);
       List<DrillSummary> summary =
-          await summaries.loadDrillsByDate(db, limit: 10, offset: 0);
+      await summaries.loadDrillsByDate(db, limit: 10, offset: 0);
       expect(summary, isEmpty);
     });
 
@@ -603,7 +702,7 @@ void main() {
         await actions.incrementAction(drillId, 'Wall', ActionUpdate.MISSED);
       }
       final summary =
-          await summaries.loadWeeklyActionReps('Pass:Lane/Wall', 10, 0);
+      await summaries.loadWeeklyActionReps('Pass:Lane/Wall', 10, 0);
       expect(
           summary,
           containsAllInOrder([
@@ -625,7 +724,7 @@ void main() {
         await actions.incrementAction(drillId, 'Wall', ActionUpdate.MISSED);
       }
       final summary =
-          await summaries.loadWeeklyActionReps('Pass:Lane/Wall', 10, 0);
+      await summaries.loadWeeklyActionReps('Pass:Lane/Wall', 10, 0);
       expect(
           summary,
           containsAllInOrder([

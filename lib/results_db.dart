@@ -219,31 +219,18 @@ abstract class SummariesDao {
   // and end dates.
   Future<List<DrillSummary>> loadDrillsByDate(
     ResultsDatabase db, {
-    int? limit,
-    int? offset,
+    int limit = 30*100,
+    int offset = 0,
     DateTime? start,
     DateTime? end,
     String? fullName,
   }) async {
-    assert(limit != null || start != null);
-    assert(
-        (limit != null && offset != null) || (limit == null && offset == null));
     assert((start != null && end != null) || (start == null && end == null));
     int startSeconds = start != null ? _secondsSinceEpoch(start) : 0;
     int endSeconds = end != null ? _secondsSinceEpoch(end) : 0;
     List<StoredDrill> drills;
-    if (limit != null) {
-      drills = await _loadDrillsByDate(start != null, startSeconds, endSeconds,
-          fullName != null, fullName ?? '', limit, offset!);
-    } else {
-      drills = await _loadDrillsByDateNoLimit(
-        start != null,
-        startSeconds,
-        endSeconds,
-        fullName != null,
-        fullName ?? '',
-      );
-    }
+    drills = await _loadDrillsByDate(start != null, startSeconds, endSeconds,
+        fullName != null, fullName ?? '', limit, offset!);
     return _summarizeDrills(db, drills);
   }
 
@@ -268,16 +255,6 @@ abstract class SummariesDao {
   Future<List<StoredDrill>> _loadDrillsByDate(bool matchDate, int startSeconds,
       int endSeconds, bool matchName, String fullName, int limit, int offset);
 
-  @Query('''
-  SELECT * FROM Drills
-  WHERE
-      (NOT :matchDate OR (startSeconds >= :startSeconds AND startSeconds <= :endSeconds))
-      AND (NOT :matchName OR drill = :fullName)
-  ORDER BY startSeconds DESC
-  ''')
-  Future<List<StoredDrill>> _loadDrillsByDateNoLimit(bool matchDate,
-      int startSeconds, int endSeconds, bool matchName, String fullName);
-
   static DrillSummary _buildDrillSummary(
       StoredDrill drill, List<StoredAction> actions) {
     final actionMap = SplayTreeMap<String, StoredAction>();
@@ -297,7 +274,7 @@ abstract class SummariesDao {
   // Return an aggregation of drill progress at the specified aggregation evel.
   Future<List<AggregatedDrillSummary>> loadAggregateDrills(
       {required AggregationLevel aggLevel,
-      required int numWeeks,
+      required int limit,
       required int offset,
       String? drill,
       String? action}) async {
@@ -307,13 +284,13 @@ abstract class SummariesDao {
     // Drill time is not defined for specific actions.
     if (action.isEmpty) {
       times = _drillTime(
-          aggLevel: aggLevel, drill: drill, numWeeks: numWeeks, offset: offset);
+          aggLevel: aggLevel, drill: drill, limit: limit, offset: offset);
     }
     Future<List<_AggregatedDrillReps>> reps = _drillReps(
         aggLevel: aggLevel,
         drill: drill,
         action: action,
-        numWeeks: numWeeks,
+        limit: limit,
         offset: offset);
     return _mergeAggregate(await times, await reps);
   }
@@ -353,16 +330,16 @@ abstract class SummariesDao {
 
   Future<List<_AggregatedDrillTime>> _drillTime(
       {required AggregationLevel aggLevel,
-      required int numWeeks,
+      required int limit,
       required int offset,
       required String drill}) {
     switch (aggLevel) {
       case AggregationLevel.DAILY:
-        return _dailyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
+        return _dailyDrillTime(drill.isNotEmpty, drill, limit, offset);
       case AggregationLevel.WEEKLY:
-        return _weeklyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
+        return _weeklyDrillTime(drill.isNotEmpty, drill, limit, offset);
       case AggregationLevel.MONTHLY:
-        return _monthlyDrillTime(drill.isNotEmpty, drill, numWeeks, offset);
+        return _monthlyDrillTime(drill.isNotEmpty, drill, limit, offset);
       default:
         throw ArgumentError('Unknown aggLevel $aggLevel');
     }
@@ -370,20 +347,20 @@ abstract class SummariesDao {
 
   Future<List<_AggregatedDrillReps>> _drillReps(
       {required AggregationLevel aggLevel,
-      required int numWeeks,
+      required int limit,
       required int offset,
       required String drill,
       required String action}) {
     switch (aggLevel) {
       case AggregationLevel.DAILY:
         return _dailyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
-            action, numWeeks, offset);
+            action, limit, offset);
       case AggregationLevel.WEEKLY:
         return _weeklyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
-            action, numWeeks, offset);
+            action, limit, offset);
       case AggregationLevel.MONTHLY:
         return _monthlyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
-            action, numWeeks, offset);
+            action, limit, offset);
       default:
         throw ArgumentError('Unknown aggLevel $aggLevel');
     }
@@ -399,11 +376,11 @@ abstract class SummariesDao {
      (NOT :matchDrill OR drill = :drill) 
    GROUP BY startDay
    ORDER BY startDay DESC
-   LIMIT :numWeeks
+   LIMIT :limit
    OFFSET :offset
   ''')
   Future<List<_AggregatedDrillTime>> _dailyDrillTime(
-      bool matchDrill, String drill, int numWeeks, int offset);
+      bool matchDrill, String drill, int limit, int offset);
 
   @Query('''
    SELECT
@@ -415,11 +392,11 @@ abstract class SummariesDao {
      (NOT :matchDrill OR drill = :drill) 
    GROUP BY startDay
    ORDER BY startDay DESC
-   LIMIT :numWeeks
+   LIMIT :limit
    OFFSET :offset
   ''')
   Future<List<_AggregatedDrillTime>> _weeklyDrillTime(
-      bool matchDrill, String drill, int numWeeks, int offset);
+      bool matchDrill, String drill, int limit, int offset);
 
   @Query('''
    SELECT
@@ -431,11 +408,11 @@ abstract class SummariesDao {
      (NOT :matchDrill OR drill = :drill) 
    GROUP BY startDay
    ORDER BY startDay DESC
-   LIMIT :numWeeks
+   LIMIT :limit
    OFFSET :offset
   ''')
   Future<List<_AggregatedDrillTime>> _monthlyDrillTime(
-      bool matchDrill, String drill, int numWeeks, int offset);
+      bool matchDrill, String drill, int limit, int offset);
 
   @Query('''
    SELECT
@@ -448,14 +425,14 @@ abstract class SummariesDao {
    LEFT JOIN Actions ON Drills.id = Actions.drillId
    WHERE
      (NOT :matchDrill OR drill = :drill) 
-     AND (NOT :matchAction OR action = :action)
+     AND (NOT :matchAction OR Actions.action = :action)
    GROUP BY startDay
    ORDER BY startDay DESC
-   LIMIT :numWeeks
+   LIMIT :limit
    OFFSET :offset
   ''')
   Future<List<_AggregatedDrillReps>> _dailyDrillReps(bool matchDrill,
-      String drill, bool matchAction, String action, int numWeeks, int offset);
+      String drill, bool matchAction, String action, int limit, int offset);
 
   @Query('''
    SELECT
@@ -471,11 +448,11 @@ abstract class SummariesDao {
      AND (NOT :matchAction OR Actions.action = :action)
    GROUP BY startDay
    ORDER BY startDay DESC
-   LIMIT :numWeeks
+   LIMIT :limit
    OFFSET :offset
   ''')
   Future<List<_AggregatedDrillReps>> _weeklyDrillReps(bool matchDrill,
-      String drill, bool matchAction, String action, int numWeeks, int offset);
+      String drill, bool matchAction, String action, int limit, int offset);
 
   @Query('''
    SELECT
@@ -488,17 +465,15 @@ abstract class SummariesDao {
    LEFT JOIN Actions ON Drills.id = Actions.drillId
    WHERE
      (NOT :matchDrill OR drill = :drill) 
-     AND (NOT :matchAction OR action = :action)
+     AND (NOT :matchAction OR Actions.action = :action)
    GROUP BY startDay
    ORDER BY startDay DESC
-   LIMIT :numWeeks
+   LIMIT :limit
    OFFSET :offset
   ''')
   Future<List<_AggregatedDrillReps>> _monthlyDrillReps(bool matchDrill,
-      String drill, bool matchAction, String action, int numWeeks, int offset);
+      String drill, bool matchAction, String action, int limit, int offset);
 
-  // TODO(brian): this limit statement here is incorrect, it's not limiting by
-  // num weeks, it's limiting by number of rows.
   @Query('''
    SELECT
      DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDayStr,
@@ -513,11 +488,11 @@ abstract class SummariesDao {
      drill = :drill 
    GROUP BY startDayStr, Actions.action
    ORDER BY startDayStr DESC, Actions.action
-   LIMIT :numWeeks
+   LIMIT :limit
    OFFSET :offset
   ''')
   Future<List<AggregatedActionReps>> loadWeeklyActionReps(
-      String drill, int numWeeks, int offset);
+      String drill, int limit, int offset);
 }
 
 class ActionSummary {
