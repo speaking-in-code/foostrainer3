@@ -36,9 +36,6 @@ dependencies:
   just_audio: ^0.9.34
   rate_my_app: ^2.0.0
   sprintf: ^7.0.0
-  # version 6.0.16 causes an error in flutter run:
-  # "A problem occurred evaluating project ':url_launcher_android'...
-  # Could not find method buildFeatures() ... on extension 'android' of type com.android.build.gradle.LibraryExtension."
   url_launcher: ^6.1.14
   wakelock_plus: ^1.1.1
   collection: ^1.17.2
