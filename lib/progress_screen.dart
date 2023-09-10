@@ -66,7 +66,7 @@ class ProgressScreenState extends State<ProgressScreen> {
       drillHistory = widget.resultsDb.summariesDao.loadAggregateDrills(
           aggLevel: selected.aggLevel,
           drill: drill,
-          numWeeks: chart_utils.maxWeeks,
+          limit: chart_utils.maxWeeks,
           offset: 0);
     });
   }

@@ -368,8 +368,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "start of day") startDay,
-     DATE(startSeconds, "unixepoch", "localtime", "start of day", "+1 day") endDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of day') startDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of day', '+1 day') endDay,
      SUM(elapsedSeconds) elapsedSeconds
    FROM Drills
    WHERE
@@ -384,8 +384,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'weekday 0', '-6 days') startDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'weekday 0') endDay,
      SUM(elapsedSeconds) elapsedSeconds
    FROM Drills
    WHERE
@@ -400,8 +400,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "start of month") startDay,
-     DATE(startSeconds, "unixepoch", "localtime", "start of month", "+1 month") endDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of month') startDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of month', '+1 month') endDay,
      SUM(elapsedSeconds) elapsedSeconds
    FROM Drills
    WHERE
@@ -416,8 +416,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "start of day") startDay,
-     DATE(startSeconds, "unixepoch", "localtime", "start of day", "+1 day") endDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of day') startDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of day', '+1 day') endDay,
      IFNULL(SUM(reps), 0) reps,
      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
       CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
@@ -436,8 +436,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDay,
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'weekday 0', '-6 days') startDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'weekday 0') endDay,
      IFNULL(SUM(reps), 0) reps,
      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) /
       CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
@@ -456,8 +456,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "start of month") startDay,
-     DATE(startSeconds, "unixepoch", "localtime", "start of month", "+1 month") endDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of month') startDay,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'start of month', '+1 month') endDay,
      IFNULL(SUM(reps), 0) reps,
      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
       CAST(SUM(CASE WHEN Drills.tracking THEN Actions.reps ELSE 0 END) AS DOUBLE)) accuracy
@@ -476,8 +476,8 @@ abstract class SummariesDao {
 
   @Query('''
    SELECT
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0", "-6 days") startDayStr,
-     DATE(startSeconds, "unixepoch", "localtime", "weekday 0") endDayStr,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'weekday 0', '-6 days') startDayStr,
+     DATE(startSeconds, 'unixepoch', 'localtime', 'weekday 0') endDayStr,
      Actions.action,
      IFNULL(SUM(reps), 0) reps,
      (CAST(SUM(CASE WHEN Drills.tracking THEN Actions.good ELSE 0 END) AS DOUBLE) / 
