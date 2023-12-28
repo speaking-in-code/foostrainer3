@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:ft3/practice_background.dart';
 
 import 'album_art.dart';
 import 'app_rater.dart';
@@ -32,10 +33,12 @@ void main() async {
   final drills = StaticDrills.load();
   _log.info('Creating AppRater');
   final appRater = AppRater.create();
+  _log.info('Creating PracticeBackground');
+  final practice = PracticeBackground.init();
   _log.info('Initializing firebase');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   _log.info('Running App');
-  runApp(MainApp(await db, await drills, await appRater));
+  runApp(MainApp(await db, await drills, await appRater, await practice));
   _log.info('App Done');
 }
 
@@ -53,13 +56,12 @@ class MainApp extends StatelessWidget {
   final ResultsDatabase resultsDb;
   final StaticDrills drills;
   final AppRater appRater;
+  final PracticeBackground practice;
 
-  MainApp(this.resultsDb, this.drills, this.appRater) {
+  MainApp(this.resultsDb, this.drills, this.appRater, this.practice) {
     _log.info('MainApp constructor done');
   }
 
-  // Audio service wraps the entire application, so all routes can maintain a
-  // connection to the service.
   @override
   Widget build(BuildContext context) {
     _log.info('MainApp building');
@@ -73,14 +75,14 @@ class MainApp extends StatelessWidget {
             staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
         DrillChooserScreen.routeName: (context) =>
             DrillChooserScreen(staticDrills: drills, appRater: appRater),
-        HomeScreen.routeName: (context) => AudioServiceWidget(
-            child: HomeScreen(staticDrills: drills, appRater: appRater)),
+        HomeScreen.routeName: (context) =>
+            HomeScreen(staticDrills: drills, appRater: appRater, practice: practice),
         MonthlyDrillsScreen.routeName: (context) => MonthlyDrillsScreen(
             staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
         PracticeConfigScreen.routeName: (context) =>
-            PracticeConfigScreen(appRater: appRater),
+            PracticeConfigScreen(appRater: appRater, practice: practice),
         PracticeScreen.routeName: (context) =>
-            PracticeScreen(staticDrills: drills, appRater: appRater),
+            PracticeScreen(staticDrills: drills, appRater: appRater, practice: practice),
         ProgressScreen.routeName: (context) => ProgressScreen(
             staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
         ResultsScreen.routeName: (context) => ResultsScreen(

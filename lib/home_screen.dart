@@ -16,8 +16,9 @@ class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
   final StaticDrills staticDrills;
   final AppRater appRater;
+  final PracticeBackground practice;
 
-  HomeScreen({required this.staticDrills, required this.appRater});
+  HomeScreen({required this.staticDrills, required this.appRater, required this.practice});
 
   @override
   State<StatefulWidget> createState() => HomeScreenState();
@@ -31,7 +32,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _navToPracticeIfRunning(BuildContext context) async {
-    if (await PracticeBackground.running()) {
+    if (widget.practice.running) {
       _log.info('Audio running, navigating to practice screen.');
       PracticeScreen.pushNamed(context);
     }

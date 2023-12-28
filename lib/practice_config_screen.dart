@@ -36,8 +36,9 @@ class PracticeConfigScreen extends StatefulWidget {
   }
 
   final AppRater appRater;
+  final PracticeBackground practice;
 
-  PracticeConfigScreen({Key? key, required this.appRater}) : super(key: key);
+  PracticeConfigScreen({Key? key, required this.appRater, required this.practice}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PracticeConfigScreenState();
@@ -58,12 +59,6 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   @override
   void initState() {
     super.initState();
-    // Start the background process early, so that when the user clicks to
-    // play it's already running.
-    if (ScreenshotData.progress == null) {
-      _log.info('Starting practice in background');
-      PracticeBackground.startInBackground();
-    }
   }
 
   @override
@@ -97,7 +92,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
 
   Future<bool> _onWillPop() async {
     _log.info('onWillPop invoked, stopping background process');
-    PracticeBackground.stopPractice();
+    widget.practice.stopPractice();
     return true;
   }
 
@@ -314,7 +309,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     if (ScreenshotData.progress == null) {
       // Normal flow.
       _log.info('Starting practice ${_drill!.name}');
-      await PracticeBackground.startPractice(_drill!);
+      await widget.practice.startPractice(_drill!);
     }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     PracticeScreen.pushNamed(context);

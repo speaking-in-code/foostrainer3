@@ -15,12 +15,14 @@ class PracticeStatusWidget extends StatelessWidget {
   final StaticDrills staticDrills;
   final PracticeProgress progress;
   final DrillSummary summary;
+  final PracticeBackground practice;
   final VoidCallback onStop;
 
   PracticeStatusWidget(
       {Key? key,
       required this.staticDrills,
       required this.progress,
+        required this.practice,
       required this.onStop})
       : summary = progress.results!,
         assert(progress != null),
@@ -104,9 +106,9 @@ class PracticeStatusWidget extends StatelessWidget {
 
   Widget _actionButton(BuildContext context) {
     if (progress.practiceState == PracticeState.playing) {
-      return _fabButton(context, Icons.pause, PracticeBackground.pause);
+      return _fabButton(context, Icons.pause, practice.pause);
     }
-    return _fabButton(context, Icons.play_arrow, PracticeBackground.play);
+    return _fabButton(context, Icons.play_arrow, practice.play);
   }
 
   Widget _fabButton(

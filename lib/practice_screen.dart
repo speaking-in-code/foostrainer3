@@ -32,8 +32,9 @@ class PracticeScreen extends StatefulWidget {
 
   final StaticDrills staticDrills;
   final AppRater appRater;
+  final PracticeBackground practice;
 
-  PracticeScreen({Key? key, required this.staticDrills, required this.appRater})
+  PracticeScreen({Key? key, required this.staticDrills, required this.appRater, required this.practice})
       : super(key: key);
 
   @override
@@ -67,7 +68,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void initState() {
     if (ScreenshotData.progress == null) {
       // Normal flow.
-      _progressStream = PracticeBackground.progressStream;
+      _progressStream = widget.practice.progressStream;
     } else {
       // Override the practice screen for screenshots.
       _progressStream = Stream.fromIterable([ScreenshotData.progress!]);
@@ -130,6 +131,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       body: PracticeStatusWidget(
           staticDrills: widget.staticDrills,
           progress: _progress!,
+          practice: widget.practice,
           onStop: _onStop),
     );
   }
@@ -142,7 +144,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _log.info('Phone back button pressed');
     bool shouldResume = false;
     if (_practiceState == PracticeState.playing) {
-      PracticeBackground.pause();
+      widget.practice.pause();
       shouldResume = true;
     }
     bool? allowBack = await showDialog(
@@ -162,7 +164,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             icon: Icons.clear,
             color: Theme.of(context).unselectedWidgetColor,
             onPressed: () async {
-              await PracticeBackground.stopPractice();
+              await widget.practice.stopPractice();
               Navigator.pop(context, true);
             },
           ),
@@ -173,7 +175,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     allowBack ??= false;
     if (!allowBack && shouldResume) {
       // Clicked outside alert/did not respond. Keep going.
-      PracticeBackground.play();
+      widget.practice.play();
     }
     if (allowBack) {
       _popInProgress = true;
@@ -189,7 +191,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _log.info('_onStop invoked, switching screens');
     _popInProgress = true;
     // Should we have a confirmation dialog when practice is stopped?
-    await PracticeBackground.stopPractice();
+    await widget.practice.stopPractice();
     _log.info('Stopped practice');
     int reps = _progress?.results?.reps ?? 0;
     if (reps > 0) {
@@ -217,11 +219,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _finishTracking(
       BuildContext context, TrackingResult result, bool shouldResume) {
-    AudioService.customAction(SetTrackingRequest.action,
-        {SetTrackingRequest.result: result});
+    widget.practice.trackResult(result);
     Navigator.pop(context);
     if (shouldResume) {
-      PracticeBackground.play();
+      widget.practice.play();
     }
   }
 }

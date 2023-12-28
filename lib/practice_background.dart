@@ -9,6 +9,8 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rxdart/rxdart.dart';
+
 // import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -33,88 +35,100 @@ class PracticeBackground {
   static const _confirm = 'confirm';
   static const _practiceState = 'practiceState';
 
-  static Future<void> startInBackground() async {
-    _log.info('Starting audio service');
-    await AudioService.start(
-        backgroundTaskEntrypoint: _startBackgroundTask,
+  final _PracticeHandler _handler;
+  PracticeProgress? _latestState;
+
+  static Future<PracticeBackground> init() async {
+    _log.info('Initializing AudioService');
+    final handler = await AudioService.init(
+      builder: () => _PracticeHandler(),
+      config: AudioServiceConfig(
         androidNotificationChannelName: 'FoosTrainerNotificationChannel',
         androidNotificationIcon: 'drawable/ic_stat_ic_notification',
-        androidNotificationColor: Colors.blueAccent.value);
-    _log.info('Audio service started: ${AudioService.running}');
+        notificationColor: Colors.blueAccent,
+      ),
+    );
+    _log.info('AudioService initialization complete');
+    return PracticeBackground._(handler);
   }
 
+  PracticeBackground._(this._handler);
+
   /// Start practicing the provided drill.
-  static Future<void> startPractice(DrillData drill) async {
+  Future<void> startPractice(DrillData drill) async {
     if (drill.signal == Signal.AUDIO_AND_FLASH) {
       WakelockPlus.enable();
     }
-    await startInBackground();
-    if (AudioService.running) {
-      final progress = PracticeProgress()
-        ..drill = drill
-        ..results = DrillSummary(
-            drill: StoredDrill(
-                startSeconds: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                drill: drill.fullName,
-                tracking: drill.tracking!,
-                elapsedSeconds: 0),
-            reps: 0,
-            good: (drill.tracking! ? 0 : null),
-            actions: {})
-        ..practiceState = PracticeState.paused
-        ..action = ''
-        ..confirm = 0;
-      _log.info('Playing with drill ${progress.drill!.encode()}');
-      _log.info('results.drill is ${progress.results!.drill}');
-      _log.info('encoded is ${progress.results!.drill.encode()}');
-      _log.info('Playing with results ${progress.results!.encode()}');
-      AudioService.playMediaItem(getMediaItemFromProgress(progress));
-    } else {
-      // Try stopping and hope we recover.
-      _log.info('Stopping audio service');
-      await AudioService.stop();
-      throw StateError('Failed to start AudioService.');
-    }
-  }
-
-  // True if the audio service is running in the background.
-  static Future<bool> running() async {
-    _log.info('running is ${AudioService.running}');
-    return AudioService.running;
+    bool tracking = drill.tracking ?? false;
+    final progress = PracticeProgress()
+      ..drill = drill
+      ..results = DrillSummary(
+          drill: StoredDrill(
+              startSeconds: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+              drill: drill.fullName,
+              tracking: tracking,
+              elapsedSeconds: 0),
+          reps: 0,
+          good: (tracking ? 0 : null),
+          actions: {})
+      ..practiceState = PracticeState.paused
+      ..action = ''
+      ..confirm = 0;
+    _log.info('Playing with drill ${progress.drill!.encode()}');
+    _log.info('results.drill is ${progress.results!.drill}');
+    _log.info('encoded is ${progress.results!.drill.encode()}');
+    _log.info('Playing with results ${progress.results!.encode()}');
+    _handler.playMediaItem(getMediaItemFromProgress(progress));
   }
 
   /// Pause the drill.
-  static pause() {
-    AudioService.pause();
+  Future<void> pause() {
+    return _handler.pause();
   }
 
   /// Play the drill.
-  static play() {
-    AudioService.play();
+  Future<void> play() {
+    return _handler.play();
+  }
+
+  /// Whether practice is currently in progress.
+  bool get running {
+    return _latestState != null &&
+        _latestState!.practiceState != PracticeState.stopped;
   }
 
   /// Get a stream of progress updates.
-  static Stream<PracticeProgress> get progressStream =>
-      AudioService.currentMediaItemStream
-          .map((mediaItem) => _transformBackgroundUpdate(mediaItem));
+  Stream<PracticeProgress> get progressStream =>
+      _handler.mediaItem.map((mediaItem) {
+        PracticeProgress progress = _transformBackgroundUpdate(mediaItem);
+        _latestState = progress;
+        return progress;
+      });
 
   /// Stop practice.
-  static Future<void> stopPractice() async {
+  Future<void> stopPractice() async {
     WakelockPlus.disable();
-    AudioService.stop();
+    await _handler.stop();
+    // await progressStream.close();
+  }
+
+  /// Record tracking result
+  Future<void> trackResult(TrackingResult result) async {
+    await _handler.customAction(
+        SetTrackingRequest.action, {SetTrackingRequest.result: result});
     return;
   }
 
   /// Get a progress report from a MediaItem update.
   static PracticeProgress _transformBackgroundUpdate(MediaItem? mediaItem) {
+    _log.info('Background update: mediaItem=$mediaItem');
     if (mediaItem == null) {
-      if (AudioService.running) {
-        // Still starting the audio service, haven't gotten the media to play yet.
-        return PracticeProgress()..practiceState = PracticeState.paused;
-      }
-      // Audio service was stopped, which means drill was stopped. Pass that up to UI.
       return PracticeProgress()..practiceState = PracticeState.stopped;
     }
+    return _mediaToProgress(mediaItem);
+  }
+
+  static PracticeProgress _mediaToProgress(MediaItem mediaItem) {
     var extras = mediaItem.extras ?? {};
     String? drillDataJson = extras[_drill];
     if (drillDataJson == null) {
@@ -148,10 +162,6 @@ class PracticeBackground {
   }
 }
 
-void _startBackgroundTask() {
-  AudioServiceBackground.run(() => _BackgroundTask());
-}
-
 enum PracticeState {
   paused,
   playing,
@@ -165,13 +175,15 @@ class PracticeProgress {
   String? action;
   String? lastAction;
   DrillSummary? results;
+
   // The shot count to confirm. Flutter stream-based widget rendering will
   // sometimes redeliver rendering states, so we use this as a sequence number
   // to avoid repeating the same confirmation.
   int confirm = 0;
 
   String toString() =>
-      'practiceState: $practiceState drill: $drill results: $results';
+      'practiceState: $practiceState drill: $drill action: $action ' +
+      'lastAction: $lastAction results: $results confirm $confirm';
 }
 
 const MediaControl _pauseControl = MediaControl(
@@ -192,7 +204,7 @@ const MediaControl _stopControl = MediaControl(
   action: MediaAction.stop,
 );
 
-class _BackgroundTask extends BackgroundAudioTask {
+class _PracticeHandler extends BaseAudioHandler {
   static const _startEvent = 'ft_start_practice';
   static const _stopEvent = 'ft_stop_practice';
   static const _pauseEvent = 'ft_pause_practice';
@@ -225,14 +237,14 @@ class _BackgroundTask extends BackgroundAudioTask {
   // Stop time for the drill. zero means play forever.
   Duration? _finishTime;
 
-  factory _BackgroundTask() {
+  factory _PracticeHandler() {
     _log.info('Creating player');
     final player = AudioPlayer();
     final pauseTimer = PauseTimer(player: player);
-    return _BackgroundTask._(player, pauseTimer);
+    return _PracticeHandler._(player, pauseTimer);
   }
 
-  _BackgroundTask._(this._player, this._pauseTimer)
+  _PracticeHandler._(this._player, this._pauseTimer)
       : _resultsDatabase = ResultsDatabase.init() {
     _log.info('Finished creating player');
   }
@@ -246,18 +258,19 @@ class _BackgroundTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onStart(Map<String, dynamic>? params) async {
-    _log.info('onStart called');
+  Future<void> prepare() async {
+    _log.info('prepare called');
     Future<void> artLoading = AlbumArt.load();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
     await artLoading;
-    _log.info('Finished onStart');
+    _log.info('Finished prepare');
   }
 
   @override
-  Future<void> onPlayMediaItem(MediaItem mediaItem) async {
-    _progress = PracticeBackground._transformBackgroundUpdate(mediaItem);
+  Future<void> playMediaItem(MediaItem mediaItem) async {
+    _log.info('playMediaItem called $mediaItem');
+    _progress = PracticeBackground._mediaToProgress(mediaItem);
     final drillId = await (await _resultsDatabase)
         .drillsDao
         .insertDrill(_progress.results!.drill);
@@ -270,49 +283,62 @@ class _BackgroundTask extends BackgroundAudioTask {
     _finishTime = Duration(minutes: _progress.drill!.practiceMinutes!);
     _stopwatch.reset();
     _logEvent(_startEvent);
-    return onPlay();
+    return play();
   }
 
   @override
-  Future<void> onPlay() async {
-    _log.info('onPlay starts');
+  Future<void> play() async {
+    _log.info('play starts');
     _logEvent(_playEvent);
     _progress.practiceState = PracticeState.playing;
-    await AudioServiceBackground.setState(
+    playbackState.add(PlaybackState(
         controls: [_pauseControl, _stopControl],
         playing: true,
-        processingState: AudioProcessingState.ready);
+        processingState: AudioProcessingState.ready));
     _stopwatch.start();
     _progress.action = 'Setup';
     _updateMediaItem();
     _pause(_resetTime).whenComplete(_waitForSetup);
     _elapsedTimeUpdater =
         Timer.periodic(Duration(milliseconds: 200), _updateElapsed);
-    _log.info('onPlay done');
+    _log.info('play done');
   }
 
   @override
-  Future<void> onPause() async {
+  Future<void> pause() async {
     _logEvent(_pauseEvent);
     _progress.practiceState = PracticeState.paused;
     _stopwatch.stop();
     _elapsedTimeUpdater!.cancel();
     _progress.action = 'Paused';
     _updateMediaItem();
-    await AudioServiceBackground.setState(
+    playbackState.add(PlaybackState(
         controls: [_playControl, _stopControl],
         playing: false,
-        processingState: AudioProcessingState.ready);
+        processingState: AudioProcessingState.ready));
   }
 
   @override
-  Future<void> onStop() async {
+  Future<void> stop() async {
     _log.info('Stopping player');
     _logEvent(_stopEvent);
     _progress.practiceState = PracticeState.stopped;
     _stopwatch.stop();
     _elapsedTimeUpdater?.cancel();
 
+    await _maybeWriteResults();
+
+    _stopwatch.reset();
+    await _player.stop();
+    await _player.dispose();
+    await super.stop();
+    _log.info('Finished stopping player');
+  }
+
+  Future<void> _maybeWriteResults() async {
+    if (_progress.results == null) {
+      return;
+    }
     _log.info('Writing results: ${_progress.results!.drill.encode()}');
     try {
       if (_progress.results!.reps > 0) {
@@ -328,16 +354,6 @@ class _BackgroundTask extends BackgroundAudioTask {
       _log.info('Database write error: $e');
     }
     _log.info('Write complete');
-
-    _stopwatch.reset();
-    await _player.stop();
-    await _player.dispose();
-    await AudioServiceBackground.setState(
-        controls: [],
-        playing: false,
-        processingState: AudioProcessingState.idle);
-    await super.onStop();
-    _log.info('Finished stopping player');
   }
 
   // Plays audio until complete.
@@ -398,7 +414,7 @@ class _BackgroundTask extends BackgroundAudioTask {
 
   void _waitForTracking() {
     ++_progress.confirm;
-    onPause();
+    pause();
   }
 
   Future<void> _flashTorch() async {
@@ -417,7 +433,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     // sound and pause.
     if (_finishTime != Duration.zero && _stopwatch.elapsed > _finishTime!) {
       _pause(const Duration(seconds: 1)).whenComplete(_finishPractice);
-      onPause();
+      pause();
       return;
     }
     if (_stopwatch.elapsed.inSeconds ==
@@ -439,9 +455,7 @@ class _BackgroundTask extends BackgroundAudioTask {
     final writeOp = (await _resultsDatabase)
         .drillsDao
         .insertDrill(_progress.results!.drill);
-    final MediaItem item =
-        PracticeBackground.getMediaItemFromProgress(_progress);
-    await AudioServiceBackground.setMediaItem(item);
+    mediaItem.add(PracticeBackground.getMediaItemFromProgress(_progress));
     await writeOp;
   }
 
