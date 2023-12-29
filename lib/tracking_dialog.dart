@@ -41,7 +41,7 @@ class TrackingDialog extends StatelessWidget {
         text: 'Missed',
         icon: Icons.thumb_down,
         iconSize: _iconSize,
-        color: Theme.of(context).colorScheme.error,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       _space,
       SimpleDialogItem(
@@ -49,7 +49,7 @@ class TrackingDialog extends StatelessWidget {
         text: 'Skip',
         icon: Icons.double_arrow,
         iconSize: _iconSize,
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.onSecondary,
       ),
     ];
     if (screen.orientation == Orientation.portrait) {
