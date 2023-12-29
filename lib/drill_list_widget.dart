@@ -136,7 +136,7 @@ class DrillListWidgetState extends State<DrillListWidget> {
       _leftAndRight(
           Text(repsText, style: baseStyle), Text(duration, style: baseStyle)),
     ];
-    if (summary.good != null) {
+    if (summary.good != null && summary.reps > 0) {
       children.addAll([
         _rowSpace,
         Text(
