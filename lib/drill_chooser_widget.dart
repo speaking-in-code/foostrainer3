@@ -63,9 +63,9 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   void _expansionCallback(int index, bool currentlyExpanded) {
     setState(() {
       if (currentlyExpanded) {
-        selectedType = null;
-      } else {
         selectedType = choices[index];
+      } else {
+        selectedType = null;
       }
     });
   }
