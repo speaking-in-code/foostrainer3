@@ -25,9 +25,9 @@ class PauseTimer {
   static const kMinPlay = Duration(seconds: 2);
   static final _log = Log.get('PauseTimer');
   final ListQueue<double> _delays = ListQueue(kMetricWindow + 1);
-  final AudioPlayer? _player;
+  final AudioPlayer _player;
 
-  PauseTimer({required AudioPlayer? player}) : _player = player;
+  PauseTimer(this._player);
 
   Future<void> pause(final Duration length) async {
     final stopwatch = Stopwatch();
@@ -46,16 +46,20 @@ class PauseTimer {
 
   Future<void> _pauseWithPlay(final Duration length) async {
     try {
-      await _player!.stop();
-      final Duration loaded =
-          (await (_player!.setAsset('assets/silence_30s.mp3')))!;
+      await _player.stop();
+      final Duration? loaded =
+          (await (_player.setAsset('assets/silence_30s.mp3')));
+      if (loaded == null) {
+        _log.warning('Asset load failed, player disposed?');
+        return;
+      }
       Duration targetEnd = length;
       if (loaded < targetEnd) {
         targetEnd = loaded;
         _log.warning('Could not pause for $targetEnd, clipping to $loaded.');
       }
-      await _player!.setClip(start: Duration.zero, end: targetEnd);
-      await _player!.play();
+      await _player.setClip(start: Duration.zero, end: targetEnd);
+      await _player.play();
     } catch (e, stack) {
       _log.warning('Unexpected exception $e: $stack', e, stack);
     }

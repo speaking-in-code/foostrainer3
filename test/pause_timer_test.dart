@@ -1,16 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ft3/pause_timer.dart';
+import 'package:just_audio/just_audio.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final player = AudioPlayer();
+
   test('Handles No Values', () {
-    final timer = PauseTimer(player: null);
+    final timer = PauseTimer(player);
     final metrics = timer.calculateDelayMetrics();
     expect(metrics.meanDelayMillis, equals(0));
     expect(metrics.stdDevDelayMillis, equals(0));
   });
 
   test('Handles one value', () {
-    final timer = PauseTimer(player: null);
+    final timer = PauseTimer(player);
     timer.updateMetrics(Duration(milliseconds: 20));
     final metrics = timer.calculateDelayMetrics();
     expect(metrics.meanDelayMillis, moreOrLessEquals(20));
@@ -18,7 +22,7 @@ void main() {
   });
 
   test('Handles many values', () {
-    final timer = PauseTimer(player: null);
+    final timer = PauseTimer(player);
     for (int i = 0; i < 5; ++i) {
       timer.updateMetrics(Duration(milliseconds: 20));
     }
@@ -28,7 +32,7 @@ void main() {
   });
 
   test('Does stats correctly', () {
-    final timer = PauseTimer(player: null);
+    final timer = PauseTimer(player);
     timer.updateMetrics(Duration(milliseconds: 0));
     timer.updateMetrics(Duration(milliseconds: 0));
     timer.updateMetrics(Duration(milliseconds: 10));
@@ -39,7 +43,7 @@ void main() {
   });
 
   test('Discards old data', () {
-    final timer = PauseTimer(player: null);
+    final timer = PauseTimer(player);
     for (int i = 0; i < 100; ++i) {
       timer.updateMetrics(Duration(milliseconds: 0));
     }

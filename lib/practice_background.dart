@@ -9,9 +9,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:rxdart/rxdart.dart';
 
-// import 'package:torch_compat/torch_compat.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'album_art.dart';
@@ -114,8 +112,8 @@ class PracticeBackground {
 
   /// Record tracking result
   Future<void> trackResult(TrackingResult result) async {
-    await _handler.customAction(
-        SetTrackingRequest.action, {SetTrackingRequest.result: result});
+    await _handler.customAction(SetTrackingRequest.action,
+        {SetTrackingRequest.result: result});
     return;
   }
 
@@ -240,12 +238,12 @@ class _PracticeHandler extends BaseAudioHandler {
   factory _PracticeHandler() {
     _log.info('Creating player');
     final player = AudioPlayer();
-    final pauseTimer = PauseTimer(player: player);
-    return _PracticeHandler._(player, pauseTimer);
+    return _PracticeHandler._(player);
   }
 
-  _PracticeHandler._(this._player, this._pauseTimer)
-      : _resultsDatabase = ResultsDatabase.init() {
+  _PracticeHandler._(this._player)
+      : _pauseTimer = PauseTimer(_player),
+        _resultsDatabase = ResultsDatabase.init() {
     _log.info('Finished creating player');
   }
 
@@ -330,7 +328,6 @@ class _PracticeHandler extends BaseAudioHandler {
 
     _stopwatch.reset();
     await _player.stop();
-    await _player.dispose();
     await super.stop();
     _log.info('Finished stopping player');
   }
@@ -474,12 +471,12 @@ class _PracticeHandler extends BaseAudioHandler {
   }
 
   @override
-  Future<dynamic> onCustomAction(String name, dynamic arguments) async {
+  Future<dynamic> customAction(String name,
+      [Map<String, dynamic>? extras]) async {
     switch (name) {
       case DebugInfo.action:
         return _handleDebugInfo();
       case SetTrackingRequest.action:
-        Map<String, dynamic>? extras = arguments;
         return _handleSetTracking(extras!);
       default:
         break;
