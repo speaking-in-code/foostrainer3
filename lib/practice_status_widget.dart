@@ -6,10 +6,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'duration_formatter.dart';
+import 'log.dart';
 import 'percent_formatter.dart';
 import 'practice_background.dart';
 import 'results_entities.dart';
 import 'static_drills.dart';
+
+final _log = Log.get('PracticeStatusWidget');
 
 class PracticeStatusWidget extends StatelessWidget {
   final StaticDrills staticDrills;
@@ -22,7 +25,7 @@ class PracticeStatusWidget extends StatelessWidget {
       {Key? key,
       required this.staticDrills,
       required this.progress,
-        required this.practice,
+      required this.practice,
       required this.onStop})
       : summary = progress.results!,
         assert(progress != null),
@@ -101,14 +104,23 @@ class PracticeStatusWidget extends StatelessWidget {
   }
 
   Widget _stopButton(BuildContext context) {
-    return _fabButton(context, Icons.stop, onStop);
+    return _fabButton(context, Icons.stop, () {
+      _log.info('BEE stop button pushed');
+      onStop();
+    });
   }
 
   Widget _actionButton(BuildContext context) {
     if (progress.practiceState == PracticeState.playing) {
-      return _fabButton(context, Icons.pause, practice.pause);
+      return _fabButton(context, Icons.pause, () {
+        _log.info('BEE pause button');
+        practice.pause();
+      });
     }
-    return _fabButton(context, Icons.play_arrow, practice.play);
+    return _fabButton(context, Icons.play_arrow, () {
+      _log.info('BEE play button');
+      practice.play();
+    });
   }
 
   Widget _fabButton(

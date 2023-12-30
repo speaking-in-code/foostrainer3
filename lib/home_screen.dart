@@ -32,7 +32,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _navToPracticeIfRunning(BuildContext context) async {
-    if (widget.practice.running) {
+    if (widget.practice.practicing) {
       _log.info('Audio running, navigating to practice screen.');
       PracticeScreen.pushNamed(context);
     }

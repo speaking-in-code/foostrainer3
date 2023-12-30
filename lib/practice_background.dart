@@ -9,7 +9,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-
+import 'package:rxdart/rxdart.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'album_art.dart';
@@ -23,18 +23,17 @@ import 'results_db.dart';
 import 'results_entities.dart';
 import 'tracking_info.dart';
 
-final _log = Log.get('PracticeBackground');
-
 /// Methods to manage the practice background task.
 class PracticeBackground {
+  static final _log = Log.get('PracticeBackground');
   static const _action = 'action';
   static const _results = 'results';
   static const _drill = 'drill';
   static const _confirm = 'confirm';
-  static const _practiceState = 'practiceState';
 
   final _PracticeHandler _handler;
   PracticeProgress? _latestState;
+  PracticeProgress? _lastActiveState;
 
   static Future<PracticeBackground> init() async {
     _log.info('Initializing AudioService');
@@ -76,68 +75,86 @@ class PracticeBackground {
     _log.info('results.drill is ${progress.results!.drill}');
     _log.info('encoded is ${progress.results!.drill.encode()}');
     _log.info('Playing with results ${progress.results!.encode()}');
+    _log.info('BEE playing media item');
     _handler.playMediaItem(getMediaItemFromProgress(progress));
   }
 
   /// Pause the drill.
   Future<void> pause() {
+    _log.info('BEE pause');
     return _handler.pause();
   }
 
   /// Play the drill.
   Future<void> play() {
+    _log.info('BEE play');
     return _handler.play();
   }
 
   /// Whether practice is currently in progress.
-  bool get running {
+  bool get practicing {
     return _latestState != null &&
         _latestState!.practiceState != PracticeState.stopped;
   }
 
+  /// Completed reps.
+  int get reps {
+    return _lastActiveState?.results?.reps ?? 0;
+  }
+
+  /// Last active practice state, before practice stopped.
+  PracticeProgress? get lastActiveState => _lastActiveState;
+
   /// Get a stream of progress updates.
   Stream<PracticeProgress> get progressStream =>
-      _handler.mediaItem.map((mediaItem) {
-        PracticeProgress progress = _transformBackgroundUpdate(mediaItem);
-        _latestState = progress;
-        return progress;
+      Rx.combineLatest2(_handler.mediaItem, _handler.playbackState,
+          (MediaItem? media, PlaybackState playback) {
+        _latestState = _makePlaybackState(media, playback);
+        if (_latestState?.practiceState != PracticeState.stopped) {
+          _lastActiveState = _latestState;
+        }
+        return _latestState!;
       });
+
+  // Figure out current drill state based on audio playback state. We treat the
+  // audio playback state as the source of truth.
+  static PracticeProgress _makePlaybackState(
+      MediaItem? media, PlaybackState playback) {
+    _log.info(
+        'BEE got playback state ${playback.playing}, new media item ${media?.id}');
+    final out = PracticeProgress();
+    if (media == null) {
+      out.practiceState = PracticeState.stopped;
+      return out;
+    } else if (playback.playing) {
+      out.practiceState = PracticeState.playing;
+    } else {
+      out.practiceState = PracticeState.paused;
+    }
+    final extras = media.extras ?? {};
+    String? drillDataJson = extras[_drill];
+    if (drillDataJson == null) {
+      throw StateError('MediaItem missing drill: ${media.id}');
+    }
+    return out
+      ..drill = DrillData.decode(extras[_drill])
+      ..action = extras[_action]
+      ..results = DrillSummary.decode(extras[_results])
+      ..confirm = (extras[_confirm] ?? 0);
+  }
 
   /// Stop practice.
   Future<void> stopPractice() async {
+    _log.info('BEE stopPractice');
     WakelockPlus.disable();
     await _handler.stop();
-    // await progressStream.close();
   }
 
   /// Record tracking result
   Future<void> trackResult(TrackingResult result) async {
-    await _handler.customAction(SetTrackingRequest.action,
-        {SetTrackingRequest.result: result});
+    await _handler.customAction(
+        SetTrackingRequest.action, {SetTrackingRequest.result: result});
     return;
-  }
-
-  /// Get a progress report from a MediaItem update.
-  static PracticeProgress _transformBackgroundUpdate(MediaItem? mediaItem) {
-    _log.info('Background update: mediaItem=$mediaItem');
-    if (mediaItem == null) {
-      return PracticeProgress()..practiceState = PracticeState.stopped;
-    }
-    return _mediaToProgress(mediaItem);
-  }
-
-  static PracticeProgress _mediaToProgress(MediaItem mediaItem) {
-    var extras = mediaItem.extras ?? {};
-    String? drillDataJson = extras[_drill];
-    if (drillDataJson == null) {
-      throw StateError('MediaItem missing drill: ${mediaItem.id}');
-    }
-    return PracticeProgress()
-      ..drill = DrillData.decode(extras[_drill])
-      ..practiceState = PracticeState.values[extras[_practiceState]]
-      ..action = extras[_action]
-      ..results = DrillSummary.decode(extras[_results])
-      ..confirm = (extras[_confirm] ?? 0);
   }
 
   /// Get a media item from the specified progress.
@@ -155,7 +172,6 @@ class PracticeBackground {
           _results: progress.results!.encode(),
           _drill: progress.drill!.encode(),
           _confirm: progress.confirm,
-          _practiceState: progress.practiceState.index,
         });
   }
 }
@@ -203,6 +219,7 @@ const MediaControl _stopControl = MediaControl(
 );
 
 class _PracticeHandler extends BaseAudioHandler {
+  static final _log = Log.get('PracticeHandler');
   static const _startEvent = 'ft_start_practice';
   static const _stopEvent = 'ft_stop_practice';
   static const _pauseEvent = 'ft_pause_practice';
@@ -257,18 +274,19 @@ class _PracticeHandler extends BaseAudioHandler {
 
   @override
   Future<void> prepare() async {
-    _log.info('prepare called');
+    _log.info('BEE prepare called');
     Future<void> artLoading = AlbumArt.load();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
     await artLoading;
-    _log.info('Finished prepare');
+    _log.info('BEE Finished prepare');
   }
 
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
-    _log.info('playMediaItem called $mediaItem');
-    _progress = PracticeBackground._mediaToProgress(mediaItem);
+    _log.info('BEE playMediaItem called ${mediaItem.id}');
+    _progress = PracticeBackground._makePlaybackState(
+        mediaItem, PlaybackState(playing: true));
     final drillId = await (await _resultsDatabase)
         .drillsDao
         .insertDrill(_progress.results!.drill);
@@ -284,12 +302,17 @@ class _PracticeHandler extends BaseAudioHandler {
     return play();
   }
 
+  void _updatePlaybackState(PlaybackState next) {
+    _log.info('BEE Updating playback state: $next');
+    playbackState.add(next);
+  }
+
   @override
   Future<void> play() async {
-    _log.info('play starts');
+    _log.info('BEE play starts');
     _logEvent(_playEvent);
     _progress.practiceState = PracticeState.playing;
-    playbackState.add(PlaybackState(
+    _updatePlaybackState(PlaybackState(
         controls: [_pauseControl, _stopControl],
         playing: true,
         processingState: AudioProcessingState.ready));
@@ -299,7 +322,7 @@ class _PracticeHandler extends BaseAudioHandler {
     _pause(_resetTime).whenComplete(_waitForSetup);
     _elapsedTimeUpdater =
         Timer.periodic(Duration(milliseconds: 200), _updateElapsed);
-    _log.info('play done');
+    _log.info('BEE play done');
   }
 
   @override
@@ -310,7 +333,7 @@ class _PracticeHandler extends BaseAudioHandler {
     _elapsedTimeUpdater!.cancel();
     _progress.action = 'Paused';
     _updateMediaItem();
-    playbackState.add(PlaybackState(
+    _updatePlaybackState(PlaybackState(
         controls: [_playControl, _stopControl],
         playing: false,
         processingState: AudioProcessingState.ready));
@@ -318,9 +341,14 @@ class _PracticeHandler extends BaseAudioHandler {
 
   @override
   Future<void> stop() async {
-    _log.info('Stopping player');
+    _log.info('BEE Stopping player');
     _logEvent(_stopEvent);
     _progress.practiceState = PracticeState.stopped;
+    _updatePlaybackState(PlaybackState(
+        controls: [],
+        playing: false,
+        processingState: AudioProcessingState.ready));
+    mediaItem.add(null);
     _stopwatch.stop();
     _elapsedTimeUpdater?.cancel();
 
@@ -329,7 +357,7 @@ class _PracticeHandler extends BaseAudioHandler {
     _stopwatch.reset();
     await _player.stop();
     await super.stop();
-    _log.info('Finished stopping player');
+    _log.info('BEE Finished stopping player');
   }
 
   Future<void> _maybeWriteResults() async {
@@ -452,7 +480,11 @@ class _PracticeHandler extends BaseAudioHandler {
     final writeOp = (await _resultsDatabase)
         .drillsDao
         .insertDrill(_progress.results!.drill);
-    mediaItem.add(PracticeBackground.getMediaItemFromProgress(_progress));
+    final nextMediaItem =
+        PracticeBackground.getMediaItemFromProgress(_progress);
+    _log.info(
+        'BEE Updating media item: ${nextMediaItem.id}, ${nextMediaItem.title}');
+    mediaItem.add(nextMediaItem);
     await writeOp;
   }
 

@@ -34,7 +34,11 @@ class PracticeScreen extends StatefulWidget {
   final AppRater appRater;
   final PracticeBackground practice;
 
-  PracticeScreen({Key? key, required this.staticDrills, required this.appRater, required this.practice})
+  PracticeScreen(
+      {Key? key,
+      required this.staticDrills,
+      required this.appRater,
+      required this.practice})
       : super(key: key);
 
   @override
@@ -54,15 +58,11 @@ class PracticeScreen extends StatefulWidget {
 // I'm tempted, but not sure, about adding a confirmation for the stop step as
 // well as the back step.
 class _PracticeScreenState extends State<PracticeScreen> {
-  static const pauseKey = Key(Keys.pauseKey);
-  static const playKey = Key(Keys.playKey);
   // True if we're already leaving this widget.
   bool _popInProgress = false;
+  // Sequence number for the last rendered action confirmation.
   int _lastRenderedConfirm = 0;
-  bool _pauseForDrillComplete = false;
-  PracticeState _practiceState = PracticeState.stopped;
   late final Stream<PracticeProgress> _progressStream;
-  PracticeProgress? _progress;
 
   @override
   void initState() {
@@ -99,38 +99,34 @@ class _PracticeScreenState extends State<PracticeScreen> {
               .build(context),
           body: Text('Error: ${snapshot.error}'));
     }
-    if (!snapshot.hasData) {
+    if (snapshot.data == null) {
       return _loadingWidget(context);
     }
-    _progress = snapshot.data;
-    if (_progress!.practiceState == PracticeState.stopped) {
+    final progress = snapshot.data!;
+    _log.info('BEE redrawing practice screen for ${progress.action}');
+    if (progress.practiceState == PracticeState.stopped) {
       // Drill was stopped via notification media controls.
+      _log.info('BEE drill stopped via notification media');
       WidgetsBinding.instance!.addPostFrameCallback((_) => _onStop());
       return Scaffold();
     }
-    if (_progress!.drill == null) {
+    if (progress.drill == null) {
       return _loadingWidget(context);
     }
-    // Sometimes we stop after the drill has reached time. For that
-    // case, wait for an explicit 'play' action from the user instead
-    // of automatically resuming.
-    _pauseForDrillComplete =
-        Duration(minutes: _progress!.drill!.practiceMinutes!).inSeconds ==
-            _progress!.results?.drill.elapsedSeconds;
-    _practiceState = _progress!.practiceState;
     // StreamBuilder will redeliver progress messages, but we only
     // want to show the dialog once per shot.
-    if (_progress!.confirm > this._lastRenderedConfirm) {
-      this._lastRenderedConfirm = _progress!.confirm;
-      Future.delayed(Duration.zero, () => _showTrackingDialog(context));
+    if (progress.confirm > this._lastRenderedConfirm) {
+      this._lastRenderedConfirm = progress.confirm;
+      Future.delayed(
+          Duration.zero, () => _showTrackingDialog(context, progress));
     }
     return Scaffold(
       appBar: MyAppBar.drillTitle(
-              drillData: _progress!.drill, appRater: widget.appRater)
+              drillData: progress.drill, appRater: widget.appRater)
           .build(context),
       body: PracticeStatusWidget(
           staticDrills: widget.staticDrills,
-          progress: _progress!,
+          progress: progress,
           practice: widget.practice,
           onStop: _onStop),
     );
@@ -141,9 +137,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
   // - the phone back button
   // - the in-app back button.
   Future<bool> _onBackPressed(BuildContext context) async {
-    _log.info('Phone back button pressed');
+    _log.info('BEE Phone back button pressed');
     bool shouldResume = false;
-    if (_practiceState == PracticeState.playing) {
+    if (widget.practice.practicing) {
       widget.practice.pause();
       shouldResume = true;
     }
@@ -185,18 +181,21 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _onStop() async {
     if (_popInProgress) {
-      _log.info('_onStop reentry');
+      _log.info('BEE _onStop reentry');
       return;
     }
-    _log.info('_onStop invoked, switching screens');
+    _log.info('BEE _onStop invoked, switching screens');
     _popInProgress = true;
     // Should we have a confirmation dialog when practice is stopped?
     await widget.practice.stopPractice();
     _log.info('Stopped practice');
-    int reps = _progress?.results?.reps ?? 0;
-    if (reps > 0) {
+    if (widget.practice.lastActiveState?.results?.drill?.id != null &&
+        widget.practice.lastActiveState?.drill != null &&
+        widget.practice.reps > 0) {
       ResultsScreen.pushReplacement(
-          context, _progress!.results!.drill.id!, _progress!.drill!);
+          context,
+          widget.practice.lastActiveState!.results!.drill.id!,
+          widget.practice.lastActiveState!.drill!);
     } else {
       // Early stop to drill, before drill id is set. Go back to config screen.
       Navigator.pop(context);
@@ -205,8 +204,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   // Consider replacing this with a dialog that flexes depending on screen
   // orientation, using a column in portrait mode, and a row in landscape mode.
-  void _showTrackingDialog(BuildContext context) async {
-    final bool shouldResume = !_pauseForDrillComplete;
+  void _showTrackingDialog(
+      BuildContext context, PracticeProgress progress) async {
+    // Sometimes we stop after the drill has reached time. For that
+    // case, wait for an explicit 'play' action from the user instead
+    // of automatically resuming.
+    bool shouldResume = !_pausedForTime(progress);
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -215,6 +218,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
             _finishTracking(context, result, shouldResume);
           });
         });
+  }
+
+  static bool _pausedForTime(PracticeProgress progress) {
+    Duration planned = Duration(minutes: progress.drill?.practiceMinutes ?? 0);
+    if (planned.inSeconds == 0) {
+      return false;
+    }
+    Duration? elapsed = progress?.results?.drill?.elapsed;
+    return elapsed != null && elapsed.inSeconds == planned.inSeconds;
   }
 
   void _finishTracking(
