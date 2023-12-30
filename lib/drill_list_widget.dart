@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -31,8 +29,7 @@ class DrillListWidget extends StatefulWidget {
       this.drillFullName,
       this.startDate,
       this.endDate})
-      : assert(resultsDb != null),
-        super(key: key) {
+      : super(key: key) {
     _log.info(
         'Creating drill list widget for drill=$drillFullName start=$startDate end=$endDate');
   }
@@ -125,7 +122,7 @@ class DrillListWidgetState extends State<DrillListWidget> {
     }
     final duration =
         'Duration: ${DurationFormatter.format(summary.drill.elapsed)}';
-    final baseStyle = Theme.of(context).textTheme.bodyText2!;
+    final baseStyle = Theme.of(context).textTheme.bodyMedium!;
     final shaded = baseStyle.copyWith(color: baseStyle.color!.withOpacity(0.8));
     final children = [
       _leftAndRight(

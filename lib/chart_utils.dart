@@ -1,10 +1,7 @@
 // import 'package:charts_flutter/flutter.dart' as charts;
 // import 'package:charts_common/common.dart' as charts_common;
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'log.dart';
-import 'results_db.dart';
 
 final _log = Log.get('chart_utils');
 

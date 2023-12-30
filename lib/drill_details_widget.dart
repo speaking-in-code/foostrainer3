@@ -3,10 +3,7 @@
 import 'package:flutter/material.dart';
 import 'stats_grid_widget.dart';
 
-import 'aggregated_drill_summary.dart';
 import 'drill_data.dart';
-import 'duration_formatter.dart';
-import 'percent_formatter.dart';
 import 'results_entities.dart';
 
 class DrillDetailsWidget extends StatelessWidget {
@@ -22,7 +19,7 @@ class DrillDetailsWidget extends StatelessWidget {
       Container(
           padding: const EdgeInsets.all(8),
           child: Text(drillData.name,
-              style: Theme.of(context).textTheme.headline6)),
+              style: Theme.of(context).textTheme.titleLarge)),
       Center(child: StatsGridWidget(summary: summary, drillData: drillData)),
     ]));
   }

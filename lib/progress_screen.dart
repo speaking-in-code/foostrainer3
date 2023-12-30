@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'app_rater.dart';
 import 'drill_list_widget.dart';

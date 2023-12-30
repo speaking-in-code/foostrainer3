@@ -1,5 +1,3 @@
-import 'package:flutter_driver/flutter_driver.dart';
-import 'package:ft3/keys.dart';
 import 'package:ft3/log.dart';
 // import 'package:screenshots/screenshots.dart' as screenshots;
 import 'package:test/test.dart';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 import 'log.dart';
 import 'simple_dialog_item.dart';

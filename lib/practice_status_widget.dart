@@ -28,16 +28,14 @@ class PracticeStatusWidget extends StatelessWidget {
       required this.practice,
       required this.onStop})
       : summary = progress.results!,
-        assert(progress != null),
-        assert(progress.results != null),
-        assert(onStop != null);
+        assert(progress.results != null);
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = Theme.of(context).textTheme.headline5!;
+    TextStyle labelStyle = Theme.of(context).textTheme.headlineSmall!;
     labelStyle =
         labelStyle.copyWith(color: labelStyle.color!.withOpacity(0.75));
-    TextStyle dataStyle = Theme.of(context).textTheme.headline4!;
+    TextStyle dataStyle = Theme.of(context).textTheme.headlineMedium!;
     dataStyle = dataStyle.copyWith(
         color: dataStyle.color!.withOpacity(1.0),
         fontFeatures: [FontFeature.tabularFigures()]);

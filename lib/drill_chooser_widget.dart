@@ -46,9 +46,9 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
 
   @override
   Widget build(BuildContext context) {
-    typeStyle = Theme.of(context).textTheme.bodyText1;
+    typeStyle = Theme.of(context).textTheme.bodyLarge;
     typeStyle = typeStyle!.copyWith(color: typeStyle!.color!.withOpacity(0.8));
-    drillStyle = Theme.of(context).textTheme.bodyText1;
+    drillStyle = Theme.of(context).textTheme.bodyLarge;
     final children =
         choices.map((drillType) => _buildPanel(drillType)).toList();
     return SingleChildScrollView(

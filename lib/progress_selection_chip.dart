@@ -45,7 +45,7 @@ class ProgressSelectionChip extends StatefulWidget {
 class ProgressSelectionChipState extends State<ProgressSelectionChip> {
   ProgressSelection selected;
 
-  ProgressSelectionChipState(this.selected) : assert(selected != null);
+  ProgressSelectionChipState(this.selected);
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +61,9 @@ class ProgressSelectionChipState extends State<ProgressSelectionChip> {
     return Column(
       children: [
         Text(selected.drillData!.type,
-            style: Theme.of(context).textTheme.subtitle1),
+            style: Theme.of(context).textTheme.titleMedium),
         Text(selected.drillData!.name,
-            style: Theme.of(context).textTheme.bodyText2),
+            style: Theme.of(context).textTheme.bodyMedium),
       ],
     );
   }

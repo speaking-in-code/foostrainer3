@@ -80,8 +80,8 @@ class MyAppBar {
     } else {
       titleWidget = Column(
         children: [
-          Text(drillData!.type, style: Theme.of(context).textTheme.subtitle1),
-          Text(drillData!.name, style: Theme.of(context).textTheme.bodyText2),
+          Text(drillData!.type, style: Theme.of(context).textTheme.titleMedium),
+          Text(drillData!.name, style: Theme.of(context).textTheme.bodyMedium),
         ],
       );
     }

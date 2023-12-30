@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:audio_service/audio_service.dart';
 
 /// Widget to display list of drills.
 import 'package:flutter/material.dart';
@@ -107,7 +105,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (progress.practiceState == PracticeState.stopped) {
       // Drill was stopped via notification media controls.
       _log.info('BEE drill stopped via notification media');
-      WidgetsBinding.instance!.addPostFrameCallback((_) => _onStop());
+      WidgetsBinding.instance.addPostFrameCallback((_) => _onStop());
       return Scaffold();
     }
     if (progress.drill == null) {
@@ -189,7 +187,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     // Should we have a confirmation dialog when practice is stopped?
     await widget.practice.stopPractice();
     _log.info('Stopped practice');
-    if (widget.practice.lastActiveState?.results?.drill?.id != null &&
+    if (widget.practice.lastActiveState?.results?.drill.id != null &&
         widget.practice.lastActiveState?.drill != null &&
         widget.practice.reps > 0) {
       ResultsScreen.pushReplacement(
@@ -225,7 +223,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (planned.inSeconds == 0) {
       return false;
     }
-    Duration? elapsed = progress?.results?.drill?.elapsed;
+    Duration? elapsed = progress.results?.drill.elapsed;
     return elapsed != null && elapsed.inSeconds == planned.inSeconds;
   }
 

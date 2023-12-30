@@ -5,9 +5,7 @@ class TitledSection extends StatelessWidget {
   final String title;
   final Widget child;
 
-  TitledSection({required this.title, required this.child})
-      : assert(title != null),
-        assert(child != null);
+  TitledSection({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +22,6 @@ class TitledSection extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: _padding),
         child: SizedBox(
             width: double.infinity,
-            child: Text(title, style: Theme.of(context).textTheme.subtitle2)));
+            child: Text(title, style: Theme.of(context).textTheme.titleSmall)));
   }
 }

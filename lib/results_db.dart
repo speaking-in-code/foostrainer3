@@ -230,7 +230,7 @@ abstract class SummariesDao {
     int endSeconds = end != null ? _secondsSinceEpoch(end) : 0;
     List<StoredDrill> drills;
     drills = await _loadDrillsByDate(start != null, startSeconds, endSeconds,
-        fullName != null, fullName ?? '', limit, offset!);
+        fullName != null, fullName ?? '', limit, offset);
     return _summarizeDrills(db, drills);
   }
 

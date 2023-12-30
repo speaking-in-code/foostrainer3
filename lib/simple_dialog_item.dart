@@ -21,7 +21,7 @@ class SimpleDialogItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.headline6!;
+    TextStyle textStyle = Theme.of(context).textTheme.titleLarge!;
     // For portrait mode, text goes next to icon.
     // For landsacpe, text goes under icon.
     final child = MediaQuery.of(context).orientation == Orientation.portrait

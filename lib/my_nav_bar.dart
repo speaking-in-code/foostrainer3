@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:meta/meta.dart' show required;
 
 import 'drill_data.dart';
 import 'home_screen.dart';
@@ -13,9 +12,7 @@ class MyNavBarLocation {
   final Object? arguments;
 
   const MyNavBarLocation._create(
-      {required this.item, required this.route, this.arguments})
-      : assert(item != null),
-        assert(route != null);
+      {required this.item, required this.route, this.arguments});
 
   static const MyNavBarLocation practice = MyNavBarLocation._create(
       item: BottomNavigationBarItem(

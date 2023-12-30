@@ -9,14 +9,13 @@ class NoDrillsWidget extends StatelessWidget {
   final DrillData? drillData;
 
   const NoDrillsWidget({Key? key, required this.staticDrills, this.drillData})
-      : assert(staticDrills != null),
-        super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [];
-    final large = Theme.of(context).textTheme.headline5;
-    final medium = Theme.of(context).textTheme.headline6;
+    final large = Theme.of(context).textTheme.headlineSmall;
+    final medium = Theme.of(context).textTheme.titleLarge;
     final bigErrorText = Text('No Drills Found', style: large);
     if (drillData == null) {
       children.add(bigErrorText);

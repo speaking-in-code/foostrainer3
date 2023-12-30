@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 import 'drill_data.dart';
 import 'duration_formatter.dart';
-import 'percent_formatter.dart';
 import 'results_entities.dart';
 
 class StatsGridWidget extends StatelessWidget {
@@ -62,13 +61,13 @@ class StatsGridWidget extends StatelessWidget {
         Padding(
             padding: EdgeInsets.only(bottom: 6),
             child: Text('$label', style: _headerStyle(context))),
-        Text('$data', style: Theme.of(context).textTheme.headline5),
+        Text('$data', style: Theme.of(context).textTheme.headlineSmall),
       ],
     );
   }
 
   TextStyle _headerStyle(BuildContext context) {
-    TextStyle headerStyle = Theme.of(context).textTheme.subtitle1!;
+    TextStyle headerStyle = Theme.of(context).textTheme.titleMedium!;
     return headerStyle.apply(color: headerStyle.color!.withOpacity(.8));
   }
 }

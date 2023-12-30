@@ -4,7 +4,6 @@ import 'dart:convert';
 /// To regenerate json serialization:
 ///   flutter pub run build_runner build
 import 'package:json_annotation/json_annotation.dart';
-import 'package:meta/meta.dart';
 
 part 'drill_data.g.dart'; // Allows private access to generated code.
 

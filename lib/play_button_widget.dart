@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'drill_chooser_modal.dart';
 import 'drill_chooser_screen.dart';
 import 'drill_data.dart';
-import 'practice_config_screen.dart';
 import 'static_drills.dart';
 
 class PlayButtonWidget extends StatelessWidget {

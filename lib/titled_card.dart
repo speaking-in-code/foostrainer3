@@ -5,9 +5,7 @@ class TitledCard extends StatelessWidget {
   final String title;
   final Widget child;
 
-  TitledCard({required this.title, required this.child})
-      : assert(title != null),
-        assert(child != null);
+  TitledCard({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +24,6 @@ class TitledCard extends StatelessWidget {
         padding: EdgeInsets.all(_padding),
         child: SizedBox(
             width: double.infinity,
-            child: Text(title, style: Theme.of(context).textTheme.headline6)));
+            child: Text(title, style: Theme.of(context).textTheme.titleLarge)));
   }
 }

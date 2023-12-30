@@ -1,7 +1,6 @@
 // import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
-import 'chart_utils.dart' as chart_utils;
 import 'results_db.dart';
 import 'results_entities.dart';
 
@@ -9,9 +8,7 @@ class RepsOverTimeChart extends StatelessWidget {
   final AggregationLevel aggLevel;
   final List<AggregatedDrillSummary> drillHistory;
 
-  RepsOverTimeChart({required this.aggLevel, required this.drillHistory})
-      : assert(aggLevel != null),
-        assert(drillHistory != null);
+  RepsOverTimeChart({required this.aggLevel, required this.drillHistory});
 
   @override
   Widget build(BuildContext context) {

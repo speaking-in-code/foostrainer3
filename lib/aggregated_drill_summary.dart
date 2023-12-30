@@ -1,8 +1,6 @@
-import 'dart:collection';
 
 import 'log.dart';
 import 'results_db.dart';
-import 'results_entities.dart';
 
 final _log = Log.get('aggregated_drill_summary');
 

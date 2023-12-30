@@ -1,4 +1,3 @@
-import 'dart:collection';
 
 import 'package:flutter/material.dart';
 // import 'package:charts_flutter/flutter.dart' as charts;
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
 import 'log.dart';
-import 'percent_formatter.dart';
 import 'results_db.dart';
 import 'spinner.dart';
 import 'static_drills.dart';

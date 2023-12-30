@@ -71,7 +71,7 @@ class _LoadedResultsScreenState extends State<_LoadedResultsScreen> {
     super.initState();
     _summary = widget.resultsDb.summariesDao
         .loadDrill(widget.resultsDb, widget.args.drillId);
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted && widget.appRater.shouldRequestReview) {
         widget.appRater.requestReview();
       }

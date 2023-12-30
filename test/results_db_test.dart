@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -36,16 +35,16 @@ void main() {
     }
 
     test('inserts and removes drills', () async {
-      int drill_id = await drills.insertDrill(StoredDrill(
+      int drillId = await drills.insertDrill(StoredDrill(
           startSeconds: 5,
           drill: 'Pass:Something',
           tracking: false,
           elapsedSeconds: 60));
-      StoredDrill? loaded = await drills.loadDrill(drill_id);
+      StoredDrill? loaded = await drills.loadDrill(drillId);
       expect(loaded!.drill, equals('Pass:Something'));
 
-      await drills.removeDrill(drill_id);
-      loaded = await drills.loadDrill(drill_id);
+      await drills.removeDrill(drillId);
+      loaded = await drills.loadDrill(drillId);
       expect(loaded, isNull);
     });
 

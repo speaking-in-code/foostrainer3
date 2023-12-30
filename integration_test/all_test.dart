@@ -5,8 +5,7 @@ import 'home_screen_test.dart';
 
 void main() {
   // IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized()
-      as IntegrationTestWidgetsFlutterBinding;
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
   group('home screen', homeScreenTests);
