@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:145342491942:android:4b1a73b6051b6e72dca5e7",
         "android_client_info": {
-          "package_name": "net.speakingincode.foostrainer"
+          "package_name": "net.speakingincode.foostrainer_beta"
         }
       },
       "oauth_client": [
@@ -35,7 +35,7 @@
               "client_id": "145342491942-7247l09le0malrav66squs8klhfnn1qj.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "net.speakingincode.foostrainer"
+                "bundle_id": "net.speakingincode.foostrainer_beta"
               }
             }
           ]
