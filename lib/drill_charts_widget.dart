@@ -1,15 +1,15 @@
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
-// import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:community_charts_flutter/community_charts_flutter.dart'
+    as charts;
 
 import 'chart_utils.dart' as chart_utils;
 import 'drill_data.dart';
-import 'log.dart';
+import 'percent_formatter.dart';
 import 'results_db.dart';
 import 'spinner.dart';
 import 'static_drills.dart';
-
-final _log = Log.get('drill_charts_widget');
 
 class DrillChartsWidget extends StatefulWidget {
   final StaticDrills staticDrills;
@@ -53,15 +53,10 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
     }
     return SingleChildScrollView(
         child: Column(children: [
-      _buildAccuracyChart(context, snapshot.data),
+      _buildAccuracyChart(context, snapshot.data!),
     ]));
   }
 
-  Widget _buildAccuracyChart(
-      BuildContext context, List<AggregatedActionReps>? data) {
-    return Text('Chart disabled: accuracy chart');
-  }
-  /*
   Widget _buildAccuracyChart(
       BuildContext context, List<AggregatedActionReps> data) {
     final split = _splitByAction(data);
@@ -118,5 +113,4 @@ class DrillChartsWidgetState extends State<DrillChartsWidget> {
         measureFn: (AggregatedActionReps reps, _) => reps.accuracy,
         data: weeks);
   }
-  */
 }

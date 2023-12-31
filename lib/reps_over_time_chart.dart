@@ -1,6 +1,8 @@
-// import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:community_charts_flutter/community_charts_flutter.dart'
+    as charts;
 import 'package:flutter/material.dart';
 
+import 'chart_utils.dart' as chart_utils;
 import 'results_db.dart';
 import 'results_entities.dart';
 
@@ -10,12 +12,6 @@ class RepsOverTimeChart extends StatelessWidget {
 
   RepsOverTimeChart({required this.aggLevel, required this.drillHistory});
 
-  @override
-  Widget build(BuildContext context) {
-    return Text('Chart disabled: reps over time');
-  }
-
-/*
   @override
   Widget build(BuildContext context) {
     final series = _toRepsSeries(drillHistory);
@@ -45,5 +41,4 @@ class RepsOverTimeChart extends StatelessWidget {
         primaryMeasureAxis: chart_utils.numericAxisSpec,
         domainAxis: chart_utils.dateTimeAxis(aggLevel, series));
   }
-  */
 }
