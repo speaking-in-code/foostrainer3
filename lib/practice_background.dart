@@ -1,4 +1,6 @@
-// Start a background isolate for executing drills.
+/// Runs a background task to manage an active practice session. This used to
+/// run as a separate dart isolate, but with audio_service 18.x was changed to
+/// somehow avoid that.
 
 import 'dart:async';
 import 'dart:convert';
@@ -91,7 +93,8 @@ class PracticeBackground {
     return _handler.play();
   }
 
-  /// Whether practice is currently in progress.
+  /// Whether practice is currently in progress (either in-progress or paused,
+  /// not stopped.)
   bool get practicing {
     return _latestState != null &&
         _latestState!.practiceState != PracticeState.stopped;
@@ -109,6 +112,8 @@ class PracticeBackground {
   Stream<PracticeProgress> get progressStream =>
       Rx.combineLatest2(_handler.mediaItem, _handler.playbackState,
           (MediaItem? media, PlaybackState playback) {
+        // Playback state is whether audio is actively playing.
+        // Media is the drill being practiced.
         _latestState = _makePlaybackState(media, playback);
         if (_latestState?.practiceState != PracticeState.stopped) {
           _lastActiveState = _latestState;
@@ -218,6 +223,9 @@ const MediaControl _stopControl = MediaControl(
   action: MediaAction.stop,
 );
 
+/// The background audio handler. This accepts commands from clients (e.g.
+/// start a drill, pause the drill, resume the drill), and publishes the current
+/// drill state as a Stream that can be observed by clients.
 class _PracticeHandler extends BaseAudioHandler {
   static final _log = Log.get('PracticeHandler');
   static const _startEvent = 'ft_start_practice';

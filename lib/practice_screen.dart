@@ -1,6 +1,6 @@
-
-
-/// Widget to display list of drills.
+/// Displays the active practice screen. Note that the app might be suspended
+/// while practice is in progress, so the actual logic of the practice session
+/// is in PracticeBackground.
 import 'package:flutter/material.dart';
 
 import 'app_rater.dart';
@@ -45,16 +45,15 @@ class PracticeScreen extends StatefulWidget {
   }
 }
 
-// TODO(brian): work on state tracking/recording. Make sure that state is
-// always initialized at drill start and finish.
-// Navigation here is tricky. There are lots of ways to transition state.
+// State transitions here are tricky:
 // - the in-app stop button (goes to results screen)
 // - the media controls stop button (goes to results screen)
 // - the in-app back button (requests confirmation for cancel)
 // - the phone back button (requests confirmation for cancel)
 //
-// I'm tempted, but not sure, about adding a confirmation for the stop step as
-// well as the back step.
+// The within-practice state is also subtle, e.g. PracticeProgress can be
+// delivered multiple times for the same action, so we have to be careful to
+// not ask the user to confirm the action results more than once.
 class _PracticeScreenState extends State<PracticeScreen> {
   // True if we're already leaving this widget.
   bool _popInProgress = false;
