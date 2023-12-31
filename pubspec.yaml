@@ -13,7 +13,7 @@ dependencies:
   audio_service: ^0.18.11
   audio_session: ^0.1.16
   build: ^2.4.1
-  # charts_flutter: ^0.10.0
+  community_charts_flutter: ^1.0.2
   device_info_plus: ^9.0.3
   equatable: ^2.0.5
   expandable: ^5.0.1

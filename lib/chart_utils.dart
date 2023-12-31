@@ -1,7 +1,9 @@
-// import 'package:charts_flutter/flutter.dart' as charts;
-// import 'package:charts_common/common.dart' as charts_common;
+import 'package:community_charts_flutter/community_charts_flutter.dart'
+    as charts;
+import 'package:flutter/material.dart';
 
 import 'log.dart';
+import 'results_db.dart';
 
 final _log = Log.get('chart_utils');
 
@@ -9,7 +11,6 @@ final _log = Log.get('chart_utils');
 const maxWeeks = 52 * 2;
 const maxWeeksDisplayed = 10;
 
-/*
 const axisLabelStyle = charts.TextStyleSpec(
   fontSize: 10,
   color: charts.MaterialPalette.white,
@@ -74,7 +75,7 @@ List<charts.Series<AggregatedActionReps, DateTime>> toAccuracySeries(
   return _toSeries(input, (AggregatedActionReps item) => item.accuracy);
 }
 
-typedef _MeasureExtractor = num Function(AggregatedActionReps datum);
+typedef _MeasureExtractor = num? Function(AggregatedActionReps datum);
 
 List<charts.Series<AggregatedActionReps, DateTime>> _toSeries(
     Map<String, List<AggregatedActionReps>> input,
@@ -89,4 +90,3 @@ List<charts.Series<AggregatedActionReps, DateTime>> _toSeries(
   });
   return series;
 }
-*/
