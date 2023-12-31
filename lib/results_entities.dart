@@ -44,7 +44,8 @@ class StoredDrill {
         elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds);
   }
 
-  factory StoredDrill.newDrill({required String drill, required bool tracking}) {
+  factory StoredDrill.newDrill(
+      {required String drill, required bool tracking}) {
     return StoredDrill(
       startSeconds: (DateTime.now().millisecondsSinceEpoch ~/ 1000),
       drill: drill,

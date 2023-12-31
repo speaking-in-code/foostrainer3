@@ -14,6 +14,7 @@ class Log {
   }
 
   static void _onRecord(LogRecord record) {
-    print('${record.level.name}: ${record.time}: ${record.loggerName} ${record.message}');
+    print(
+        '${record.level.name}: ${record.time}: ${record.loggerName} ${record.message}');
   }
 }

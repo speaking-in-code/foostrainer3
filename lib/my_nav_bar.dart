@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import 'drill_data.dart';
 import 'home_screen.dart';
 import 'monthly_drills_screen.dart';
@@ -9,10 +8,8 @@ import 'progress_screen.dart';
 class MyNavBarLocation {
   final BottomNavigationBarItem item;
   final String route;
-  final Object? arguments;
 
-  const MyNavBarLocation._create(
-      {required this.item, required this.route, this.arguments});
+  const MyNavBarLocation._create({required this.item, required this.route});
 
   static const MyNavBarLocation practice = MyNavBarLocation._create(
       item: BottomNavigationBarItem(

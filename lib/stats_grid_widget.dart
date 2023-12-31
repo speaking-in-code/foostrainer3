@@ -54,7 +54,8 @@ class StatsGridWidget extends StatelessWidget {
     return _labeledData(context, label: 'Reps', data: repsString);
   }
 
-  Widget _labeledData(BuildContext context, {required String label, required String data}) {
+  Widget _labeledData(BuildContext context,
+      {required String label, required String data}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

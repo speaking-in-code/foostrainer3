@@ -1,10 +1,10 @@
-import 'package:community_charts_flutter/community_charts_flutter.dart' as charts;
+import 'package:community_charts_flutter/community_charts_flutter.dart'
+    as charts;
 import 'package:flutter/material.dart';
 
 import 'chart_utils.dart' as chart_utils;
 import 'results_db.dart';
 import 'results_entities.dart';
-
 
 class AccuracyOverTimeChart extends StatelessWidget {
   static const title = 'Accuracy Over Time';

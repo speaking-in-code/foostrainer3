@@ -44,8 +44,9 @@ void main() {
   });
 
   test('Big random value', () {
-    expect(DurationFormatter.format(
-        Duration(days: 0, hours: 1, minutes: 23, seconds: 500)),
+    expect(
+        DurationFormatter.format(
+            Duration(days: 0, hours: 1, minutes: 23, seconds: 500)),
         '01:31:20');
   });
 }

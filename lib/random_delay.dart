@@ -1,6 +1,5 @@
 import 'dart:math';
 
-
 import 'drill_data.dart';
 
 class RandomDelay {

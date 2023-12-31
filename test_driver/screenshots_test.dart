@@ -16,7 +16,7 @@ void main() {
 
   group('FoosTrainer App Screenshots', () {
     test('do nothing', () async {});
-  /*
+    /*
     FlutterDriver driver;
 
     // Connect to the Flutter driver before running any tests.

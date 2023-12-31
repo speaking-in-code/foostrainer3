@@ -18,7 +18,10 @@ class HomeScreen extends StatefulWidget {
   final AppRater appRater;
   final PracticeBackground practice;
 
-  HomeScreen({required this.staticDrills, required this.appRater, required this.practice});
+  HomeScreen(
+      {required this.staticDrills,
+      required this.appRater,
+      required this.practice});
 
   @override
   State<StatefulWidget> createState() => HomeScreenState();

@@ -38,7 +38,9 @@ class PracticeConfigScreen extends StatefulWidget {
   final AppRater appRater;
   final PracticeBackground practice;
 
-  PracticeConfigScreen({Key? key, required this.appRater, required this.practice}) : super(key: key);
+  PracticeConfigScreen(
+      {Key? key, required this.appRater, required this.practice})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PracticeConfigScreenState();

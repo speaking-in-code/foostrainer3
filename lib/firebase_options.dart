@@ -65,7 +65,8 @@ class DefaultFirebaseOptions {
     projectId: 'foostrainer-79412',
     databaseURL: 'https://foostrainer-79412.firebaseio.com',
     storageBucket: 'foostrainer-79412.appspot.com',
-    iosClientId: '145342491942-7247l09le0malrav66squs8klhfnn1qj.apps.googleusercontent.com',
+    iosClientId:
+        '145342491942-7247l09le0malrav66squs8klhfnn1qj.apps.googleusercontent.com',
     iosBundleId: 'net.speakingincode.foostrainer',
   );
 }

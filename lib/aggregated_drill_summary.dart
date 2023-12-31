@@ -1,4 +1,3 @@
-
 import 'log.dart';
 import 'results_db.dart';
 

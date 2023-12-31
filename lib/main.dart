@@ -73,14 +73,14 @@ class MainApp extends StatelessWidget {
             staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
         DrillChooserScreen.routeName: (context) =>
             DrillChooserScreen(staticDrills: drills, appRater: appRater),
-        HomeScreen.routeName: (context) =>
-            HomeScreen(staticDrills: drills, appRater: appRater, practice: practice),
+        HomeScreen.routeName: (context) => HomeScreen(
+            staticDrills: drills, appRater: appRater, practice: practice),
         MonthlyDrillsScreen.routeName: (context) => MonthlyDrillsScreen(
             staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
         PracticeConfigScreen.routeName: (context) =>
             PracticeConfigScreen(appRater: appRater, practice: practice),
-        PracticeScreen.routeName: (context) =>
-            PracticeScreen(staticDrills: drills, appRater: appRater, practice: practice),
+        PracticeScreen.routeName: (context) => PracticeScreen(
+            staticDrills: drills, appRater: appRater, practice: practice),
         ProgressScreen.routeName: (context) => ProgressScreen(
             staticDrills: drills, resultsDb: resultsDb, appRater: appRater),
         ResultsScreen.routeName: (context) => ResultsScreen(

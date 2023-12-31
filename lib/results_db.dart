@@ -60,7 +60,8 @@ abstract class ActionsDao {
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<int> insertAction(StoredAction results);
 
-  @Query('SELECT * from Actions WHERE drillId = :drillId AND Actions.action = :action')
+  @Query(
+      'SELECT * from Actions WHERE drillId = :drillId AND Actions.action = :action')
   Future<StoredAction?> loadAction(int drillId, String action);
 
   @Query('SELECT * from Actions WHERE drillId = :drillId')
@@ -219,7 +220,7 @@ abstract class SummariesDao {
   // and end dates.
   Future<List<DrillSummary>> loadDrillsByDate(
     ResultsDatabase db, {
-    int limit = 30*100,
+    int limit = 30 * 100,
     int offset = 0,
     DateTime? start,
     DateTime? end,
@@ -353,14 +354,14 @@ abstract class SummariesDao {
       required String action}) {
     switch (aggLevel) {
       case AggregationLevel.DAILY:
-        return _dailyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
-            action, limit, offset);
+        return _dailyDrillReps(
+            drill.isNotEmpty, drill, action.isNotEmpty, action, limit, offset);
       case AggregationLevel.WEEKLY:
-        return _weeklyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
-            action, limit, offset);
+        return _weeklyDrillReps(
+            drill.isNotEmpty, drill, action.isNotEmpty, action, limit, offset);
       case AggregationLevel.MONTHLY:
-        return _monthlyDrillReps(drill.isNotEmpty, drill, action.isNotEmpty,
-            action, limit, offset);
+        return _monthlyDrillReps(
+            drill.isNotEmpty, drill, action.isNotEmpty, action, limit, offset);
       default:
         throw ArgumentError('Unknown aggLevel $aggLevel');
     }
