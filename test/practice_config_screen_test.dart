@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ft3/drill_data.dart';
-import 'package:ft3/practice_config_screen.dart';
-import 'package:ft3/static_drills.dart';
-// import 'package:mocking/main.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'package:ft3/app_rater.dart';
+import 'package:ft3/drill_data.dart';
 import 'package:ft3/practice_background.dart';
+import 'package:ft3/practice_config_screen.dart';
+import 'package:ft3/static_drills.dart';
 
 import 'practice_config_screen_test.mocks.dart';
 
