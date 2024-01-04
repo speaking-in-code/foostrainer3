@@ -38,6 +38,15 @@ enum Signal {
 // - per-practice session configuration
 @JsonSerializable()
 class DrillData {
+  String name;
+  String type;
+  int possessionSeconds;
+  List<ActionData> actions;
+  Tempo? tempo;
+  Signal? signal;
+  int? practiceMinutes;
+  bool? tracking;
+
   DrillData({
     required this.name,
     required this.type,
@@ -49,14 +58,27 @@ class DrillData {
     this.tracking,
   });
 
-  String name;
-  String type;
-  int possessionSeconds;
-  List<ActionData> actions;
-  Tempo? tempo;
-  Signal? signal;
-  int? practiceMinutes;
-  bool? tracking;
+  DrillData copy() => copyWith();
+
+  DrillData copyWith(
+      {String? name,
+      String? type,
+      int? possessionSeconds,
+      List<ActionData>? actions,
+      Tempo? tempo,
+      Signal? signal,
+      int? practiceMinutes,
+      bool? tracking}) {
+    return DrillData(
+        name: name ?? this.name,
+        type: type ?? this.type,
+        possessionSeconds: possessionSeconds ?? this.possessionSeconds,
+        actions: actions ?? List.from(this.actions),
+        tempo: tempo ?? this.tempo,
+        signal: signal ?? this.signal,
+        practiceMinutes: practiceMinutes ?? this.practiceMinutes,
+        tracking: tracking ?? this.tracking);
+  }
 
   String get fullName => '$type:$name';
 

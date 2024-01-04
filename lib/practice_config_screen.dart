@@ -32,7 +32,7 @@ class PracticeConfigScreen extends StatefulWidget {
   static const trackingAccuracyOffKey = Key(Keys.trackingAccuracyOffKey);
 
   static void navigate(BuildContext context, DrillData drill) {
-    Navigator.pushNamed(context, routeName, arguments: drill);
+    Navigator.pushNamed(context, routeName, arguments: drill.copy());
   }
 
   final AppRater appRater;
@@ -55,7 +55,6 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
 
   static const kDefaultMinutes = 10;
   DrillData? _drill;
-  double? _practiceMinutes;
   bool _transitioning = false;
 
   @override
@@ -69,7 +68,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     _drill!.tempo ??= Tempo.RANDOM;
     _drill!.signal ??= Signal.AUDIO;
     _drill!.tracking ??= true;
-    _practiceMinutes = (_drill!.practiceMinutes ?? kDefaultMinutes).toDouble();
+    _drill!.practiceMinutes ??= kDefaultMinutes;
     Color? fabColor =
         Theme.of(context).floatingActionButtonTheme.backgroundColor;
     VoidCallback? fabClicked = _startPractice;
@@ -180,17 +179,18 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   }
 
   Widget _makeDurationSlider() {
+    double curMinutes = _drill!.practiceMinutes!.toDouble();
     return Slider(
         activeColor: Theme.of(context).colorScheme.primary,
         key: PracticeConfigScreen.drillTimeSliderKey,
-        value: _practiceMinutes!,
+        value: curMinutes,
         min: 5,
         max: 60,
         divisions: 11,
         label: _formatDuration(),
         onChanged: (double duration) {
           setState(() {
-            _practiceMinutes = duration;
+            _drill!.practiceMinutes = duration.round();
           });
         });
   }
@@ -307,7 +307,6 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
     // Workaround for https://github.com/flutter/flutter/issues/35521: don't
     // actually run the background process. Triggering native UI like music
     // players tends to trigger that bug.
-    _drill!.practiceMinutes = _practiceMinutes!.round();
     if (ScreenshotData.progress == null) {
       // Normal flow.
       _log.info('Starting practice ${_drill!.name}');
@@ -321,6 +320,6 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
   }
 
   String _formatDuration() {
-    return '${_practiceMinutes!.toStringAsFixed(0)} minutes';
+    return '${_drill!.practiceMinutes} minutes';
   }
 }
