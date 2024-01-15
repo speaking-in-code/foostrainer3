@@ -61,9 +61,10 @@ class MainApp extends StatelessWidget {
   final AppRater appRater;
   final PracticeBackground practice;
   final FirebaseApp firebaseApp;
+  final bool debugShowCheckedModeBanner;
 
   MainApp(this.resultsDb, this.drills, this.appRater, this.practice,
-      this.firebaseApp) {
+      this.firebaseApp, {this.debugShowCheckedModeBanner=false}) {
     _log.info('MainApp constructor done');
   }
 
@@ -73,6 +74,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'FoosTrainer',
       theme: _darkTheme,
+      debugShowCheckedModeBanner: debugShowCheckedModeBanner,
       navigatorObservers: [_observer],
       initialRoute: HomeScreen.routeName,
       routes: {

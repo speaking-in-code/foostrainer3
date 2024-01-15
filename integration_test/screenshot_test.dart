@@ -9,13 +9,13 @@ import 'app_starter.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  //final _screenshots = FBTLScreenshots();
-  //_screenshots.connect();
+  final _screenshots = FBTLScreenshots();
+  _screenshots.connect();
 
   testWidgets('Home Screen', (WidgetTester tester) async {
     await startFoosTrainer(tester);
     print('Home Screen test finished');
-    //await _screenshots.takeScreenshot(tester, '01-home-screen');
+    await _screenshots.takeScreenshot(tester, '01-home-screen');
   });
 }
 

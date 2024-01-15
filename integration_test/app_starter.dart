@@ -18,6 +18,7 @@ Future<void> startFoosTrainer(WidgetTester tester) async {
     await PracticeBackground.init(),
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform),
+    debugShowCheckedModeBanner: false,
   );
   await (await db).addData(
       StoredDrill(
