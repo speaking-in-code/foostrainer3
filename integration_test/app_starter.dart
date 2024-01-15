@@ -1,6 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import 'package:ft3/app_rater.dart';
+import 'package:ft3/firebase_options.dart';
 import 'package:ft3/main.dart' as app;
+import 'package:ft3/practice_background.dart';
 import 'package:ft3/results_db.dart';
 import 'package:ft3/results_entities.dart';
 import 'package:ft3/static_drills.dart';
@@ -11,6 +15,9 @@ Future<void> startFoosTrainer(WidgetTester tester) async {
     await db,
     await StaticDrills.load(),
     await AppRater.create(),
+    await PracticeBackground.init(),
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform),
   );
   await (await db).addData(
       StoredDrill(

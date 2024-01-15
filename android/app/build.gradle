@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = new File('/Users/brian/Documents/development/android/key.properties')
+def keystorePropertiesFile = new File('/Users/brianeaton/Documents/development/android/key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
@@ -51,6 +51,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -78,4 +79,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.firebase:firebase-analytics:17.2.0'
     implementation 'com.android.support:multidex:1.0.3'
+    testImplementation 'junit:junit:4.12'
+
+    // https://developer.android.com/jetpack/androidx/releases/test/#1.2.0
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

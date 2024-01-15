@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,7 @@ import 'static_drills.dart';
 final _log = Log.get('main');
 
 void main() async {
+  stdout.writeln('Foostrainer3 main is running');
   WidgetsFlutterBinding.ensureInitialized();
   // Start the album art load asynchronously.
   AlbumArt.load();
@@ -34,9 +37,11 @@ void main() async {
   _log.info('Creating PracticeBackground');
   final practice = PracticeBackground.init();
   _log.info('Initializing firebase');
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final firebase =
+      Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   _log.info('Running App');
-  runApp(MainApp(await db, await drills, await appRater, await practice));
+  runApp(MainApp(
+      await db, await drills, await appRater, await practice, await firebase));
   _log.info('App Done');
 }
 
@@ -55,8 +60,10 @@ class MainApp extends StatelessWidget {
   final StaticDrills drills;
   final AppRater appRater;
   final PracticeBackground practice;
+  final FirebaseApp firebaseApp;
 
-  MainApp(this.resultsDb, this.drills, this.appRater, this.practice) {
+  MainApp(this.resultsDb, this.drills, this.appRater, this.practice,
+      this.firebaseApp) {
     _log.info('MainApp constructor done');
   }
 
