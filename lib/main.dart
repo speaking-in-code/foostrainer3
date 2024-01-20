@@ -24,7 +24,7 @@ import 'static_drills.dart';
 final _log = Log.get('main');
 
 void main() async {
-  stdout.writeln('Foostrainer3 main is running');
+  stdout.writeln('FoosTrainer3 main is running');
   WidgetsFlutterBinding.ensureInitialized();
   // Start the album art load asynchronously.
   AlbumArt.load();

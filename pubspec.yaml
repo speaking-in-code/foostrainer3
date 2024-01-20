@@ -57,7 +57,7 @@ dev_dependencies:
   #screenshots:
   #  path: ../screenshots
   test: ^1.24.3
-  testlab_tools:
+  testlab:
     path: /Users/brianeaton/sb/testlab_tools
 
 flutter:

@@ -28,7 +28,6 @@ class Keys {
   // Progress screen
   static const drillSelectionKey = Key('drillSelectionKey');
   static const accuracyTabKey = 'accuracyTabKey';
-  static const progressChooserCloseKey = 'progressChooserCloseKey';
 
   static const calendarDatePicker = Key('calendarDatePicker');
 }

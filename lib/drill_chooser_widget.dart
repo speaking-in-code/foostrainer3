@@ -94,7 +94,9 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
     if (drillType == _allType) {
       drillType = 'All Drills';
     }
-    return ListTile(title: Text(drillType, style: typeStyle));
+    return Semantics(
+        child: ListTile(title: Text(drillType, style: typeStyle)),
+        label: 'Drill type: $drillType');
   }
 
   Widget _buildAllTileBody() {
@@ -116,12 +118,14 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
   }
 
   Widget _buildDrill(DrillData drillData) {
-    return ListTile(
-        key: Key(drillData.fullName),
-        title: Text(drillData.name, style: drillStyle),
-        trailing: Icon(Icons.arrow_right, color: drillStyle!.color),
-        onTap: () {
-          widget.onDrillChosen(drillData);
-        });
+    return Semantics(
+        child: ListTile(
+            key: Key(drillData.fullName),
+            title: Text(drillData.name, style: drillStyle),
+            trailing: Icon(Icons.arrow_right, color: drillStyle!.color),
+            onTap: () {
+              widget.onDrillChosen(drillData);
+            }),
+        label: 'Drill: ${drillData.name}');
   }
 }

@@ -8,24 +8,28 @@ class DrillDescriptionTile extends StatelessWidget {
   final Widget? trailing;
   final GestureTapCallback? onTap;
 
-  DrillDescriptionTile({this.drillData, this.trailing, this.onTap})
-      : super(key: Keys.drillSelectionKey);
+  DrillDescriptionTile({this.drillData, this.trailing, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    Widget title;
-    Widget? subtitle;
+    Text title;
+    Text? subtitle;
+    String label;
     if (drillData == null) {
       title = Text('All Drills');
+      label = 'Select All Drills';
     } else {
       title = Text(drillData!.type);
       subtitle = Text(drillData!.name);
+      label = 'Select drill ${drillData!.type} - ${drillData!.name}';
     }
-    return ListTile(
-      title: title,
-      subtitle: subtitle,
-      trailing: trailing,
-      onTap: onTap,
-    );
+    return Semantics(
+        label: label,
+        child: ListTile(
+          title: title,
+          subtitle: subtitle,
+          trailing: trailing,
+          onTap: onTap,
+        ));
   }
 }
