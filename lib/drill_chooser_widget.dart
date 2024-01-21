@@ -84,7 +84,7 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
     return ExpansionPanel(
       headerBuilder: (context, isExpanded) =>
           _buildHeader(context, isExpanded, drillType),
-      body: _buildBody(drillDatas),
+      body: _buildBody(drillType, drillDatas),
       isExpanded: selectedType == drillType,
       canTapOnHeader: true,
     );
@@ -96,7 +96,7 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
     }
     return Semantics(
         child: ListTile(title: Text(drillType, style: typeStyle)),
-        label: 'Drill type: $drillType');
+        label: 'Select drill type $drillType');
   }
 
   Widget _buildAllTileBody() {
@@ -107,8 +107,9 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
     );
   }
 
-  Widget _buildBody(List<DrillData> drillDatas) {
+  Widget _buildBody(String drillTypeLabel, List<DrillData> drillDatas) {
     return ListView.separated(
+      key: Key('Drill Type List: $drillTypeLabel'),
       shrinkWrap: true,
       primary: false,
       itemCount: drillDatas.length,
@@ -126,6 +127,6 @@ class _DrillChooserWidgetState extends State<DrillChooserWidget> {
             onTap: () {
               widget.onDrillChosen(drillData);
             }),
-        label: 'Drill: ${drillData.name}');
+        label: 'Drill ${drillData.type}: ${drillData.name}');
   }
 }
