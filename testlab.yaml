@@ -1,6 +1,7 @@
 
 firebase_project: calendar-puzzle-70093
-test_target: integration_test/screenshot_test.dart
+screenshot_target: integration_test/screenshot_test.dart
+test_target: integration_test/all_test.dart
 android_verify_config: true
 android_test_firebase: true
 android_models:
