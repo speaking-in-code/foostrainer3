@@ -1,6 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ft3/keys.dart';
 import 'package:ft3/practice_status_widget.dart';
 
 import 'app_starter.dart';
@@ -27,7 +26,9 @@ class IsSimilarDuration extends Matcher {
 
 Function() drillTests(AppStarter appStarter) {
   return () {
-    final playFinder = find.byKey(Key(Keys.playKey));
+    final playFinder = find.byIcon(Icons.play_arrow);
+    final pauseFinder = find.byIcon(Icons.pause);
+    final stopFinder = find.byIcon(Icons.stop);
     final practiceRepsFinder = find.byKey(PracticeStatusWidget.repsKey);
     final durationFinder = find.byKey(PracticeStatusWidget.elapsedKey);
     final accuracyFinder = find.byKey(PracticeStatusWidget.accuracyKey);
@@ -62,7 +63,7 @@ Function() drillTests(AppStarter appStarter) {
     }
 
     testWidgets('Runs drill with accuracy off', (WidgetTester tester) async {
-      await tester.pumpWidget(await appStarter.mainApp);
+      await appStarter.startHomeScreen(tester);
       await tester.tapAndSettle(find.text('Start Practice'));
       await tester.tapAndSettle(find.text('Stick Pass'));
       await tester.tapAndSettle(find.text('Lane/Wall/Bounce'));
@@ -79,48 +80,52 @@ Function() drillTests(AppStarter appStarter) {
       expect(getDuration(), IsSimilarDuration(timeToFirst.elapsed));
     });
 
-    testWidgets('Runs rollover drill with accuracy on', (WidgetTester tester) async {
-      await tester.pumpWidget(await appStarter.mainApp);
+    testWidgets('Runs rollover drill with accuracy on',
+        (WidgetTester tester) async {
+      await appStarter.startHomeScreen(tester);
       await tester.tapAndSettle(find.text('Start Practice'));
       await tester.tapAndSettle(find.text('Rollover'));
       await tester.tapAndSettle(find.text('Up/Down/Middle'));
       await tester.tapAndSettle(playFinder);
-      expect(getAccuracy(), '-');
+      expect(getAccuracy(), '--');
       await tester.waitFor(find.text('Paused'));
+      await tester.waitFor(find.text('Enter Result'));
       expect(find.text('Enter Result'), findsOneWidget);
       expect(find.text('Good'), findsOneWidget);
       expect(find.text('Missed'), findsOneWidget);
       expect(find.text('Skip'), findsOneWidget);
       await tester.tapAndSettle(find.text('Good'));
-      await waitForReps(tester, '0');
-      expect(getAccuracy(), '100%');
+      await tester.waitFor(find.text('100%'));
     });
 
-    /*
-    test('pause and resume work', () async {
-      await driver.getText(find.text('Drill Type'));
-      await driver.tap(find.text('Rollover'));
-      await driver.tap(find.text('Up/Down'));
-      await driver.tap(playFinder);
-      await waitForReps('0');
-      await waitForReps('1');
+    testWidgets('Pauses and resumes drill', (WidgetTester tester) async {
+      await appStarter.startHomeScreen(tester);
 
-      // Hit the pause button
-      driver.tap(pauseFinder);
-      await driver.getText(find.text('Paused'));
-      Duration orig = parseDuration(await getDuration());
-      sleep(Duration(seconds: 5));
-      Duration afterSleep = parseDuration(await getDuration());
-      expect(afterSleep, equals(orig));
-      await waitForReps('1');
+      await tester.tapAndSettle(find.text('Start Practice'));
+      await tester.tapAndSettle(find.text('Brush Pass'));
+      await tester.tapAndSettle(
+          find.bySemanticsLabel(RegExp(r'Drill Brush Pass: Lane/Wall')));
+      await tester.tapAndSettle(find.text('Accuracy Tracking: On'));
+      await tester.tapAndSettle(find.text('Off'));
+      await tester.tapAndSettle(playFinder);
 
-      // Hit the play button
-      driver.tap(playFinder);
-      sleep(Duration(seconds: 5));
-      var afterPlay = parseDuration(await getDuration());
-      expect(afterPlay.inSeconds, greaterThan(orig.inSeconds));
-      await navigatePracticeToHome();
+      await waitForReps(tester, '1');
+      expect(playFinder, findsNothing);
+      expect(stopFinder, findsOneWidget);
+
+      await tester.tapAndSettle(pauseFinder);
+      await tester.waitFor(playFinder);
+      expect(pauseFinder, findsNothing);
+      expect(stopFinder, findsOneWidget);
+
+      // Should not update clock while paused.
+      final origDuration = getDuration();
+      await Future.delayed(const Duration(seconds: 2));
+      expect(getDuration(), origDuration);
+
+      await tester.tapAndSettle(playFinder);
+      await waitForReps(tester, '2');
+      expect(getDuration(), greaterThan(origDuration));
     });
-     */
   };
 }

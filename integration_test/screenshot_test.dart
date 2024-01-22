@@ -11,19 +11,19 @@ import 'tap_and_settle.dart';
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final _screenshots = FBTLScreenshots()..connect();
-  final appStarter = AppStarter(fakeDrillScreen: true);
+  final appStarter = AppStarter.create(fakeDrillScreen: true);
 
   Future<void> _screenshot(WidgetTester tester, String name) async {
     await _screenshots.takeScreenshot(tester, name);
   }
 
   testWidgets('Home Screen', (WidgetTester tester) async {
-    await tester.pumpWidget(await appStarter.mainApp);
+    await appStarter.startHomeScreen(tester);
     await _screenshot(tester, '01-home-screen');
   });
 
   testWidgets('Drill detailed log', (WidgetTester tester) async {
-    await tester.pumpWidget(await appStarter.mainApp);
+    await appStarter.startHomeScreen(tester);
     await tester.tapAndSettle(find.text('Progress'));
     await tester.tapAndSettle(find.text('Log'));
     await tester.tapAndSettle(find.textContaining('Jun 13, 2020 8:45'));
@@ -37,7 +37,7 @@ void main() async {
   }
 
   testWidgets('Accuracy chart', (WidgetTester tester) async {
-    await tester.pumpWidget(await appStarter.mainApp);
+    await appStarter.startHomeScreen(tester);
 
     // Show weekly progress.
     await tester.tapAndSettle(find.text('Progress'));
@@ -52,7 +52,7 @@ void main() async {
     final scrollable = find.descendant(of: find.byKey(Key('Drill Type List: Pull')),
         matching: find.byType(Scrollable));
     expect(scrollable, findsOneWidget);
-    final pullDrill =find.bySemanticsLabel(RegExp(r'Drill Pull: Straight/Middle/Long'));
+    final pullDrill = find.bySemanticsLabel(RegExp(r'Drill Pull: Straight/Middle/Long'));
     await tester.scrollUntilVisible(pullDrill, 20, scrollable: scrollable);
     await tester.tapAndSettle(pullDrill);
     await _closeModal(tester);

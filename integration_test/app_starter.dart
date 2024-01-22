@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:ft3/app_rater.dart';
 import 'package:ft3/firebase_options.dart';
+import 'package:ft3/log.dart';
 import 'package:ft3/main.dart' as app;
 import 'package:ft3/practice_background.dart';
 import 'package:ft3/results_db.dart';
@@ -12,20 +13,41 @@ import 'package:ft3/results_entities.dart';
 import 'package:ft3/screenshot_data.dart';
 import 'package:ft3/static_drills.dart';
 
+final _log = Log.get('AppStarter');
+
 class AppStarter {
-  final Future<app.MainApp> mainApp;
+  final Future<_AppInfo> _appInfo;
 
-  AppStarter({required bool fakeDrillScreen})
-      : mainApp = _create(fakeDrillScreen: fakeDrillScreen);
+  static AppStarter create({required bool fakeDrillScreen}) {
+    return AppStarter._(_create(fakeDrillScreen: fakeDrillScreen));
+  }
 
-  static Future<app.MainApp> _create({required bool fakeDrillScreen}) async {
+  AppStarter._(this._appInfo);
+
+  /// Gets the main app in a ready-for-home-screen state.
+  Future<void> startHomeScreen(WidgetTester tester) async {
+    final info = await _appInfo;
+    if (info.background.practicing) {
+      _log.info('stopping existing practice');
+      await info.background.stopPractice();
+      _log.info('waiting for progress stream to report stopped.');
+      await info.background.progressStream.firstWhere(
+              (PracticeProgress progress) =>
+          progress.practiceState == PracticeState.stopped);
+    }
+    _log.info('Starting main app');
+    await tester.pumpWidget(info.mainApp);
+  }
+
+  static Future<_AppInfo> _create({required bool fakeDrillScreen}) async {
     final dbFuture = ResultsDatabase.init(storage: DbStorage.IN_MEMORY);
     final drillsFuture = StaticDrills.load();
+    final background = PracticeBackground.init();
     final mainApp = app.MainApp(
       await dbFuture,
       await drillsFuture,
       await AppRater.create(),
-      await PracticeBackground.init(),
+      await background,
       await Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform),
       debugShowCheckedModeBanner: false,
@@ -40,8 +62,15 @@ class AppStarter {
     await _addBrush(db, drills);
     await _addPullProgress(db, drills);
     await _addCalendarDays(db, drills);
-    return mainApp;
+    return _AppInfo(mainApp, await background);
   }
+}
+
+class _AppInfo {
+  final app.MainApp mainApp;
+  final PracticeBackground background;
+
+  _AppInfo(this.mainApp, this.background);
 }
 
 Future<int> _addRollover(ResultsDatabase db, StaticDrills drills) async {

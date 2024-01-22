@@ -23,7 +23,6 @@ class PracticeConfigScreen extends StatefulWidget {
   static const fastKey = Key(Keys.fastKey);
   static const slowKey = Key(Keys.slowKey);
   static const randomKey = Key(Keys.randomKey);
-  static const playKey = Key(Keys.playKey);
   static const audioKey = Key(Keys.audioKey);
   static const audioAndFlashKey = Key(Keys.audioAndFlashKey);
   static const signalHeaderKey = Key(Keys.signalHeaderKey);
@@ -86,7 +85,7 @@ class _PracticeConfigScreenState extends State<PracticeConfigScreen> {
           floatingActionButton: FloatingActionButton(
             backgroundColor: fabColor,
             onPressed: fabClicked,
-            child: Icon(Icons.play_arrow, key: PracticeConfigScreen.playKey),
+            child: Icon(Icons.play_arrow),
           ),
         ));
   }

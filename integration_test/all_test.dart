@@ -5,12 +5,12 @@ import 'app_starter.dart';
 import 'home_screen_test.dart';
 import 'drill_test.dart';
 
-void main() {
+void main() async {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   // Allow background updates to be handled by the app.
   binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
-  final appStarter = AppStarter(fakeDrillScreen: false);
+  final appStarter = AppStarter.create(fakeDrillScreen: false);
 
-  // group('Home Screen', homeScreenTests(appStarter));
+  group('Home Screen', homeScreenTests(appStarter));
   group('Drills', drillTests(appStarter));
 }
