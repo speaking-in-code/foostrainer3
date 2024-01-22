@@ -15,6 +15,9 @@ import 'static_drills.dart';
 final _log = Log.get('PracticeStatusWidget');
 
 class PracticeStatusWidget extends StatelessWidget {
+  static const repsKey = Key('PracticeStatusWidget.reps');
+  static const elapsedKey = Key('PracticeStatusWidget.elapsed');
+
   final StaticDrills staticDrills;
   final PracticeProgress progress;
   final DrillSummary summary;
@@ -153,7 +156,7 @@ class PracticeStatusWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Reps', style: labelStyle),
-        _padBelow(Text('$reps', style: dataStyle)),
+        _padBelow(Text('$reps', style: dataStyle, key: repsKey)),
         Text('Success', style: labelStyle),
         Text('$successText', style: dataStyle),
       ],
@@ -170,7 +173,7 @@ class PracticeStatusWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Duration', style: labelStyle),
-        _padBelow(Text('$durationText', style: dataStyle)),
+        _padBelow(Text('$durationText', style: dataStyle, key: elapsedKey)),
         Text('Accuracy', style: labelStyle),
         Text('$accuracyText', style: dataStyle),
       ],

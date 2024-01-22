@@ -1,6 +1,11 @@
-import 'package:flutter_driver/flutter_driver.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:ft3/keys.dart';
-import 'package:test/test.dart';
+import 'package:ft3/practice_status_widget.dart';
+
+import 'app_starter.dart';
+import 'tap_and_settle.dart';
+import 'wait_for.dart';
 
 class IsSimilarDuration extends Matcher {
   Duration _expected;
@@ -20,64 +25,25 @@ class IsSimilarDuration extends Matcher {
   }
 }
 
-void main() {
-  group('FoosTrainer App', () {
-    final practiceRepsFinder = find.byValueKey(Keys.repsKey);
-    final durationFinder = find.byValueKey(Keys.elapsedKey);
-    final playFinder = find.byValueKey(Keys.playKey);
+Function() drillTests(AppStarter appStarter) {
+  return () {
+    final playFinder = find.byKey(Key(Keys.playKey));
+    final practiceRepsFinder = find.byKey(PracticeStatusWidget.repsKey);
+    const maxShotTime = Duration(seconds: 20);
+    final durationFinder = find.byKey(PracticeStatusWidget.elapsedKey);
+    /*
     final pauseFinder = find.byValueKey(Keys.pauseKey);
-    const drillWaitTimeout = Duration(seconds: 20);
     // 15 second timeout, plus 3 seconds for reset between shots, plus some
     // extra because emulators are slow sometimes.
-    const maxShotTime = Duration(seconds: 20);
+     */
 
-    FlutterDriver? driver;
-
-    Future<bool> isPresent(SerializableFinder finder) async {
-      try {
-        await driver!.waitFor(finder);
-        return true;
-      } catch (exception) {
-        return false;
-      }
-    }
-
-    // Connect to the Flutter driver before running any tests.
-    setUpAll(() async {
-      driver = await FlutterDriver.connect();
-      await isPresent(find.text('Start Practice'));
-      //expect(find.text('Start Practice'), is
-      await driver!.tap(find.byValueKey(Keys.moreKey));
-      for (int i = 0; i < 3; ++i) {
-        print('Tapping on version: $i');
-        await driver!.tap(find.text('Version: '));
-      }
-    });
-
-    // Close the connection to the driver after the tests have completed.
-    tearDownAll(() async {
-      driver?.close();
-    });
-
-    // Get back to home screen before and after every test.
-    setUp(() async {});
-
-    // Get back to home screen before and after every test.
-    tearDown(() async {});
-
-    test('does nothing', () async {});
-
-    Future<void> waitForReps(String expected) {
-      return driver!.waitFor(
+    Future<void> waitForReps(WidgetTester tester, String expected) {
+      return tester.waitFor(
           find.descendant(
               of: practiceRepsFinder,
               matching: find.text(expected),
               matchRoot: true),
-          timeout: drillWaitTimeout);
-    }
-
-    Future<String> getDuration() {
-      return driver!.getText(durationFinder);
+          timeout: maxShotTime);
     }
 
     Duration parseDuration(String duration) {
@@ -90,31 +56,30 @@ void main() {
           seconds: int.parse(match.group(3)!));
     }
 
-    /*
-    Future<void> navigatePracticeToHome() async {
-      await driver.tap(find.byType('BackButton'));
-      await driver.tap(find.byType('BackButton'));
-      await driver.tap(find.byType('BackButton'));
-      await driver.getText(find.text('Drill Type'));
+    Duration getDuration() {
+      String str = (durationFinder.evaluate().first.widget as Text).data!;
+      return parseDuration(str);
     }
 
-    test('runs passing drill', () async {
-      await driver.tap(find.text('Pass'));
-      await driver.tap(find.text('Lane/Wall/Bounce'));
-      await driver.tap(playFinder);
-      await waitForReps('0');
-      var timeToFirst = Stopwatch();
-      timeToFirst.start();
-      await waitForReps('1');
+    testWidgets('runs passing drill', (WidgetTester tester) async {
+      await tester.pumpWidget(await appStarter.mainApp);
+      await tester.tapAndSettle(find.text('Start Practice'));
+      await tester.tapAndSettle(find.text('Stick Pass'));
+      await tester.tapAndSettle(find.text('Lane/Wall/Bounce'));
+      await tester.tapAndSettle(find.text('Accuracy Tracking: On'));
+      await tester.tapAndSettle(find.text('Off'));
+      await tester.tapAndSettle(playFinder);
+      await waitForReps(tester, '0');
+      final timeToFirst = Stopwatch()..start();
+      await waitForReps(tester, '1');
       timeToFirst.stop();
       expect(timeToFirst.elapsedMilliseconds, greaterThan(1000));
       expect(timeToFirst.elapsedMilliseconds,
           lessThan(maxShotTime.inMilliseconds));
-      Duration fromUi = parseDuration(await getDuration());
-      expect(fromUi, IsSimilarDuration(timeToFirst.elapsed));
-      await navigatePracticeToHome();
+      expect(getDuration(), IsSimilarDuration(timeToFirst.elapsed));
     });
 
+    /*
     test('runs rollover drill', () async {
       await driver.tap(find.text('Rollover'));
       await driver.tap(find.text('Up/Down/Middle'));
@@ -157,7 +122,6 @@ void main() {
       expect(afterPlay.inSeconds, greaterThan(orig.inSeconds));
       await navigatePracticeToHome();
     });
-
      */
-  });
+  };
 }

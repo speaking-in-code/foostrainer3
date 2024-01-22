@@ -3,9 +3,9 @@
 
 import 'package:flutter/material.dart';
 
+// Don't add new keys here, add them directly in the widgets that use them
+// instead. (The way it was done here is a relic from flutter_driver
 class Keys {
-  static const repsKey = 'repsKey';
-  static const elapsedKey = 'elapsedKey';
   static const pauseKey = 'pauseKey';
   static const playKey = 'playKey';
   static const moreKey = Key('moreKey');

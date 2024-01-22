@@ -15,9 +15,10 @@ import 'package:ft3/static_drills.dart';
 class AppStarter {
   final Future<app.MainApp> mainApp;
 
-  AppStarter() : mainApp = _create();
+  AppStarter({required bool fakeDrillScreen})
+      : mainApp = _create(fakeDrillScreen: fakeDrillScreen);
 
-  static Future<app.MainApp> _create() async {
+  static Future<app.MainApp> _create({required bool fakeDrillScreen}) async {
     final dbFuture = ResultsDatabase.init(storage: DbStorage.IN_MEMORY);
     final drillsFuture = StaticDrills.load();
     final mainApp = app.MainApp(
@@ -32,9 +33,11 @@ class AppStarter {
     final db = await dbFuture;
     final drills = await drillsFuture;
     await db.deleteAll();
-    final rolloverId = await _addRollover(db, drills);
+    if (fakeDrillScreen) {
+      final rolloverId = await _addRollover(db, drills);
+      await _initActiveDrill(db, drills, rolloverId);
+    }
     await _addBrush(db, drills);
-    await _initActiveDrill(db, drills, rolloverId);
     await _addPullProgress(db, drills);
     await _addCalendarDays(db, drills);
     return mainApp;

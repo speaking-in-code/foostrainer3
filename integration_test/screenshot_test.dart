@@ -6,20 +6,15 @@ import 'package:integration_test/integration_test.dart';
 import 'package:fbtl_screenshots/fbtl_screenshots.dart';
 
 import 'app_starter.dart';
-import 'debug_dump.dart';
+import 'tap_and_settle.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final _screenshots = FBTLScreenshots()..connect();
-  final appStarter = AppStarter();
+  final appStarter = AppStarter(fakeDrillScreen: true);
 
   Future<void> _screenshot(WidgetTester tester, String name) async {
     await _screenshots.takeScreenshot(tester, name);
-  }
-
-  Future<void> _tapAndSettle(WidgetTester tester, Finder finder) async {
-    await tester.tap(finder);
-    await tester.pumpAndSettle();
   }
 
   testWidgets('Home Screen', (WidgetTester tester) async {
@@ -29,9 +24,9 @@ void main() async {
 
   testWidgets('Drill detailed log', (WidgetTester tester) async {
     await tester.pumpWidget(await appStarter.mainApp);
-    await _tapAndSettle(tester, find.text('Progress'));
-    await _tapAndSettle(tester, find.text('Log'));
-    await _tapAndSettle(tester, find.textContaining('Jun 13, 2020 8:45'));
+    await tester.tapAndSettle(find.text('Progress'));
+    await tester.tapAndSettle(find.text('Log'));
+    await tester.tapAndSettle(find.textContaining('Jun 13, 2020 8:45'));
     await _screenshot(tester, 'Drill-Detailed-Log');
   });
 
@@ -45,21 +40,21 @@ void main() async {
     await tester.pumpWidget(await appStarter.mainApp);
 
     // Show weekly progress.
-    await _tapAndSettle(tester, find.text('Progress'));
-    await _tapAndSettle(tester, find.text('Accuracy'));
-    await _tapAndSettle(tester, find.text('All Drills'));
-    await _tapAndSettle(tester, find.text('Weekly'));
+    await tester.tapAndSettle(find.text('Progress'));
+    await tester.tapAndSettle(find.text('Accuracy'));
+    await tester.tapAndSettle(find.text('All Drills'));
+    await tester.tapAndSettle(find.text('Weekly'));
 
     // Focus on a specific pull shot drill.
-    await _tapAndSettle(
-        tester, find.bySemanticsLabel(RegExp(r'Select All Drills')));
-    await _tapAndSettle(tester, find.text('Pull'));
+    await tester.tapAndSettle(
+        find.bySemanticsLabel(RegExp(r'Select All Drills')));
+    await tester.tapAndSettle(find.text('Pull'));
     final scrollable = find.descendant(of: find.byKey(Key('Drill Type List: Pull')),
         matching: find.byType(Scrollable));
     expect(scrollable, findsOneWidget);
     final pullDrill =find.bySemanticsLabel(RegExp(r'Drill Pull: Straight/Middle/Long'));
     await tester.scrollUntilVisible(pullDrill, 20, scrollable: scrollable);
-    await _tapAndSettle(tester, pullDrill);
+    await tester.tapAndSettle(pullDrill);
     await _closeModal(tester);
 
     await _screenshot(tester, 'Accuracy-Chart');

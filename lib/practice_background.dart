@@ -109,17 +109,28 @@ class PracticeBackground {
   PracticeProgress? get lastActiveState => _lastActiveState;
 
   /// Get a stream of progress updates.
-  Stream<PracticeProgress> get progressStream =>
-      Rx.combineLatest2(_handler.mediaItem, _handler.playbackState,
-          (MediaItem? media, PlaybackState playback) {
-        // Playback state is whether audio is actively playing.
-        // Media is the drill being practiced.
-        _latestState = _makePlaybackState(media, playback);
-        if (_latestState?.practiceState != PracticeState.stopped) {
-          _lastActiveState = _latestState;
-        }
-        return _latestState!;
-      });
+  Stream<PracticeProgress>? _progressStream;
+
+  Stream<PracticeProgress> get progressStream {
+    if (_progressStream != null) {
+      _log.info('BEE reusing cached progress stream.');
+      return _progressStream!;
+    }
+    _log.info('BEE creating progress stream for first time');
+    _progressStream =
+        Rx.combineLatest2(_handler.mediaItem, _handler.playbackState,
+            (MediaItem? media, PlaybackState playback) {
+      // Playback state is whether audio is actively playing.
+      // Media is the drill being practiced.
+      _latestState = _makePlaybackState(media, playback);
+      if (_latestState?.practiceState != PracticeState.stopped) {
+        _lastActiveState = _latestState;
+      }
+      _log.info('BEE next progress stream item: $_latestState');
+      return _latestState!;
+    });
+    return _progressStream!;
+  }
 
   // Figure out current drill state based on audio playback state. We treat the
   // audio playback state as the source of truth.
@@ -200,6 +211,7 @@ class PracticeProgress {
   // to avoid repeating the same confirmation.
   int confirm = 0;
 
+  @override
   String toString() =>
       'practiceState: $practiceState drill: $drill action: $action ' +
       'lastAction: $lastAction results: $results confirm $confirm';

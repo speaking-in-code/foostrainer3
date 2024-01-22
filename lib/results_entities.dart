@@ -140,6 +140,9 @@ class DrillSummary {
 
   factory DrillSummary.fromJson(Map<String, dynamic> json) =>
       _$DrillSummaryFromJson(json);
+
+  @override
+  String toString() => encode();
 }
 
 /// Summary of drill results by day.

@@ -20,8 +20,6 @@ import 'tracking_info.dart';
 final _log = Log.get('PracticeScreen');
 
 class PracticeScreen extends StatefulWidget {
-  static const repsKey = Key(Keys.repsKey);
-  static const elapsedKey = Key(Keys.elapsedKey);
   static const routeName = '/practice';
 
   static void pushNamed(BuildContext context) {
@@ -66,9 +64,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (ScreenshotData.progress == null) {
       // Normal flow.
       _progressStream = widget.practice.progressStream;
+      _log.info('BEE Using real progress stream $_progressStream');
     } else {
       // Override the practice screen for screenshots.
       _progressStream = Stream.fromIterable([ScreenshotData.progress!]);
+      _log.info('BEE Using fake progress stream $_progressStream');
     }
     super.initState();
   }
@@ -90,6 +90,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   Widget _buildSnapshot(
       BuildContext context, AsyncSnapshot<PracticeProgress> snapshot) {
+    _log.info('BEE rebuilding practice screen with ${snapshot.data}');
     if (snapshot.hasError) {
       return Scaffold(
           appBar: MyAppBar(title: 'Practice', appRater: widget.appRater)
@@ -100,7 +101,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
       return _loadingWidget(context);
     }
     final progress = snapshot.data!;
-    _log.info('BEE redrawing practice screen for ${progress.action}');
     if (progress.practiceState == PracticeState.stopped) {
       // Drill was stopped via notification media controls.
       _log.info('BEE drill stopped via notification media');

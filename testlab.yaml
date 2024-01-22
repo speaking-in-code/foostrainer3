@@ -4,6 +4,7 @@ screenshot_target: integration_test/screenshot_test.dart
 test_target: integration_test/all_test.dart
 android_verify_config: true
 android_test_firebase: true
+test_timeout: 60s
 android_models:
 - Pixel3
 locales:

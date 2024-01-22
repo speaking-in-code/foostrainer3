@@ -90,6 +90,9 @@ class DrillData {
       _$DrillDataFromJson(json);
   Map<String, dynamic> toJson() => _$DrillDataToJson(this);
   String encode() => jsonEncode(_$DrillDataToJson(this));
+
+  @override
+  String toString() => encode();
 }
 
 @JsonSerializable()
