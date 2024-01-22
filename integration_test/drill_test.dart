@@ -29,13 +29,9 @@ Function() drillTests(AppStarter appStarter) {
   return () {
     final playFinder = find.byKey(Key(Keys.playKey));
     final practiceRepsFinder = find.byKey(PracticeStatusWidget.repsKey);
-    const maxShotTime = Duration(seconds: 20);
     final durationFinder = find.byKey(PracticeStatusWidget.elapsedKey);
-    /*
-    final pauseFinder = find.byValueKey(Keys.pauseKey);
-    // 15 second timeout, plus 3 seconds for reset between shots, plus some
-    // extra because emulators are slow sometimes.
-     */
+    final accuracyFinder = find.byKey(PracticeStatusWidget.accuracyKey);
+    const maxShotTime = Duration(seconds: 20);
 
     Future<void> waitForReps(WidgetTester tester, String expected) {
       return tester.waitFor(
@@ -61,7 +57,11 @@ Function() drillTests(AppStarter appStarter) {
       return parseDuration(str);
     }
 
-    testWidgets('runs passing drill', (WidgetTester tester) async {
+    String getAccuracy() {
+      return (accuracyFinder.evaluate().first.widget as Text).data!;
+    }
+
+    testWidgets('Runs drill with accuracy off', (WidgetTester tester) async {
       await tester.pumpWidget(await appStarter.mainApp);
       await tester.tapAndSettle(find.text('Start Practice'));
       await tester.tapAndSettle(find.text('Stick Pass'));
@@ -79,25 +79,24 @@ Function() drillTests(AppStarter appStarter) {
       expect(getDuration(), IsSimilarDuration(timeToFirst.elapsed));
     });
 
-    /*
-    test('runs rollover drill', () async {
-      await driver.tap(find.text('Rollover'));
-      await driver.tap(find.text('Up/Down/Middle'));
-      await driver.tap(playFinder);
-      sleep(Duration(seconds: 1));
-      await waitForReps('0');
-      var timeToFirst = Stopwatch();
-      timeToFirst.start();
-      await waitForReps('1');
-      timeToFirst.stop();
-      expect(timeToFirst.elapsedMilliseconds, greaterThan(1000));
-      expect(timeToFirst.elapsedMilliseconds,
-          lessThan(maxShotTime.inMilliseconds));
-      Duration fromUi = parseDuration(await getDuration());
-      expect(fromUi, IsSimilarDuration(timeToFirst.elapsed));
-      await navigatePracticeToHome();
+    testWidgets('Runs rollover drill with accuracy on', (WidgetTester tester) async {
+      await tester.pumpWidget(await appStarter.mainApp);
+      await tester.tapAndSettle(find.text('Start Practice'));
+      await tester.tapAndSettle(find.text('Rollover'));
+      await tester.tapAndSettle(find.text('Up/Down/Middle'));
+      await tester.tapAndSettle(playFinder);
+      expect(getAccuracy(), '-');
+      await tester.waitFor(find.text('Paused'));
+      expect(find.text('Enter Result'), findsOneWidget);
+      expect(find.text('Good'), findsOneWidget);
+      expect(find.text('Missed'), findsOneWidget);
+      expect(find.text('Skip'), findsOneWidget);
+      await tester.tapAndSettle(find.text('Good'));
+      await waitForReps(tester, '0');
+      expect(getAccuracy(), '100%');
     });
 
+    /*
     test('pause and resume work', () async {
       await driver.getText(find.text('Drill Type'));
       await driver.tap(find.text('Rollover'));

@@ -17,6 +17,7 @@ final _log = Log.get('PracticeStatusWidget');
 class PracticeStatusWidget extends StatelessWidget {
   static const repsKey = Key('PracticeStatusWidget.reps');
   static const elapsedKey = Key('PracticeStatusWidget.elapsed');
+  static const accuracyKey = Key('PracticeStatusWidget.accuracy');
 
   final StaticDrills staticDrills;
   final PracticeProgress progress;
@@ -175,7 +176,7 @@ class PracticeStatusWidget extends StatelessWidget {
         Text('Duration', style: labelStyle),
         _padBelow(Text('$durationText', style: dataStyle, key: elapsedKey)),
         Text('Accuracy', style: labelStyle),
-        Text('$accuracyText', style: dataStyle),
+        Text('$accuracyText', style: dataStyle, key: accuracyKey),
       ],
     );
   }
